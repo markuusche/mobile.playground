@@ -1,0 +1,53 @@
+action:
+  confirm: 'div.flex.Confirm'
+  rebet: 'div.flex.Repeat'
+  cancel: 'div.flex.Cancel'
+
+baccarat:
+  Banker: 'div.bet-table.b'
+  Player: 'div.bet-table.p'
+  Tie: 'div.bet-table.tie'
+  PPair: 'div.bet-table.pp'
+  BPair: 'div.bet-table.bp'
+  Any-Pair: 'div.bet-table.etp'
+  Perfect-Pair: 'div.bet-table.pfp'
+
+category:
+  baccarat: '.v-tabs__container .v-tabs__div.baccarat > a'
+
+dragontiger:
+  
+in-game:
+  back: 'div#btn-exit'
+  balance: 'div.user-data.balance'
+  bets: 'div.bets-info span'
+  dealer: 'div.dealer-name span'
+  game: 'div#game-content'
+  maintenance: 'div[tableinfo="[object Object]"] div .maintain-text'
+  msg: 'div#bet-msg-toast'
+  playerBalance: 'div.player-balance'
+  playerName: 'div.player-name'
+  resultToast: 'div#bet-msg-toast span'
+  settled: 'div#bet-msg-toast'
+  insufficient: 'div#bet-msg-toast div'
+  row: 'div#tables-panel'
+  shuffling: 'div.shuffling-text'
+  tableNumber: 'div.table-number span:first-child'
+  timer: 'div#table-state-wrap .v-progress-circular__info span'
+  toast: 'div#bet-msg-toast div'
+  totalMoney: 'div.total-money span'
+  winloss: 'div.winlose-info'
+
+lobby:
+  panel: 'div[tableinfo="[object Object]"]'
+  content: 'div.v-content__wrap'
+  dt: 'div[tableinfo="[object Object]"] div.text-xs-left > span[style="font-size: 13px;"]'
+
+marshall:
+  banner: 'div.banner'
+  btn: '.btn-primary'
+  close: '.banner .banner-close'
+  field: '.select2-search__field'
+  logo: '#pre-loading div'
+  user: '.select2-results li:first-child'
+  username: '#select2-luname-container'
