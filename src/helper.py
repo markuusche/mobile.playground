@@ -29,7 +29,7 @@ def waitElementInvis(driver, *keys):
 
 def wait_If_Clickable(driver, *keys):
     locator = (By.CSS_SELECTOR, data(*keys))
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 15)
     element = wait.until(EC.element_to_be_clickable(locator)
                 ,message="\"Cannot find element\"")
     element.click()
@@ -49,3 +49,4 @@ def waitElementPresence(driver, *keys):
 def closeBanner(driver):
     waitPresence(driver, 'marshall', 'banner', text='Close')
     driver.execute_script('return document.querySelector("div#banner-container").remove();')
+

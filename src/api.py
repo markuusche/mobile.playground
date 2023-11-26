@@ -30,7 +30,7 @@ def play():
     response = requests.get(base + play, params=paramKey, headers=key[1])
     return response.json()['data']['url']
 
-def addBalance(entry, amount=2000):
+def addBalance(entry, amount=1100):
     getToken()
     header = endpoint()['header']
     token = tokenKey[0]['data']['token']

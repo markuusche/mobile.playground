@@ -72,58 +72,67 @@ def betOn(driver, bet, betArea, allin=False):
         money = findElement(driver, 'in-game','balance')
         balance.append(money.text)
         checkPlayerBalance(driver)
-        waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-
-        if allin:
-            bet_areas = list(data('baccarat'))
-            for _ in range(10):
-                insufficient = findElement(driver , 'in-game', 'insufficient')
-                for i in range(len(bet_areas)):
-                    wait_If_Clickable(driver, 'baccarat', bet_areas[i])
-                    insufficient = findElement(driver , 'in-game', 'insufficient')
-                    if insufficient.text == 'Insufficient Balance':
-                        findElement(driver, 'action', 'confirm', click=True)
-                        findElement(driver, 'action', 'confirm', click=True)
-                        sleep(2)
-                        money = findElement(driver, 'in-game','balance')
-                        assert money.text == '0.00'
-                        break
-                else:
-                    continue
-                break
+        timer = findElement(driver, 'in-game', 'timer')
+        
+        if timer.text == 'CLOSED':
+            waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
         else:
-            wait_If_Clickable(driver, bet, betArea)
-            findElement(driver, 'action', 'confirm', click=True)
-            findElement(driver, 'action', 'confirm', click=True)
+            intTimer = int(timer.text)
+            if intTimer <= 7:
+                waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
+            else:
+                if intTimer >= 8:
+                    if allin:
+                        bet_areas = list(data('baccarat'))
+                        bet1 = list(data('baccarat'))
+                        coins = findElement(driver, 'in-game','balance')
+                        
+                        for i in bet1:
+                            bet_areas.append(i)
 
-        waitPresence(driver, 'in-game','toast', text='Bet Successful!')
-        waitPresence(driver, 'in-game','toast', text='No More Bets!')
+                        for _ in range(len(bet_areas)):
+                            index = random.choice(range(len(bet_areas)))
+                            insufficient = findElement(driver , 'in-game', 'insufficient')
+                            wait_If_Clickable(driver, 'baccarat', bet_areas[index])
+                            if insufficient.text == 'Insufficient Balance':
+                                findElement(driver, 'action', 'confirm', click=True)
+                                sleep(1)
+                                assert coins.text == '0.00'
+                                break
+                        else:
+                            continue
+                    else:
+                        wait_If_Clickable(driver, bet, betArea)
+                        findElement(driver, 'action', 'confirm', click=True)
 
-        bets = findElement(driver, 'in-game', 'bets')
-        getBets = float(bets.text.replace(',',''))
-        oldBalance = float(balance[0].replace(',',''))
-        remainingMoney = findElement(driver, 'in-game', 'balance')
+                    waitPresence(driver, 'in-game','toast', text='Bet Successful!')
+                    waitPresence(driver, 'in-game','toast', text='No More Bets!')
 
-        #balance after bet
-        preBalance = float(remainingMoney.text.replace(',',''))
-        wl = LoseOrWin(driver)
-        balance = float(remainingMoney.text.replace(',',''))
-        total = 0
-        back = 0
-        if 'Lose: ' in wl:
-            loseAmount = float(wl.replace('Lose: ',''))
-            calcAmount = loseAmount - getBets
-            q = abs(calcAmount)
-            back = f'{q:.2f}'
-            resultBalance = q + preBalance
-            assert f'{resultBalance:.2f}' == f'{balance:.2f}'
-        else:
-            resultBal = float(wl.replace('Win: ',''))
-            total = (preBalance + resultBal) + getBets
-            assert total == balance
+                    bets = findElement(driver, 'in-game', 'bets')
+                    getBets = float(bets.text.replace(',',''))
+                    oldBalance = float(balance[0].replace(',',''))
+                    remainingMoney = findElement(driver, 'in-game', 'balance')
 
-        print(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
-        break
+                    #balance after bet
+                    preBalance = float(remainingMoney.text.replace(',',''))
+                    wl = LoseOrWin(driver)
+                    balance = float(remainingMoney.text.replace(',',''))
+                    total = 0
+                    back = 0
+                    if 'Lose: ' in wl:
+                        loseAmount = float(wl.replace('Lose: ',''))
+                        calcAmount = loseAmount - getBets
+                        q = abs(calcAmount)
+                        back = f'{q:.2f}'
+                        resultBalance = q + preBalance
+                        assert f'{resultBalance:.2f}' == f'{balance:.2f}'
+                    else:
+                        resultBal = float(wl.replace('Win: ',''))
+                        total = (preBalance + resultBal) + getBets
+                        assert total == balance
+
+                    print(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
+                    break
 
 def checkPlayerBalance(driver):
     # check if the player balance from top left panel icon
