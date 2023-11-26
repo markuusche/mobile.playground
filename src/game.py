@@ -116,7 +116,7 @@ def betOn(driver, bet, betArea, allin=False):
             q = abs(calcAmount)
             back = f'{q:.2f}'
             resultBalance = q + preBalance
-            assert f'{resultBalance:.2f}', f'{balance:.2f}'
+            assert f'{resultBalance:.2f}' == f'{balance:.2f}'
         else:
             resultBal = float(wl.replace('Win: ',''))
             total = (preBalance + resultBal) + getBets
