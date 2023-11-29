@@ -12,6 +12,7 @@ def device(request):
 @pytest.fixture(scope='session')
 def driver(device):
     #setup
+    deleteScreenshots()
     URL = play()
     options = Options()
     options.add_argument("--hide-scrollbars")

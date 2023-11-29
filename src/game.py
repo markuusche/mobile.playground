@@ -2,11 +2,15 @@ from src.modules import *
 from src.helper import *
 from src.api import *
 
+count = 0
+
 #this is where the table looping and API requests
 def play(driver, game, bet, allin=False):
     findElement(driver, 'category', game, click=True)
     elements = findElements(driver, 'lobby', 'panel')
+    global count
     for i in range(1, len(elements)):
+        count += 1
         if i == len(elements) - 1:
             break
 
@@ -42,7 +46,7 @@ def playBaccarat(driver, game, bet, allin=False):
         if bet == 'All':
             for i in range(0, len(bet_areas)):
                 betOn(driver, 'baccarat', bet_areas[i])
-            
+
             betOn(driver, 'action', 'rebet')
         else:
             betOn(driver, 'baccarat', bet, allin)
@@ -107,7 +111,8 @@ def betOn(driver, bet, betArea, allin=False):
 
                     waitPresence(driver, 'in-game','toast', text='Bet Successful!')
                     waitPresence(driver, 'in-game','toast', text='No More Bets!')
-
+                    waitElementInvis(driver, 'in-game', 'toast')
+                    screenshot(driver, 'capture', count)
                     bets = findElement(driver, 'in-game', 'bets')
                     getBets = float(bets.text.replace(',',''))
                     oldBalance = float(balance[0].replace(',',''))
@@ -125,10 +130,12 @@ def betOn(driver, bet, betArea, allin=False):
                         q = abs(calcAmount)
                         back = f'{q:.2f}'
                         resultBalance = q + preBalance
+                        screenshot(driver, 'Lose Balance', count)
                         assert f'{resultBalance:.2f}' == f'{balance:.2f}'
                     else:
                         resultBal = float(wl.replace('Win: ',''))
                         total = (preBalance + resultBal) + getBets
+                        screenshot(driver, 'Win Balance', count)
                         assert total == balance
 
                     print(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')

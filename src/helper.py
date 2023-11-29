@@ -50,3 +50,14 @@ def closeBanner(driver):
     waitPresence(driver, 'marshall', 'banner', text='Close')
     driver.execute_script('return document.querySelector("div#banner-container").remove();')
 
+def screenshot(driver, name, val):
+    driver.save_screenshot(f'screenshots/{name} {val}.png')
+
+def deleteScreenshots():
+    path = 'screenshots/'
+    files = os.listdir(path)
+    for file_name in files:
+        if file_name.endswith('.png'):
+            file_path = os.path.join(path, file_name)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
