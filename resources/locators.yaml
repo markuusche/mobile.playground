@@ -14,8 +14,12 @@ baccarat:
 
 category:
   baccarat: '.v-tabs__container .v-tabs__div.baccarat > a'
+  dragontiger: '.v-tabs__container .v-tabs__div.cards> a'
 
 dragontiger:
+  Dragon: 'div.bet-table.d'
+  Tie:    'div.bet-table.tie'
+  Tiger:  'div.bet-table.t'
   
 in-game:
   back: 'div#btn-exit'
@@ -39,9 +43,9 @@ in-game:
   winloss: 'div.winlose-info'
 
 lobby:
-  panel: 'div[tableinfo="[object Object]"]'
+  baccarat: 'div[tableinfo="[object Object]"]'
   content: 'div.v-content__wrap'
-  dt: 'div[tableinfo="[object Object]"] div.text-xs-left > span[style="font-size: 13px;"]'
+  dragontiger: 'div[tableinfo="[object Object]"]'
 
 marshall:
   banner: 'div.banner'

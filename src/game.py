@@ -7,52 +7,48 @@ count = 0
 #this is where the table looping and API requests
 def play(driver, game, bet, allin=False):
     findElement(driver, 'category', game, click=True)
-    elements = findElements(driver, 'lobby', 'panel')
+    elements = findElements(driver, 'lobby', game)
     global count
-    for i in range(1, len(elements)):
+    for i in range(len(elements)):
         count += 1
-        if i == len(elements) - 1:
-            break
+        gameName = elements[i]
+        if game == 'dragontiger':
+            if 'DT' in gameName.text:
+                pass
+            else:
+                continue
 
-        if allin:
-            getBalance = addBalance(env('add'))
-            addBalance(env('deduc'), amount=getBalance)
-            addBalance(env('add'))
-            driver.refresh()
-            waitElement(driver, 'lobby', 'content')
-            closeBanner(driver)
-            findElement(driver, 'category', game, click=True)
-            elements = findElements(driver, 'lobby', 'panel')
+            if allin:
+                elements = reset_coins(driver, game)
+
+        elif game == 'baccarat':
+            if i == len(elements) - 1:
+                break
+
+            if allin:
+                elements = reset_coins(driver, game)
 
         x = elements[i]
-        driver.execute_script(exitFullScreen())
+        driver.execute_script(exitFullScreen()) 
         driver.execute_script("arguments[0].scrollIntoView();", x)
         x.click()
         waitElement(driver, 'in-game', 'game')
-        
+        playBaccarat(driver, game, bet, allin)
+
         if bet == 'All':
             allin = False
-        
-        playBaccarat(driver, game, bet, allin)
 
         findElement(driver, 'in-game', 'back', click=True)
         closeBanner(driver)
-        elements = findElements(driver, 'lobby', 'panel')
+        elements = findElements(driver, 'lobby', game)
 
 #this is where the betting process
 def playBaccarat(driver, game, bet, allin=False):
     if game == 'baccarat':
-        bet_areas = list(data('baccarat'))
-        if bet == 'All':
-            for i in range(0, len(bet_areas)):
-                betOn(driver, 'baccarat', bet_areas[i])
-
-            betOn(driver, 'action', 'rebet')
-        else:
-            betOn(driver, 'baccarat', bet, allin)
+        single_bets(driver, bet, 'baccarat', allin)
 
     elif game == 'dragontiger':
-        ...
+        single_bets(driver, bet, 'dragontiger', allin)
 
 def betOn(driver, bet, betArea, allin=False):
     '''
@@ -87,24 +83,14 @@ def betOn(driver, bet, betArea, allin=False):
             else:
                 if intTimer >= 8:
                     if allin:
-                        bet_areas = list(data('baccarat'))
-                        bet1 = list(data('baccarat'))
-                        coins = findElement(driver, 'in-game','balance')
-                        
-                        for i in bet1:
-                            bet_areas.append(i)
+                        if bet == 'baccarat':
+                            coins_allin(driver, 'baccarat')
 
-                        for _ in range(len(bet_areas)):
-                            index = random.choice(range(len(bet_areas)))
-                            insufficient = findElement(driver , 'in-game', 'insufficient')
-                            wait_If_Clickable(driver, 'baccarat', bet_areas[index])
-                            if insufficient.text == 'Insufficient Balance':
-                                findElement(driver, 'action', 'confirm', click=True)
-                                sleep(1)
-                                assert coins.text == '0.00'
-                                break
+                        elif bet == 'dragontiger':
+                            coins_allin(driver, 'dragontiger')
+
                         else:
-                            continue
+                            ...
                     else:
                         wait_If_Clickable(driver, bet, betArea)
                         findElement(driver, 'action', 'confirm', click=True)
@@ -158,3 +144,42 @@ def LoseOrWin(driver):
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
 
+def coins_allin(driver, game):
+    bet_areas = list(data(game))
+    bet1 = list(data(game))
+    coins = findElement(driver, 'in-game','balance')
+    
+    for i in bet1:
+        bet_areas.append(i)
+        bet_areas.append(i)
+
+    for _ in range(len(bet_areas)):
+        index = random.choice(range(len(bet_areas)))
+        insufficient = findElement(driver , 'in-game', 'insufficient')
+        wait_If_Clickable(driver, game, bet_areas[index])
+        if insufficient.text == 'Insufficient Balance':
+            findElement(driver, 'action', 'confirm', click=True)
+            sleep(1)
+            assert coins.text == '0.00'
+            break
+
+def single_bets(driver, bet, game, allin=False):
+    bet_areas = list(data(game))
+    if bet == 'All':
+        for i in range(0, len(bet_areas)):
+            betOn(driver, game, bet_areas[i])
+
+        betOn(driver, 'action', 'rebet')
+    else:
+        betOn(driver, game, bet, allin)
+
+def reset_coins(driver, game):
+    getBalance = addBalance(env('add'))
+    addBalance(env('deduc'), amount=getBalance)
+    addBalance(env('add'))
+    driver.refresh()
+    waitElement(driver, 'lobby', 'content')
+    closeBanner(driver)
+    findElement(driver, 'category', game, click=True)
+    elements = findElements(driver, 'lobby', game)
+    return elements
