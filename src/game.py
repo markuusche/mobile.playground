@@ -10,7 +10,6 @@ def play(driver, game, bet, allin=False):
     elements = findElements(driver, 'lobby', game)
     global count
     for i in range(len(elements)):
-        count += 1
         gameName = elements[i]
         if game == 'dragontiger':
             if 'DT' in gameName.text:
@@ -41,27 +40,31 @@ def play(driver, game, bet, allin=False):
         findElement(driver, 'in-game', 'back', click=True)
         closeBanner(driver)
         elements = findElements(driver, 'lobby', game)
+        count += 1
 
 #this is where the betting process
 def playBaccarat(driver, game, bet, allin=False):
-    if game == 'baccarat':
-        single_bets(driver, bet, 'baccarat', allin)
+    bet_areas = list(data(game))
+    if bet == 'All':
+        for i in range(0, len(bet_areas)):
+            betOn(driver, game, bet_areas[i])
 
-    elif game == 'dragontiger':
-        single_bets(driver, bet, 'dragontiger', allin)
+        betOn(driver, 'action', 'rebet')
+    else:
+        betOn(driver, game, bet, allin)
 
 def betOn(driver, bet, betArea, allin=False):
     '''
     this function:
-    assert coins and player balancec matched
-    asserts the balance is deducted by betting
-    asserts the remaining balance after betting
-    asserts the the added and lose amount after game results
-    asserts No more bets to be made
-    waits for Successful Bet
-    waits for Betting is open
-    logs the the overall results
-    logs table and dealer name
+    assert coins and player balancec matched,
+    asserts the balance is deducted by betting,
+    asserts the remaining balance after betting,
+    asserts the the added and lose amount after game results,
+    asserts No more bets to be made,
+    waits for Successful Bet,
+    waits for Betting is open,
+    logs the the overall results,
+    logs table and dealer name,
     '''
 
     balance = []
@@ -84,10 +87,10 @@ def betOn(driver, bet, betArea, allin=False):
                 if intTimer >= 8:
                     if allin:
                         if bet == 'baccarat':
-                            coins_allin(driver, 'baccarat')
+                            coins_allin(driver, bet)
 
                         elif bet == 'dragontiger':
-                            coins_allin(driver, 'dragontiger')
+                            coins_allin(driver, bet)
 
                         else:
                             ...
@@ -162,16 +165,6 @@ def coins_allin(driver, game):
             sleep(1)
             assert coins.text == '0.00'
             break
-
-def single_bets(driver, bet, game, allin=False):
-    bet_areas = list(data(game))
-    if bet == 'All':
-        for i in range(0, len(bet_areas)):
-            betOn(driver, game, bet_areas[i])
-
-        betOn(driver, 'action', 'rebet')
-    else:
-        betOn(driver, game, bet, allin)
 
 def reset_coins(driver, game):
     getBalance = addBalance(env('add'))

@@ -14,7 +14,8 @@ baccarat:
 
 category:
   baccarat: '.v-tabs__container .v-tabs__div.baccarat > a'
-  dragontiger: '.v-tabs__container .v-tabs__div.cards> a'
+  dragontiger: '.v-tabs__container .v-tabs__div.cards > a'
+  others: '.v-tabs__container .v-tabs__div.others > a'
 
 dragontiger:
   Dragon: 'div.bet-table.d'
