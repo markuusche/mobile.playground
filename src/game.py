@@ -151,10 +151,16 @@ def coins_allin(driver, game):
     bet_areas = list(data(game))
     bet1 = list(data(game))
     coins = findElement(driver, 'in-game','balance')
-    
-    for i in bet1:
-        bet_areas.append(i)
-        bet_areas.append(i)
+    if game == 'baccarat':
+        for i in bet1:
+            bet_areas.append(i)
+            bet_areas.append(i)
+            
+    if game == 'dragontiger':
+        for i in bet1:
+            bet_areas.append(i)
+            bet_areas.append(i)
+            bet_areas.append(i)
 
     for _ in range(len(bet_areas)):
         index = random.choice(range(len(bet_areas)))
