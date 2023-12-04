@@ -5,7 +5,7 @@ from src.modules import *
 #    play(driver, 'baccarat', 'Player', allin=True)
 
 def test_DT_Betting(driver):
-    play(driver, 'dragontiger', 'Dragon', allin=True)
+    play(driver, 'three-cards', 'Dragon', allin=True)
 
 #def test_All_in(driver):
 #    play(driver, 'baccarat', 'Player', allin=True)

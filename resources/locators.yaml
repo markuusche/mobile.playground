@@ -15,12 +15,18 @@ baccarat:
 category:
   baccarat: '.v-tabs__container .v-tabs__div.baccarat > a'
   dragontiger: '.v-tabs__container .v-tabs__div.cards > a'
+  three-cards: '.v-tabs__container .v-tabs__div.cards > a'
   others: '.v-tabs__container .v-tabs__div.others > a'
 
 dragontiger:
   Dragon: 'div.bet-table.d'
   Tie:    'div.bet-table.tie'
   Tiger:  'div.bet-table.t'
+
+three-cards:
+  Dragon: 'div.bet-table-dragon'
+  Phoenix: 'div.bet-table-phoenix'
+  Lucky: 'div.bet-table-lucky'
   
 in-game:
   back: 'div#btn-exit'
@@ -47,6 +53,7 @@ lobby:
   baccarat: 'div[tableinfo="[object Object]"]'
   content: 'div.v-content__wrap'
   dragontiger: 'div[tableinfo="[object Object]"]'
+  three-cards: 'div[tableinfo="[object Object]"]'
 
 marshall:
   banner: 'div.banner'
