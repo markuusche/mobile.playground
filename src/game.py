@@ -26,6 +26,15 @@ def play(driver, game, bet, allin=False):
 
             if allin:
                 elements = reset_coins(driver, game)
+        
+        elif game == 'three-cards':
+            if 'Three' in gameName.text:
+                pass
+            else:
+                continue
+            
+            if allin:
+                elements = reset_coins(driver, game)
 
         x = elements[i]
         driver.execute_script(exitFullScreen()) 
@@ -91,6 +100,8 @@ def betOn(driver, bet, betArea, allin=False):
 
                         elif bet == 'dragontiger':
                             coins_allin(driver, bet)
+                        elif bet == 'three-cards':
+                            coins_allin(driver, bet)
 
                         else:
                             ...
@@ -152,11 +163,17 @@ def coins_allin(driver, game):
     bet_areas = list(data(game))
     bet1 = list(data(game))
     coins = findElement(driver, 'in-game','balance')
+    if game == 'baccarat':
+        for i in bet1:
+            bet_areas.append(i)
+            bet_areas.append(i)
+            
+    if game == 'dragontiger' or game == 'three-cards':
+        for i in bet1:
+            bet_areas.append(i)
+            bet_areas.append(i)
+            bet_areas.append(i)
     
-    for i in bet1:
-        bet_areas.append(i)
-        bet_areas.append(i)
-
     for _ in range(len(bet_areas)):
         index = random.choice(range(len(bet_areas)))
         insufficient = findElement(driver , 'in-game', 'insufficient')
