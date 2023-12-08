@@ -125,18 +125,18 @@ def betOn(driver, bet, betArea, allin=False):
                         resultBal = float(wl.replace('Win: ',''))
                         total = (preBalance + resultBal) + getBets
                         screenshot(driver, 'Win Balance', count)
-                        assert total == balance
-
-                    print(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
+                        assert f'{total:.2f}' == f'{balance:.2f}'
+                    
+                    print(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
                     break
-
+# check if the player balance from top left panel icon
+# and in the middle panel matches.
 def checkPlayerBalance(driver):
-    # check if the player balance from top left panel icon
-    # and in the middle panel matches.
     coins = findElement(driver, 'in-game', 'balance')
     playerBalance = findElement(driver, 'in-game', 'playerBalance')
     assert coins.text == playerBalance.text
 
+#gets Lose or Win message with the values
 def LoseOrWin(driver):
     waitElement(driver, 'in-game', 'resultToast')
     result = findElement(driver, 'in-game', 'winloss')
@@ -147,6 +147,7 @@ def LoseOrWin(driver):
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
 
+#All-in bet
 def coins_allin(driver, game):
     bet_areas = list(data(game))
     bet1 = list(data(game))
@@ -166,6 +167,8 @@ def coins_allin(driver, game):
             assert coins.text == '0.00'
             break
 
+#reset coins to default when betting all-in. 
+# -this is per table reset-
 def reset_coins(driver, game):
     getBalance = addBalance(env('add'))
     addBalance(env('deduc'), amount=getBalance)
