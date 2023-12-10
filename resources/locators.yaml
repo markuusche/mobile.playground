@@ -32,6 +32,7 @@ in-game:
   back: 'div#btn-exit'
   balance: 'div.user-data.balance'
   bets: 'div.bets-info span'
+  botnav: 'div.v-tabs__wrapper'
   dealer: 'div.dealer-name span'
   game: 'div#game-content'
   maintenance: 'div[tableinfo="[object Object]"] div .maintain-text'
