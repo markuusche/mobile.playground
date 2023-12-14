@@ -38,7 +38,7 @@ def play(driver, game, bet, allin=False):
                 elements = reset_coins(driver, game)
 
         x = elements[i]
-        driver.execute_script(exitFullScreen()) 
+        driver.execute_script(executeJS('exitScreen')) 
         driver.execute_script("arguments[0].scrollIntoView();", x)
         x.click()
         waitElement(driver, 'in-game', 'game')
@@ -93,11 +93,11 @@ def betOn(driver, bet, betArea, allin=False):
             captureDigitalMessage(driver, 'Please Place Your Bet', count, allin)
         else:
             intTimer = int(timer.text)
-            if intTimer <= 7:
+            if intTimer <= 5:
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
                 captureDigitalMessage(driver, 'Please Place Your Bet', count, allin)
             else:
-                if intTimer >= 8:
+                if intTimer >= 5:
                     if allin:
                         if bet == 'baccarat':
                             coins_allin(driver, bet)
@@ -120,9 +120,6 @@ def betOn(driver, bet, betArea, allin=False):
                     remainingMoney = findElement(driver, 'in-game', 'balance')
                     preBalance = float(remainingMoney.text.replace(',',''))
 
-                    if allin:
-                        screenshot(driver, 'capture', count)
-
                     captureDigitalMessage(driver, 'No More Bets', count, allin)
                     waitElementInvis(driver, 'in-game', 'toast')
                     waitElement(driver, 'in-game', 'toast')
@@ -141,24 +138,19 @@ def betOn(driver, bet, betArea, allin=False):
                     if 'Lose: ' in wl:
                         loseAmount = float(wl.replace('Lose: ',''))
                         calcAmount = float(f'{preBalance:.2f}') + float(f'{getBets:.2f}') - float(f'{loseAmount:.2f}')
-                        captureDigitalMessage(driver, 'Lose', count, allin)
 
                         if allin:
                             screenshot(driver, 'Lose Balance', count)
                         
-                        print(calcAmount, balance)
                         assert f'{calcAmount:.2f}' == f'{balance:.2f}'
                     else:
                         resultBal = float(wl.replace('Win: ',''))
                         total = float(f'{preBalance:.2f}') + float(f'{resultBal:.2f}') + float(f'{getBets:.2f}')
-                        print(f'preBalance: {preBalance} - resultBal: {resultBal} - getBets: {getBets}')
-                        captureDigitalMessage(driver, 'Win', count, allin)
                         
                         if allin:
                             screenshot(driver, 'Win Balance', count)
-
-                        print(total, balance)
-                        print(f'{total:.2f}' == f'{balance:.2f}')
+                    
+                        assert f'{total:.2f}' == f'{balance:.2f}'
                     
                     print(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
                     break
@@ -184,30 +176,16 @@ def LoseOrWin(driver):
 #All-in bet
 def coins_allin(driver, game):
     bet_areas = list(data(game))
-    bet1 = list(data(game))
     coins = findElement(driver, 'in-game','balance')
-    if game == 'baccarat':
-        for i in bet1:
-            bet_areas.append(i)
-            bet_areas.append(i)
-            
-    if game == 'dragontiger' or game == 'three-cards':
-        for i in bet1:
-            bet_areas.append(i)
-            bet_areas.append(i)
-            bet_areas.append(i)
 
-    for _ in range(len(bet_areas)):
+    for x in range(0, 20):
         index = random.choice(range(len(bet_areas)))
-        insufficient = findElement(driver , 'in-game', 'insufficient')
         wait_If_Clickable(driver, game, bet_areas[index])
-        if insufficient.text == 'Insufficient Balance':
-            wait_If_Clickable(driver, 'action', 'confirm')
-            #findElement(driver, 'action', 'confirm', click=True)
-            sleep(1.5)
+        if x == 19:
+            driver.execute_script(executeJS('getDigital'))
+            sleep(2)
             assert coins.text == '0.00'
             break
-
 
 #reset coins to default when betting all-in. 
 # -this is per table reset-
@@ -223,5 +201,5 @@ def reset_coins(driver, game):
     return elements
 
 def captureDigitalMessage(driver, value, count, allin=False):
-    if not allin:
+    if allin:
         screenshot(driver , value, count)

@@ -2,6 +2,7 @@ action:
   confirm: 'div.flex.Confirm'
   rebet: 'div.flex.Repeat'
   cancel: 'div.flex.Cancel'
+  ripple: 'div.flex.Confirm > div'
 
 baccarat:
   Banker: 'div.bet-table.b'
@@ -47,7 +48,7 @@ in-game:
   tableNumber: 'div.table-number span:first-child'
   timer: 'div#table-state-wrap .v-progress-circular__info span'
   toast: 'div#bet-msg-toast div'
-  totalMoney: 'div.total-money span'
+  totalMoney: 'div.bet-touches .user-bet-chip span'
   winloss: 'div.winlose-info'
 
 lobby:

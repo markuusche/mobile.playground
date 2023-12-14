@@ -15,6 +15,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
+
 
 fake = Faker()
 
@@ -37,10 +39,10 @@ def endpoint():
         getData = yaml.load(file, Loader=yaml.FullLoader)
     return getData
 
-def exitFullScreen():
-    with open('resources/exitScreen.js','r') as js:
-        script = js.read()
-    return script
+def executeJS(script):
+    with open(f'resources/{script}.js','r') as js:
+        getScript = js.read()
+    return getScript
 
 def env(value:str):
     return os.environ.get(value)

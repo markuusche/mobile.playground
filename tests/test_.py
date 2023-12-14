@@ -11,7 +11,7 @@ def test_DT_Betting(driver):
     play(driver, 'dragontiger', 'All')'''
 
 def test_DT_Betting(driver):
-    play(driver, 'dragontiger', 'Dragon', allin=True)
+    play(driver, 'baccarat', 'Dragon', allin=True)
 
 '''def test_All_in(driver):
     play(driver, 'three-cards', 'All')
