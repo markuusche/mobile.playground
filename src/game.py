@@ -152,7 +152,8 @@ def betOn(driver, bet, betArea, allin=False):
                     
                         assert f'{total:.2f}' == f'{balance:.2f}'
                     
-                    print(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
+                    with open('logs.txt', 'w') as logs:
+                        logs.write(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n')
                     break
 
 # check if the player balance from top left panel icon
