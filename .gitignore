@@ -1,9 +1,10 @@
 __pycache__
-venv
 .pytest_cache
+venv
 bashrc
 .bashrc
 testing.py
 *.png
 test.py
 logs.txt
+screenshots

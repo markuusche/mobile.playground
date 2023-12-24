@@ -26,7 +26,7 @@ def driver(device):
 
     driver = webdriver.Chrome(options=options)
     driver.get(URL)
-    closeBanner(driver)
+    #closeBanner(driver)
     yield driver
     #teardown
     driver.close()
