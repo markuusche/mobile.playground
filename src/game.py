@@ -12,30 +12,20 @@ def play(driver, game, bet, allin=False):
     global count
     for i in range(len(elements)):
         gameName = elements[i]
-        if game == 'dragontiger':
-            if 'DT' in gameName.text:
-                pass
-            else:
-                continue
+        if game == 'dragontiger' and 'DT' not in gameName.text:
+            continue
 
-            if allin:
-                elements = reset_coins(driver, game)
+        elif game == 'baccarat' and i == 0:
+            continue
 
-        elif game == 'baccarat':
-            if i == len(elements) - 1:
-                break
+        elif game == 'three-cards' and 'Three' not in gameName.text:
+            continue
 
-            if allin:
-                elements = reset_coins(driver, game)
-        
-        elif game == 'three-cards':
-            if 'Three' in gameName.text:
-                pass
-            else:
-                continue
+        elif game == 'sedie' and 'edie' not in gameName.text:
+            continue
             
-            if allin:
-                elements = reset_coins(driver, game)
+        if allin:
+            elements = reset_coins(driver, game)
 
         x = elements[i]
         driver.execute_script(executeJS('exitScreen')) 
@@ -99,7 +89,7 @@ def betOn(driver, bet, betArea, allin=False):
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
                 captureDigitalMessage(driver, 'Please Place Your Bet', table.text, allin)
             else:
-                if intTimer > 5:
+                if intTimer > 7:
                     if allin:
                         if bet == 'baccarat':
                             coins_allin(driver, bet, allin)
@@ -108,6 +98,9 @@ def betOn(driver, bet, betArea, allin=False):
                             coins_allin(driver, bet, allin)
 
                         elif bet == 'three-cards':
+                            coins_allin(driver, bet, allin)
+
+                        elif bet == 'sedie':
                             coins_allin(driver, bet, allin)
 
                         else:
@@ -154,7 +147,7 @@ def betOn(driver, bet, betArea, allin=False):
                             screenshot(driver, 'Win Balance', table.text)
                     
                         assert f'{total:.2f}' == f'{balance:.2f}'
-                    
+
                     with open('logs.txt', 'a') as logs:
                         logs.write(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n' + '\n')
                     break
@@ -187,6 +180,7 @@ def coins_allin(driver, game, allin=False):
         index = random.choice(range(len(bet_areas)))
         wait_If_Clickable(driver, game, bet_areas[index])
         insufficient = driver.execute_script(executeJS('getDigital'))
+
         if insufficient == True:
             captureDigitalMessage(driver, 'Insufficient', table.text, allin)
             wait_If_Clickable(driver, 'action', 'confirm')
@@ -211,3 +205,4 @@ def reset_coins(driver, game):
 def captureDigitalMessage(driver, value, count, allin=False):
     if allin:
         screenshot(driver , value, count)
+

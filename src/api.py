@@ -1,20 +1,20 @@
 from src.modules import *
 
 base = env('base')
-tokenKey = []
 
 def getToken():
     header = endpoint()['header']
     header['X-Operator'] = env('XOperator')
     header['X-Key'] = env('XKey')
     response = requests.get(base + env('desc'), headers=header)
-    tokenKey.append(response.json())
+    return response.json()
 
 def gameKey():
+    fetch = getToken()
     username = endpoint()['creds']
     username['username'] = env('username')
     point = env('key')
-    token = tokenKey[0]['data']['token']
+    token = fetch['data']['token']
     endpoint()['header']['X-token'] = token
     header = endpoint()['header']
     header['X-token'] = token
@@ -22,7 +22,6 @@ def gameKey():
     return response.json()['data']['key'], header
 
 def play():
-    getToken()
     key = gameKey()
     play = env('play')
     paramKey = endpoint()['URL']
@@ -31,9 +30,9 @@ def play():
     return response.json()['data']['url']
 
 def addBalance(entry, amount=1191.78):
-    getToken()
+    fetch = getToken()
     header = endpoint()['header']
-    token = tokenKey[0]['data']['token']
+    token = fetch['data']['token']
     header['X-token'] = token
     coin = env('balance')
     body = {

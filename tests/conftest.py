@@ -14,17 +14,17 @@ def driver(device):
     #setup
     deleteScreenshots()
     URL = play()
-    options = Options()
-    options.add_argument("--hide-scrollbars")
+    option = Options()
+    option.add_argument("--hide-scrollbars")
     devices = phone()['deviceName']
     getRandom = random.choice(devices)
 
     if device:
-        options.add_experimental_option("mobileEmulation", {"deviceName": device})
+        option.add_experimental_option("mobileEmulation", {"deviceName": device})
     else:
-        options.add_experimental_option("mobileEmulation", {"deviceName": getRandom})
+        option.add_experimental_option("mobileEmulation", {"deviceName": getRandom})
 
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=option)
     driver.get(URL)
     #closeBanner(driver)
     yield driver

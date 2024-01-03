@@ -17,7 +17,7 @@ category:
   baccarat: '.v-tabs__container .v-tabs__div.baccarat > a'
   dragontiger: '.v-tabs__container .v-tabs__div.cards > a'
   three-cards: '.v-tabs__container .v-tabs__div.cards > a'
-  others: '.v-tabs__container .v-tabs__div.others > a'
+  sedie: '.v-tabs__container .v-tabs__div.others > a'
 
 dragontiger:
   Dragon: 'div.bet-table.d'
@@ -28,11 +28,25 @@ three-cards:
   Dragon: 'div.bet-table-dragon'
   Phoenix: 'div.bet-table-phoenix'
   Lucky: 'div.bet-table-lucky'
-  
+
+sedie:
+  big: 'div.bet-table.bg'
+  small: 'div.bet-table.sm'
+  even: 'div.bet-table.ev'
+  odd: 'div.bet-table.od'
+  all-white: 'div.bet-table.r0'
+  three-white: 'div.bet-table.r1'
+  three-red: 'div.bet-table.r3'
+  all-red: 'div.bet-table.r4'
+
 in-game:
   back: 'div#btn-exit'
+  close-payrate: 'div.close-wrap'
   balance: 'div.user-data.balance'
   bets: 'div.bets-info span'
+  modal-bet: 'div#bet-limit'
+  payrates: 'div.btn-payrate'
+  bet-limit: 'div.flex.bet-label.xs8 span'
   botnav: 'div.v-tabs__wrapper'
   dealer: 'div.dealer-name span'
   game: 'div#game-content'
@@ -56,6 +70,7 @@ lobby:
   content: 'div.v-content__wrap'
   dragontiger: 'div[tableinfo="[object Object]"]'
   three-cards: 'div[tableinfo="[object Object]"]'
+  sedie: 'div[tableinfo="[object Object]"]'
 
 marshall:
   banner: 'div.banner'
@@ -65,3 +80,15 @@ marshall:
   logo: '#pre-loading div'
   user: '.select2-results li:first-child'
   username: '#select2-luname-container'
+
+bet-limit:
+  baccarat:
+    PLAYER: '(1:1)'
+    BANKER: '(1:0.95)'
+    TIE: '(1:8)'
+    P-PAIR: '(1:11)'
+    B-PAIR: '(1:11)'
+    BIG: '(1:0.5)'
+    SMALL: '(1:1.5)'
+    ANY-PAIR: '(1:5)'
+    PERFECT PAIR: '(1:25)'

@@ -18,6 +18,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import NoSuchElementException
 
 
+
 fake = Faker()
 
 def data(*keys):
