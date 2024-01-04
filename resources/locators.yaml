@@ -29,6 +29,13 @@ three-cards:
   Phoenix: 'div.bet-table-phoenix'
   Lucky: 'div.bet-table-lucky'
 
+lucky:
+  'Straight': 1
+  'Pair': 0.5
+  'Flush': 2
+  'Straight Flush': 3
+  'Triple': 8
+
 sedie:
   big: 'div.bet-table.bg'
   small: 'div.bet-table.sm'
@@ -58,6 +65,7 @@ in-game:
   settled: 'div#bet-msg-toast'
   insufficient: 'div#bet-msg-toast div'
   row: 'div#tables-panel'
+  board-result: 'div.result-cards .board-result'
   shuffling: 'div.shuffling-text'
   tableNumber: 'div.table-number span:first-child'
   timer: 'div#table-state-wrap .v-progress-circular__info span'

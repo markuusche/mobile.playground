@@ -1,6 +1,7 @@
 from src.modules import *
 from src.helper import *
 from src.api import *
+import re
 
 count = 0
 
@@ -33,7 +34,7 @@ def play(driver, game, bet, allin=False):
         sleep(0.5)
         x.click()
         waitElement(driver, 'in-game', 'game')
-        playBaccarat(driver, game, bet, allin)
+        playGame(driver, game, bet, allin)
 
         if game == 'baccarat' and bet == 'All':
             allin = False
@@ -45,7 +46,7 @@ def play(driver, game, bet, allin=False):
         count += 1
 
 #this is where the betting process
-def playBaccarat(driver, game, bet, allin=False):
+def playGame(driver, game, bet, allin=False):
     bet_areas = list(data(game))
     if bet == 'All':
         for i in range(0, len(bet_areas)):
@@ -122,6 +123,17 @@ def betOn(driver, bet, betArea, allin=False):
                     winner = findElement(driver, 'in-game', 'toast')
                     captureDigitalMessage(driver, winner.text, table.text, allin)
 
+                    board = findElements(driver, 'in-game', 'board-result')
+                    lucky_odds = dict(data('lucky'))
+                    lucky_result = 0.00
+                    for i in board:
+                        board_result = i.text.split(' – ')[0]
+
+                        if board_result in lucky_odds:
+                            value = lucky_odds[board_result]
+                            print(f"{board_result}: {value}")
+                            lucky_result = float(value)
+
                     bets = findElement(driver, 'in-game', 'bets')
                     getBets = float(bets.text.replace(',',''))
                     oldBalance = float(balance[0].replace(',',''))
@@ -131,6 +143,7 @@ def betOn(driver, bet, betArea, allin=False):
                     balance = float(remainingMoney.text.replace(',',''))
                     total = 0
                     back = 0
+
                     if 'Lose: ' in wl:
                         loseAmount = float(wl.replace('Lose: ',''))
                         calcAmount = float(f'{preBalance:.2f}') + float(f'{getBets:.2f}') - float(f'{loseAmount:.2f}')
@@ -142,7 +155,25 @@ def betOn(driver, bet, betArea, allin=False):
                     else:
                         resultBal = float(wl.replace('Win: ',''))
                         total = float(f'{preBalance:.2f}') + float(f'{resultBal:.2f}') + float(f'{getBets:.2f}')
-                        
+                        placeBets = findElement(driver, 'in-game', 'bets')
+                        cFloat = float(placeBets.text.replace(',',''))
+
+                        # calculate the odds player will receive after winning 
+                        getOdds = findElement(driver, bet, betArea)
+                        match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
+
+                        if bet == 'three-cards' and betArea == 'Lucky':
+                            calc_odds = lucky_result * cFloat
+                            assert calc_odds == resultBal
+                        else:
+                            if match:
+                                val = match.group(1)
+                                odds = float(val.split(':', 1)[1])
+                                winOdds = cFloat * odds
+                                assert winOdds == resultBal
+                            else:
+                                print("Odds not found")
+
                         if allin:
                             screenshot(driver, 'Win Balance', table.text)
                     
