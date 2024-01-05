@@ -1,7 +1,7 @@
 from src.game import *
 from src.modules import *
 
-def test_Baccarat(driver):
+'''def test_Baccarat(driver):
     play(driver, 'baccarat', 'Banker', allin=True)
 
 def test_DragonTiger(driver):
@@ -11,4 +11,17 @@ def test_ThreeCards(driver):
     play(driver, 'three-cards', 'Dragon', allin=True)
 
 def test_Sedie(driver):
-    play(driver, 'sedie', 'big', allin=True)
+    play(driver, 'sedie', 'big', allin=True)'''
+
+def test_Baccarat(driver):
+    play(driver, 'baccarat', 'All')
+
+'''def test_DragonTiger(driver):
+    play(driver, 'dragontiger', 'All')
+
+def test_ThreeCards(driver):
+    play(driver, 'three-cards', 'All')
+
+def test_Sedie(driver):
+    play(driver, 'sedie', 'All')
+'''

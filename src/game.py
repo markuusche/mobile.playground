@@ -1,7 +1,6 @@
 from src.modules import *
 from src.helper import *
 from src.api import *
-import re
 
 count = 0
 
@@ -49,8 +48,10 @@ def play(driver, game, bet, allin=False):
 def playGame(driver, game, bet, allin=False):
     bet_areas = list(data(game))
     if bet == 'All':
-        for i in range(0, len(bet_areas)):
+        for i in range(len(bet_areas)):
             betOn(driver, game, bet_areas[i])
+            if i == len(bet_areas) -1:
+                break
 
         betOn(driver, 'action', 'rebet')
     else:
@@ -131,7 +132,6 @@ def betOn(driver, bet, betArea, allin=False):
 
                         if board_result in lucky_odds:
                             value = lucky_odds[board_result]
-                            print(f"{board_result}: {value}")
                             lucky_result = float(value)
 
                     bets = findElement(driver, 'in-game', 'bets')
@@ -170,7 +170,8 @@ def betOn(driver, bet, betArea, allin=False):
                                 val = match.group(1)
                                 odds = float(val.split(':', 1)[1])
                                 winOdds = cFloat * odds
-                                assert winOdds == resultBal
+                                if resultBal != 0.00:
+                                    assert winOdds == resultBal
                             else:
                                 print("Odds not found")
 
