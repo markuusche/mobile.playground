@@ -1,4 +1,4 @@
-from src.game import *
+from src.main import *
 from src.modules import *
 
 

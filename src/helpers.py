@@ -1,4 +1,5 @@
 from src.modules import *
+from src.api import *
 
 def findElement(driver, *keys, click=False):
     locator = data(*keys)
@@ -53,15 +54,42 @@ def closeBanner(driver):
 def screenshot(driver, name, val):
     driver.save_screenshot(f'screenshots/{name} {val}.png')
 
-def deleteScreenshots():
-    path = 'screenshots/'
+# for digital message screenshots
+def captureDigitalMessage(driver, value, count, allin=False):
+    if allin:
+        screenshot(driver , value, count)
+
+# delete all screenshots
+def removePNGs(path):
     files = os.listdir(path)
     for file_name in files:
-        if file_name.endswith('.png'):
+        _, file_extension = os.path.splitext(file_name)
+        if file_extension.lower() in ['.png', '.PNG']:
             file_path = os.path.join(path, file_name)
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
+def deleteScreenshots():
+    removePNGs('screenshots/')
+    removePNGs('screenshots/card results/')
+
     logs = 'logs.txt'
     if os.path.exists(logs):
+        print(f"Deleting logs file: {logs}")
         os.remove(logs)
+
+
+# reset coins to default when betting all-in. 
+# -this is per table loop-
+def reset_coins(driver, game):
+    getBalance = addBalance(env('add'))
+    addBalance(env('deduc'), amount=getBalance)
+    addBalance(env('add'))
+    driver.refresh()
+    waitElement(driver, 'lobby', 'content')
+    #closeBanner(driver)
+    sleep(2)
+    findElement(driver, 'category', game, click=True)
+    elements = findElements(driver, 'lobby', game)
+    return elements
+

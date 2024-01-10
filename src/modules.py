@@ -6,6 +6,7 @@ import pytest
 import yaml
 import os
 import re
+from PIL import Image
 from time import sleep
 from faker import Faker
 from selenium import webdriver
@@ -17,8 +18,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import NoSuchElementException
-
-
 
 fake = Faker()
 

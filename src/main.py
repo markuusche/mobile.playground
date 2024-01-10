@@ -1,6 +1,5 @@
 from src.modules import *
-from src.helper import *
-from src.api import *
+from src.helpers import *
 
 count = 0
 
@@ -62,7 +61,7 @@ def playGame(driver, game, bet, allin=False):
 def betOn(driver, bet, betArea, allin=False):
     '''
     this function:
-    assert coins and player balancec matched,
+    assert coins and player balance matched,
     asserts the balance is deducted by betting,
     asserts the remaining balance after betting,
     asserts the the added and lose amount after game results,
@@ -236,22 +235,3 @@ def coins_allin(driver, game, allin=False):
             sleep(2)
             assert coins.text == '0.00'
             break
-
-# reset coins to default when betting all-in. 
-# -this is per table loop-
-def reset_coins(driver, game):
-    getBalance = addBalance(env('add'))
-    addBalance(env('deduc'), amount=getBalance)
-    addBalance(env('add'))
-    driver.refresh()
-    waitElement(driver, 'lobby', 'content')
-    #closeBanner(driver)
-    sleep(2)
-    findElement(driver, 'category', game, click=True)
-    elements = findElements(driver, 'lobby', game)
-    return elements
-
-def captureDigitalMessage(driver, value, count, allin=False):
-    if allin:
-        screenshot(driver , value, count)
-

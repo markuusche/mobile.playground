@@ -1,6 +1,6 @@
 from src.modules import *
 from src.api import *
-from src.helper import *
+from src.helpers import *
 
 def pytest_addoption(parser):
     parser.addoption("--device", action="store", default=None)
