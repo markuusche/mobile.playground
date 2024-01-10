@@ -7,4 +7,5 @@ function getDigital() {
     }
     return false;
 }
+
 return getDigital();

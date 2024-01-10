@@ -1,5 +1,5 @@
 action:
-  confirm: 'div.flex.Confirm'
+  confirm: 'div.flex.Confirm .label-btn'
   rebet: 'div.flex.Repeat'
   cancel: 'div.flex.Cancel'
   ripple: 'div.flex.Confirm > div'
@@ -41,10 +41,10 @@ sedie:
   small: 'div.bet-table.sm'
   even: 'div.bet-table.ev'
   odd: 'div.bet-table.od'
-  all-white: 'div.bet-table.r0'
-  three-white: 'div.bet-table.r1'
-  three-red: 'div.bet-table.r3'
-  all-red: 'div.bet-table.r4'
+  white: 'div.bet-table.r0 .beads'
+  threewhite: 'div.bet-table.r1 .beads'
+  threered: 'div.bet-table.r3 .beads'
+  red: 'div.bet-table.r4 .beads'
 
 in-game:
   back: 'div#btn-exit'
@@ -67,6 +67,7 @@ in-game:
   row: 'div#tables-panel'
   board-result: 'div.result-cards .board-result'
   shuffling: 'div.shuffling-text'
+  shoe: 'div.table-number span:last-child'
   tableNumber: 'div.table-number span:first-child'
   timer: 'div#table-state-wrap .v-progress-circular__info span'
   toast: 'div#bet-msg-toast div'

@@ -4,12 +4,12 @@ from src.api import *
 
 count = 0
 
-#this is where the table looping and API requests
+# this is where the table looping happens
 def play(driver, game, bet, allin=False):
+    global count
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
-    global count
     for i in range(len(elements)):
         gameName = elements[i]
         if game == 'dragontiger' and 'DT' not in gameName.text:
@@ -21,15 +21,19 @@ def play(driver, game, bet, allin=False):
         elif game == 'three-cards' and 'Three' not in gameName.text:
             continue
 
-        elif game == 'sedie' and 'edie' not in gameName.text:
+        elif game == 'sedie' and 'Sedie' not in gameName.text:
             continue
             
         if allin:
             elements = reset_coins(driver, game)
 
         x = elements[i]
+
+        # javascript code to prevent full screen when
+        # entering tables
         driver.execute_script(executeJS('exitScreen')) 
         driver.execute_script("arguments[0].scrollIntoView();", x)
+
         sleep(0.5)
         x.click()
         waitElement(driver, 'in-game', 'game')
@@ -44,16 +48,14 @@ def play(driver, game, bet, allin=False):
         elements = findElements(driver, 'lobby', game)
         count += 1
 
-#this is where the betting process
+# this is where the betting process for single bet
 def playGame(driver, game, bet, allin=False):
     bet_areas = list(data(game))
     if bet == 'All':
-        for i in range(len(bet_areas)):
+        for i in range(0, len(bet_areas)):
             betOn(driver, game, bet_areas[i])
             if i == len(bet_areas) -1:
                 break
-
-        betOn(driver, 'action', 'rebet')
     else:
         betOn(driver, game, bet, allin)
 
@@ -87,11 +89,11 @@ def betOn(driver, bet, betArea, allin=False):
             captureDigitalMessage(driver, 'Please Place Your Bet', table.text, allin)
         else:
             intTimer = int(timer.text)
-            if intTimer < 5:
+            if intTimer <= 5:
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
                 captureDigitalMessage(driver, 'Please Place Your Bet', table.text, allin)
             else:
-                if intTimer > 7:
+                if intTimer >= 8:
                     if allin:
                         if bet == 'baccarat':
                             coins_allin(driver, bet, allin)
@@ -123,7 +125,9 @@ def betOn(driver, bet, betArea, allin=False):
                     waitElement(driver, 'in-game', 'toast')
                     winner = findElement(driver, 'in-game', 'toast')
                     captureDigitalMessage(driver, winner.text, table.text, allin)
-
+                    
+                    # =================================================
+                    # get game result text from digital message
                     board = findElements(driver, 'in-game', 'board-result')
                     lucky_odds = dict(data('lucky'))
                     lucky_result = 0.00
@@ -137,13 +141,16 @@ def betOn(driver, bet, betArea, allin=False):
                     bets = findElement(driver, 'in-game', 'bets')
                     getBets = float(bets.text.replace(',',''))
                     oldBalance = float(balance[0].replace(',',''))
+                    # =================================================
 
-                    #balance after bet
+                    # get balance after bet
                     wl = LoseOrWin(driver)
                     balance = float(remainingMoney.text.replace(',',''))
                     total = 0
                     back = 0
 
+                    # =================================================
+                    # calculates the expected lose and win
                     if 'Lose: ' in wl:
                         loseAmount = float(wl.replace('Lose: ',''))
                         calcAmount = float(f'{preBalance:.2f}') + float(f'{getBets:.2f}') - float(f'{loseAmount:.2f}')
@@ -158,27 +165,37 @@ def betOn(driver, bet, betArea, allin=False):
                         placeBets = findElement(driver, 'in-game', 'bets')
                         cFloat = float(placeBets.text.replace(',',''))
 
+                    # =================================================
+
+                        # ====================================================
                         # calculate the odds player will receive after winning 
                         getOdds = findElement(driver, bet, betArea)
                         match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
 
-                        if bet == 'three-cards' and betArea == 'Lucky':
-                            calc_odds = lucky_result * cFloat
-                            assert calc_odds == resultBal
-                        else:
-                            if match:
-                                val = match.group(1)
-                                odds = float(val.split(':', 1)[1])
-                                winOdds = cFloat * odds
-                                if resultBal != 0.00:
-                                    assert winOdds == resultBal
+                        # special case for Three-cards odds
+                        if allin == False:
+                            if bet == 'three-cards' and betArea == 'Lucky':
+                                calc_odds = lucky_result * cFloat
+                                assert calc_odds == resultBal
                             else:
-                                print("Odds not found")
-
+                                if match:
+                                    val = match.group(1)
+                                    odds = float(val.split(':', 1)[1])
+                                    winOdds = cFloat * odds
+                                    if resultBal != 0.00:
+                                        assert winOdds == resultBal, 'Odds did not match'
+                                else:
+                                    print("Odds not found")
+                        # ====================================================
+                                
                         if allin:
                             screenshot(driver, 'Win Balance', table.text)
-                    
+
                         assert f'{total:.2f}' == f'{balance:.2f}'
+                    
+                    if allin:
+                        waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
+                        captureDigitalMessage(driver, 'You have NOT bet for 3 times', table.text, allin)
 
                     with open('logs.txt', 'a') as logs:
                         logs.write(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n' + '\n')
@@ -191,7 +208,7 @@ def checkPlayerBalance(driver):
     playerBalance = findElement(driver, 'in-game', 'playerBalance')
     assert coins.text == playerBalance.text
 
-#gets Lose or Win message with the values
+# gets Lose or Win message with the values
 def LoseOrWin(driver):
     waitElement(driver, 'in-game', 'resultToast')
     result = findElement(driver, 'in-game', 'winloss')
@@ -202,7 +219,7 @@ def LoseOrWin(driver):
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
 
-#All-in bet
+# All-in bet
 def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     coins = findElement(driver, 'in-game','balance')
@@ -220,8 +237,8 @@ def coins_allin(driver, game, allin=False):
             assert coins.text == '0.00'
             break
 
-#reset coins to default when betting all-in. 
-# -this is per table reset-
+# reset coins to default when betting all-in. 
+# -this is per table loop-
 def reset_coins(driver, game):
     getBalance = addBalance(env('add'))
     addBalance(env('deduc'), amount=getBalance)
