@@ -88,7 +88,8 @@ def betOn(driver, bet, betArea, allin=False):
             intTimer = int(timer.text)
             if intTimer <= 5:
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-                captureDigitalMessage(driver, 'Please Place Your Bet', table.text, allin)
+                if intTimer == 3:
+                    captureDigitalMessage(driver, 'Please Place Your Bet', table.text, allin)
             else:
                 if intTimer >= 8:
                     if allin:
@@ -118,6 +119,7 @@ def betOn(driver, bet, betArea, allin=False):
                     preBalance = float(remainingMoney.text.replace(',',''))
 
                     captureDigitalMessage(driver, 'No More Bets', table.text, allin)
+                    assertionCheck(driver)
                     waitElementInvis(driver, 'in-game', 'toast')
                     waitElement(driver, 'in-game', 'toast')
                     winner = findElement(driver, 'in-game', 'toast')
@@ -135,13 +137,15 @@ def betOn(driver, bet, betArea, allin=False):
                             value = lucky_odds[board_result]
                             lucky_result = float(value)
 
+                    # =================================================
+
                     bets = findElement(driver, 'in-game', 'bets')
                     getBets = float(bets.text.replace(',',''))
                     oldBalance = float(balance[0].replace(',',''))
-                    # =================================================
 
                     # get balance after bet
                     wl = LoseOrWin(driver)
+                    #assertionCheck(driver, check=True)
                     balance = float(remainingMoney.text.replace(',',''))
                     total = 0
                     back = 0
@@ -233,3 +237,13 @@ def coins_allin(driver, game, allin=False):
             waitPresence(driver, 'in-game','balance', text='0.00')
             assert coins.text == '0.00'
             break
+
+def assertionCheck(driver, check=False):
+    preResult = findElements(driver, 'in-game', 'board-result')
+    for i in preResult:
+        result = int(i.text)
+        
+        if check:
+            assert result > 0
+        else:
+            assert result == 0
