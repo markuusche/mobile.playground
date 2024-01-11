@@ -9,7 +9,7 @@ def play(driver, game, bet, allin=False):
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
-    for i in range(6, len(elements)):
+    for i in range(len(elements)):
         gameName = elements[i]
         if game == 'dragontiger' and 'DT' not in gameName.text:
             continue
