@@ -60,7 +60,8 @@ def captureDigitalMessage(driver, value, count, allin=False):
         screenshot(driver , value, count)
 
 # delete all screenshots
-def removePNGs(path):
+def deleteScreenshots():
+    path = 'screenshots/'
     files = os.listdir(path)
     for file_name in files:
         _, file_extension = os.path.splitext(file_name)
@@ -69,15 +70,9 @@ def removePNGs(path):
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-def deleteScreenshots():
-    removePNGs('screenshots/')
-    removePNGs('screenshots/card results/')
-
     logs = 'logs.txt'
     if os.path.exists(logs):
-        print(f"Deleting logs file: {logs}")
         os.remove(logs)
-
 
 # reset coins to default when betting all-in. 
 # -this is per table loop-
@@ -86,7 +81,7 @@ def reset_coins(driver, game):
     addBalance(env('deduc'), amount=getBalance)
     addBalance(env('add'))
     driver.refresh()
-    waitElement(driver, 'lobby', 'content')
+    waitElement(driver, 'lobby', 'main')
     #closeBanner(driver)
     sleep(2)
     findElement(driver, 'category', game, click=True)

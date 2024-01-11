@@ -9,7 +9,7 @@ def play(driver, game, bet, allin=False):
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
-    for i in range(len(elements)):
+    for i in range(6, len(elements)):
         gameName = elements[i]
         if game == 'dragontiger' and 'DT' not in gameName.text:
             continue
@@ -32,8 +32,7 @@ def play(driver, game, bet, allin=False):
         # entering tables
         driver.execute_script(executeJS('exitScreen')) 
         driver.execute_script("arguments[0].scrollIntoView();", x)
-
-        sleep(0.5)
+        
         x.click()
         waitElement(driver, 'in-game', 'game')
         playGame(driver, game, bet, allin)
@@ -41,9 +40,8 @@ def play(driver, game, bet, allin=False):
         if game == 'baccarat' and bet == 'All':
             allin = False
 
-        findElement(driver, 'in-game', 'back', click=True)
-        sleep(2)
-        #closeBanner(driver)
+        wait_If_Clickable(driver, 'in-game', 'back')
+        waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', game)
         count += 1
 
@@ -77,10 +75,10 @@ def betOn(driver, bet, betArea, allin=False):
     dealer = findElement(driver, 'in-game','dealer')
 
     while True:
-        sleep(1)
         money = findElement(driver, 'in-game','balance')
         balance.append(money.text)
         checkPlayerBalance(driver)
+        waitElement(driver, 'in-game', 'timer')
         timer = findElement(driver, 'in-game', 'timer')
         
         if timer.text == 'CLOSED':
@@ -232,6 +230,6 @@ def coins_allin(driver, game, allin=False):
         if insufficient == True:
             captureDigitalMessage(driver, 'Insufficient', table.text, allin)
             wait_If_Clickable(driver, 'action', 'confirm')
-            sleep(2)
+            waitPresence(driver, 'in-game','balance', text='0.00')
             assert coins.text == '0.00'
             break

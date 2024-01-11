@@ -6,7 +6,6 @@ import pytest
 import yaml
 import os
 import re
-from PIL import Image
 from time import sleep
 from faker import Faker
 from selenium import webdriver

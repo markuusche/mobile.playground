@@ -76,7 +76,7 @@ in-game:
 
 lobby:
   baccarat: 'div[tableinfo="[object Object]"]'
-  content: 'div.v-content__wrap'
+  main: 'div#tables-panel'
   dragontiger: 'div[tableinfo="[object Object]"]'
   three-cards: 'div[tableinfo="[object Object]"]'
   sedie: 'div[tableinfo="[object Object]"]'

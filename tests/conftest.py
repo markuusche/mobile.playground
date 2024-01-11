@@ -26,8 +26,13 @@ def driver(device):
 
     driver = webdriver.Chrome(options=option)
     driver.get(URL)
-    #closeBanner(driver)
     yield driver
     #teardown
     driver.close()
     driver.quit()
+
+@pytest.fixture
+def lobby(request, driver):
+  yield
+  if request.session.testsfailed:
+    driver.refresh()
