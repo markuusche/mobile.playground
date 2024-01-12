@@ -1,3 +1,13 @@
+function toast_check() {
+    let digitalElement = document.querySelector('div#bet-msg-toast div');
+    if (digitalElement) {
+        if (digitalElement.textContent.trim() === 'Insufficient Balance') {
+            return true;
+        }
+    }
+    return false;
+}
+
 function isFullScreen() {
     return (
         document.fullscreenElement ||
@@ -21,7 +31,9 @@ function preventFullScreen() {
     }
 }
 
-document.addEventListener('fullscreenchange', preventFullScreen);
-document.addEventListener('webkitfullscreenchange', preventFullScreen);
-document.addEventListener('mozfullscreenchange', preventFullScreen);
-document.addEventListener('MSFullscreenChange', preventFullScreen);
+function disable_FullScreen(){
+    document.addEventListener('fullscreenchange', preventFullScreen);
+    document.addEventListener('webkitfullscreenchange', preventFullScreen);
+    document.addEventListener('mozfullscreenchange', preventFullScreen);
+    document.addEventListener('MSFullscreenChange', preventFullScreen);
+}
