@@ -4,6 +4,7 @@ venv
 __venv__
 bashrc
 .bashrc
+~/.bashrc
 testing.py
 *.png
 test.py

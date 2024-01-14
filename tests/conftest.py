@@ -16,6 +16,9 @@ def driver(device):
     URL = play()
     option = Options()
     option.add_argument("--hide-scrollbars")
+    option.add_argument("--headless")
+    option.add_argument("--disable-gpu")
+    option.add_argument("--mute-audio")
     devices = phone()['deviceName']
     getRandom = random.choice(devices)
 

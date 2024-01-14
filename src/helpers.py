@@ -56,7 +56,7 @@ def waitPresence(driver, *keys, text):
 def waitElementPresence(driver, *keys):
     locator = (By.CSS_SELECTOR, data(*keys))
     element = WebDriverWait(driver, 600)
-    element.until(EC.presence_of_element_located(locator))
+    element.until(EC.presence_of_all_elements_located(locator))
     return element
 
 # exclusive function for closing ads
@@ -86,15 +86,13 @@ def deleteScreenshots():
 
 # reset coins to default amount when betting all-in. 
 # for every table loop
-def reset_coins(driver, game):
-    getBalance = addBalance(env('add'))
+def reset_coins(driver, game, amount):
+    getBalance = addBalance(env('add'), amount)
     addBalance(env('deduc'), amount=getBalance)
-    addBalance(env('add'))
+    addBalance(env('add'), amount)
     driver.refresh()
     waitElement(driver, 'lobby', 'main')
-    #closeBanner(driver)
-    sleep(2)
-    findElement(driver, 'category', game, click=True)
+    wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
     return elements
 
