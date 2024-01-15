@@ -9,3 +9,8 @@ testing.py
 test.py
 logs.txt
 screenshots
+chat.py
+strings.txt
+package-lock.json
+package.json
+node_modules
