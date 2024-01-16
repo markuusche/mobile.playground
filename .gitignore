@@ -4,11 +4,13 @@ venv
 __venv__
 bashrc
 .bashrc
+~/.bashrc
 testing.py
 *.png
+*.PNG
 test.py
 logs.txt
-screenshots
+screenshots/
 chat.py
 strings.txt
 package-lock.json

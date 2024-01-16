@@ -34,15 +34,15 @@ def phone():
         getData = yaml.load(file, Loader=yaml.FullLoader)
     return getData
 
-def endpoint():
-    with open('resources/marshalls.yaml','r') as file:
-        getData = yaml.load(file, Loader=yaml.FullLoader)
-    return getData
-
-def executeJS(script):
-    with open(f'resources/{script}.js','r') as js:
+def customJS(driver, function=None):
+    with open(f'resources/script.js','r') as js:
         getScript = js.read()
-    return getScript
+        script = getScript + f'return {function}'
+        run = driver.execute_script(script)
+        return run
+
+def driverJS(driver, script):
+    return driver.execute_script(script)
 
 def env(value:str):
     return os.environ.get(value)

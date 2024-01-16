@@ -1,17 +1,15 @@
 from src.modules import *
 from src.helpers import *
 
-count = 0
-
 # this is where the table looping happens
 def play(driver, game, bet, allin=False):
-    global count
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
     for i in range(len(elements)):
         gameName = elements[i]
+
         if game == 'dragontiger' and 'DT' not in gameName.text:
             continue
 
@@ -23,37 +21,40 @@ def play(driver, game, bet, allin=False):
 
         elif game == 'sedie' and 'Sedie' not in gameName.text:
             continue
-            
+        
         if allin:
-            elements = reset_coins(driver, game)
+            elements = reset_coins(driver, game, 1191.78)
+        else:
+            elements = reset_coins(driver, game, 10000)
 
         table = elements[i]
 
         # javascript code to prevent full screen when
         # entering tables
-        driver.execute_script(executeJS('script') + 'return disable_FullScreen();') 
+        customJS(driver, 'noFullScreen();')
+        customJS(driver, 'scrollToTop();')
         driver.execute_script("arguments[0].scrollIntoView();", table)
         
+        # click table from the lobby
         table.click()
+
+        # waits for game table to be visible before starting
         waitElement(driver, 'in-game', 'game')
+
+        # playing functions starts here
         playGame(driver, game, bet, allin)
 
-        if game == 'baccarat' and bet == 'All':
-            allin = False
-
+        # going back to lobby after the test is done
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', game)
-        count += 1
 
 # this is where the betting process for single bet and Allbet (All)
 def playGame(driver, game, bet, allin=False):
     bet_areas = list(data(game))
     if bet == 'All':
-        for i in range(0, len(bet_areas)):
+        for i in range(len(bet_areas)):
             betOn(driver, game, bet_areas[i])
-            if i == len(bet_areas) -1:
-                break
     else:
         betOn(driver, game, bet, allin)
 
@@ -75,11 +76,11 @@ def betOn(driver, bet, betArea, allin=False):
     balance = []
     table = findElement(driver, 'in-game','tableNumber')
     dealer = findElement(driver, 'in-game','dealer')
-    waitElement(driver, 'in-game', 'timer')
 
     while True:
         money = findElement(driver, 'in-game','balance')
         balance.append(money.text)
+        waitElement(driver, 'in-game', 'timer')
         checkPlayerBalance(driver)
         timer = findElement(driver, 'in-game', 'timer')
         
@@ -87,11 +88,11 @@ def betOn(driver, bet, betArea, allin=False):
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             screenshot(driver, 'Please Place Your Bet', table.text, allin)
         else:
-            intTimer = int(timer.text)
-            if intTimer <= 5:
+            timerInt = int(timer.text.strip())
+            if timerInt <= 5:
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             else:
-                if intTimer >= 8:
+                if timerInt >= 7:
                     if allin:
                         if bet == 'baccarat':
                             coins_allin(driver, bet, allin)
@@ -108,7 +109,7 @@ def betOn(driver, bet, betArea, allin=False):
                     else:
                         wait_If_Clickable(driver, bet, betArea)
                         waitElementInvis(driver, 'in-game', 'toast')
-                        findElement(driver, 'action', 'confirm', click=True)
+                        wait_If_Clickable(driver, 'action', 'confirm')
 
                     waitPresence(driver, 'in-game','toast', text='Bet Successful!')
                     screenshot(driver, 'Bet Sucessful', table.text, allin)
@@ -155,10 +156,10 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin:
                             screenshot(driver, 'Lose Balance', table.text, allin)
                         
-                        assert f'{calcAmount:.2f}' == f'{balance:.2f}'
+                        assert f'{calcAmount:.2f}' == f'{balance:.2f}', f'calcAmount: {calcAmount} balance: {balance}'
                     else:
                         resultBal = float(wl.replace('Win: ',''))
-                        total = float(f'{preBalance:.2f}') + float(f'{resultBal:.2f}') + float(f'{getBets:.2f}')
+                        total = preBalance + resultBal + getBets
                         placeBets = findElement(driver, 'in-game', 'bets')
                         cFloat = float(placeBets.text.replace(',',''))
 
@@ -173,30 +174,28 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin == False:
                             if bet == 'three-cards' and betArea == 'Lucky':
                                 calc_odds = lucky_result * cFloat
-                                assert calc_odds == resultBal
+                                assert calc_odds == resultBal, f'Calculation Odds: {calc_odds} Result Balance: {resultBal}'
                             else:
                                 if match:
                                     val = match.group(1)
                                     odds = float(val.split(':', 1)[1])
                                     winOdds = cFloat * odds
                                     if resultBal != 0.00:
-                                        assert winOdds == resultBal, 'Odds did not match'
+                                        assert winOdds == resultBal, f'winOdds: {winOdds} resultBal: {resultBal}'
                                 else:
                                     print("Odds not found")
-                        # ====================================================
                                 
                         if allin:
                             screenshot(driver, 'Win Balance', table.text, allin)
-
-                        assert f'{total:.2f}' == f'{balance:.2f}'
                     
-                    # takes a screenshot of digital message for not betting 3 times
+                        driver.save_screenshot(f'screenshots/{"Win"} {table.text}.png')
+                        # checks if the total winnings + the current balance is
+                        # equal to the latest balance
+                        assert f'{total:.2f}' == f'{balance:.2f}', f'Total Amount: {total} Remaining Balance {balance}'
+                    
                     if allin:
-                        waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
-                        screenshot(driver, 'You have NOT bet for 3 times', table.text, allin)
-                        waitPresence(driver, 'in-game','toast', text='No More Bets!')
-
                         # Place a bet when the timer is CLOSED verification
+                        waitPresence(driver, 'in-game','toast', text='No More Bets!')
                         if timer.text == 'CLOSED':
                             bet_areas = list(data(bet))
                             ExceptionMessage = []
@@ -205,13 +204,18 @@ def betOn(driver, bet, betArea, allin=False):
                                     wait_If_Clickable(driver, bet, bet_areas[i])
                                 except Exception as e:
                                     ExceptionMessage.append(str(e))
-                            
-                            assert len(ExceptionMessage) == len(bet_areas)
-                            screenshot(driver, 'Bet on CLOSED?', table.text, allin)
+
+                            assert len(ExceptionMessage) == len(bet_areas), f'Expected Failed Clicks: {ExceptionMessage} Bet Area Length {bet_areas}'
+                            screenshot(driver, 'Bet on CLOSED', table.text, allin)
+
+                         # takes a screenshot of digital message for not betting 3 times
+                        waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
+                        screenshot(driver, 'You have NOT bet for 3 times', table.text, allin)
 
                     with open('logs.txt', 'a') as logs:
-                        logs.write(f'===============================\nIndex: {count}\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\n===============================\n' + '\n')
+                        logs.write(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\nWin Result: {total} - {balance}\n===============================\n' + '\n')
                     break
+
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
@@ -240,12 +244,11 @@ def coins_allin(driver, game, allin=False):
     for _ in range(0, 30):
         index = random.choice(range(len(bet_areas)))
         wait_If_Clickable(driver, game, bet_areas[index])
-        insufficient = driver.execute_script(executeJS('script') + 'return toast_check();')
+        insufficient = customJS(driver, 'toast_check();')
 
         if insufficient == True:
             screenshot(driver, 'Insufficient Balance', table.text, allin)
-            wait_If_Clickable(driver, 'action', 'confirm')
             waitPresence(driver, 'in-game','balance', text='0.00')
-            assert coins.text == '0.00'
+            assert coins.text == '0.00', f'All in coins assertion check: {coins.text}'
             break
 
