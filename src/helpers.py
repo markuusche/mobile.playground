@@ -1,7 +1,7 @@
 from src.modules import *
 from src.api import *
 
-# find the element <locator> source from locators.yaml
+# find single element <locator> source from locators.yaml
 def findElement(driver, *keys, click=False):
     locator = data(*keys)
     element = driver.find_element(By.CSS_SELECTOR, locator)
@@ -10,7 +10,7 @@ def findElement(driver, *keys, click=False):
     else:
         return element
 
-# find the elements <locator> source from locators.yaml
+# find multiple elements <locator> source from locators.yaml
 def findElements(driver, *keys, click=False):
     locator = data(*keys)
     element = driver.find_elements(By.CSS_SELECTOR, locator)
