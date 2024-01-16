@@ -2,7 +2,7 @@ function toast_check() {
     let digitalElement = document.querySelector('div#bet-msg-toast div');
     if (digitalElement) {
         if (digitalElement.textContent.trim() === 'Insufficient Balance') {
-            return true;
+            confirmButton.click();
         }
     }
     return false;
@@ -31,9 +31,13 @@ function preventFullScreen() {
     }
 }
 
-function disable_FullScreen(){
+function noFullScreen(){
     document.addEventListener('fullscreenchange', preventFullScreen);
     document.addEventListener('webkitfullscreenchange', preventFullScreen);
     document.addEventListener('mozfullscreenchange', preventFullScreen);
     document.addEventListener('MSFullscreenChange', preventFullScreen);
+}
+
+function scrollToTop(){
+    window.scrollTo(0, 0);
 }
