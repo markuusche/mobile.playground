@@ -96,3 +96,30 @@ def reset_coins(driver, game, amount):
     elements = findElements(driver, 'lobby', game)
     return elements
 
+# verifies payrates matches with the payrate
+# from yaml file
+def payrates_odds(driver, game, table, allin=False):
+    defaultPay = []
+    list_pays = []
+    betLimit = data('bet-limit').get(game)
+
+    for _, x in betLimit.items():
+        defaultPay.append(x)
+
+    wait_If_Clickable(driver, 'in-game', 'payrate-modal')
+    waitElement(driver, 'in-game', 'modal-bet')
+    screenshot(driver, 'BET Limit - Payrate', table.text, allin)
+    payrates = findElements(driver, 'in-game', 'payrates')
+    sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
+
+    for payrate in payrates:
+        list_pays.append(payrate.text)
+    
+    if game == 'sedie':
+        for payrate in sedie_payrates:
+            list_pays.append(payrate.text)
+
+    assert defaultPay == list_pays, f'Bet Limit Payrate {list_pays} should be equal to the harcoded'\
+    f' payrate {defaultPay} from yaml file <locator>.yaml'
+    findElement(driver, 'in-game', 'payrate-close', click=True)
+

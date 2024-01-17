@@ -1,12 +1,17 @@
 from src.modules import *
 from src.helpers import *
 
+count = 0
+
 # this is where the table looping happens
 def play(driver, game, bet, allin=False):
+    global count
+
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
+
     for i in range(len(elements)):
         gameName = elements[i]
 
@@ -79,7 +84,8 @@ def betOn(driver, bet, betArea, allin=False):
     logs the the overall results,
     logs table and dealer name,
     '''
-
+    global count
+    count += 1
     balance = []
     table = findElement(driver, 'in-game','tableNumber')
     dealer = findElement(driver, 'in-game','dealer')
@@ -204,7 +210,7 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin:
                             screenshot(driver, 'Win Balance', table.text, allin)
                     
-                        driver.save_screenshot(f'screenshots/{"Win Total"} {table.text}.png')
+                        driver.save_screenshot(f'screenshots/{"Win Total"} {table.text} {count}.png')
                         # checks if the total winnings + the current balance is
                         # equal to the latest balance
                         assert f'{total:.2f}' == f'{balance:.2f}', f'Total Amount: {total} Remaining Balance {balance}'\
@@ -228,6 +234,9 @@ def betOn(driver, bet, betArea, allin=False):
                             assert len(ExceptionMessage) == len(bet_areas), f'Expected Failed Clicks: {len(ExceptionMessage)} Bet Area Length {len(bet_areas)}'\
                             ' \nFailed clicks count should be equal to Bet Area Length Count'
                             #screenshot(driver, 'Bet on CLOSED', table.text, allin)
+
+                        # check if bet limi payrate are equal
+                        payrates_odds(driver, bet, table, allin)
 
                          # takes a screenshot of digital message for not betting 3 times
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
@@ -273,9 +282,9 @@ def coins_allin(driver, game, allin=False):
 
         insufficient = customJS(driver, 'toast_check();')
 
-        if insufficient == True:
+        if insufficient:
             screenshot(driver, 'Insufficient Balance', table.text, allin)
-            wait_If_Clickable(driver, 'action', 'confirm')
+            findElement(driver, 'action', 'confirm', click=True)
             waitPresence(driver, 'in-game','balance', text='0.00')
             assert coins.text == '0.00', f'All-in Bet coins expected should be 0.00: {coins.text}'\
             ' \nCoins should be 0.00 after betting all-in'
