@@ -1,5 +1,4 @@
 from src.modules import *
-from src.api import *
 
 # find single element <locator> source from locators.yaml
 def findElement(driver, *keys, click=False):
@@ -58,68 +57,3 @@ def waitElementPresence(driver, *keys):
     element = WebDriverWait(driver, 600)
     element.until(EC.presence_of_all_elements_located(locator))
     return element
-
-# exclusive function for closing ads
-def closeBanner(driver):
-    waitPresence(driver, 'marshall', 'banner', text='Close')
-    driver.execute_script('return document.querySelector("div#banner-container").remove();')
-
-# for digital message screenshots
-def screenshot(driver, name, val, allin=False):
-    if allin:
-        driver.save_screenshot(f'screenshots/{name} {val}.png')
-
-# delete all screenshots from screenshots/ folder
-def deleteScreenshots():
-    path = 'screenshots/'
-    files = os.listdir(path)
-    for file_name in files:
-        _, file_extension = os.path.splitext(file_name)
-        if file_extension.lower() in ['.png', '.PNG']:
-            file_path = os.path.join(path, file_name)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-
-    logs = 'logs.txt'
-    if os.path.exists(logs):
-        os.remove(logs)
-
-# reset coins to default amount when betting all-in. 
-# for every table loop
-def reset_coins(driver, game, amount):
-    getBalance = addBalance(env('add'), amount)
-    addBalance(env('deduc'), amount=getBalance)
-    addBalance(env('add'), amount)
-    driver.refresh()
-    waitElement(driver, 'lobby', 'main')
-    wait_If_Clickable(driver, 'category', game)
-    elements = findElements(driver, 'lobby', game)
-    return elements
-
-# verifies payrates matches with the payrate
-# from yaml file
-def payrates_odds(driver, game, table, allin=False):
-    defaultPay = []
-    list_pays = []
-    betLimit = data('bet-limit').get(game)
-
-    for _, x in betLimit.items():
-        defaultPay.append(x)
-
-    wait_If_Clickable(driver, 'in-game', 'payrate-modal')
-    waitElement(driver, 'in-game', 'modal-bet')
-    screenshot(driver, 'BET Limit - Payrate', table.text, allin)
-    payrates = findElements(driver, 'in-game', 'payrates')
-    sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
-
-    for payrate in payrates:
-        list_pays.append(payrate.text)
-    
-    if game == 'sedie':
-        for payrate in sedie_payrates:
-            list_pays.append(payrate.text)
-
-    assert defaultPay == list_pays, f'Bet Limit Payrate {list_pays} should be equal to the harcoded'\
-    f' payrate {defaultPay} from yaml file <locator>.yaml'
-    findElement(driver, 'in-game', 'payrate-close', click=True)
-

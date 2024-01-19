@@ -1,5 +1,6 @@
 from src.modules import *
 from src.helpers import *
+from src.functions import *
 
 count = 0
 
@@ -14,7 +15,7 @@ def play(driver, game, bet, allin=False):
 
     for i in range(len(elements)):
         gameName = elements[i]
-
+        
         # look for 'DT' string on the table list
         if game == 'dragontiger' and 'DT' not in gameName.text:
             continue
@@ -43,8 +44,8 @@ def play(driver, game, bet, allin=False):
         customJS(driver, 'noFullScreen();')
         customJS(driver, 'scrollToTop();')
         driver.execute_script("arguments[0].scrollIntoView();", table)
-
-        # condition to prevent unclickable sedie table
+ 
+        # prevent unclickable sedie table (I dont usually use sleep, but here it is)
         sleep(2)
 
         # click table from the lobby
@@ -85,13 +86,13 @@ def betOn(driver, bet, betArea, allin=False):
     logs table and dealer name,
     '''
     global count
-    count += 1
     balance = []
-    table = findElement(driver, 'in-game','tableNumber')
+    table = findElement(driver, 'in-game', 'tableNumber')
     dealer = findElement(driver, 'in-game','dealer')
 
     while True:
-        money = findElement(driver, 'in-game','balance')
+        count += 1
+        money = findElement(driver, 'in-game', 'balance')
         balance.append(money.text)
         waitElement(driver, 'in-game', 'timer')
         checkPlayerBalance(driver)
@@ -122,7 +123,6 @@ def betOn(driver, bet, betArea, allin=False):
 
                         elif bet == 'sedie':
                             coins_allin(driver, bet, allin)
-
                     else:
                         wait_If_Clickable(driver, bet, betArea)
                         waitElementInvis(driver, 'in-game', 'toast')
@@ -173,7 +173,7 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin:
                             screenshot(driver, 'Lose Balance', table.text, allin)
                         
-                        assert f'{calcAmount:.2f}' == f'{balance:.2f}', f'calcAmount: {calcAmount} balance: {balance}'\
+                        assert f'{calcAmount:.2f}' == f'{balance:.2f}', f'Table {table.text} calcAmount: {calcAmount} balance: {balance}'\
                         ' \nAmount Calculation and Balance should be equal'
 
                         checkPlayerBalance(driver)
@@ -194,7 +194,7 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin == False:
                             if bet == 'three-cards' and betArea == 'Lucky':
                                 calc_odds = lucky_result * cFloat
-                                assert calc_odds == resultBal, f'Calculation Odds: {calc_odds} Result Balance: {resultBal}'\
+                                assert calc_odds == resultBal, f'Table {table.text} Calculation Odds: {calc_odds} Result Balance: {resultBal}'\
                                 ' \nOdds Calculation and Results Balance should be equal'
                             else:
                                 if match:
@@ -202,7 +202,7 @@ def betOn(driver, bet, betArea, allin=False):
                                     odds = float(val.split(':', 1)[1])
                                     winOdds = cFloat * odds
                                     if resultBal != 0.00:
-                                        assert winOdds == resultBal, f'winOdds: {winOdds} resultBal: {resultBal}'\
+                                        assert winOdds == resultBal, f'Table {table.text} winOdds: {winOdds} resultBal: {resultBal}'\
                                         ' \nWinning Odds and Result Balance should be equal'
                                 else:
                                     print("Odds not found")
@@ -213,7 +213,7 @@ def betOn(driver, bet, betArea, allin=False):
                         driver.save_screenshot(f'screenshots/{"Win Total"} {table.text} {count}.png')
                         # checks if the total winnings + the current balance is
                         # equal to the latest balance
-                        assert f'{total:.2f}' == f'{balance:.2f}', f'Total Amount: {total} Remaining Balance {balance}'\
+                        assert f'{total:.2f}' == f'{balance:.2f}', f'Table {table.text} Total Amount: {total} Remaining Balance {balance}'\
                         ' \nTotal Amount and Remaning Balance should be equal'
 
                         checkPlayerBalance(driver)
@@ -231,11 +231,10 @@ def betOn(driver, bet, betArea, allin=False):
                                     ExceptionMessage.append(str(e))
 
                             screenshot(driver, 'Bet on CLOSED', table.text, allin)
-                            assert len(ExceptionMessage) == len(bet_areas), f'Expected Failed Clicks: {len(ExceptionMessage)} Bet Area Length {len(bet_areas)}'\
+                            assert len(ExceptionMessage) == len(bet_areas), f'Table {table.text} Expected Failed Clicks: {len(ExceptionMessage)} Bet Area Length {len(bet_areas)}'\
                             ' \nFailed clicks count should be equal to Bet Area Length Count'
-                            #screenshot(driver, 'Bet on CLOSED', table.text, allin)
 
-                        # check if bet limi payrate are equal
+                        # check if bet limit payrate are equal
                         payrates_odds(driver, bet, table, allin)
 
                          # takes a screenshot of digital message for not betting 3 times
@@ -245,47 +244,3 @@ def betOn(driver, bet, betArea, allin=False):
                     with open('logs.txt', 'a') as logs:
                         logs.write(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\nWin Result: {total} - {balance}\n===============================\n' + '\n')
                     break
-
-
-# check if the player balance from top left panel icon
-# and in the middle panel matches.
-def checkPlayerBalance(driver):
-    coins = findElement(driver, 'in-game', 'balance')
-    playerBalance = findElement(driver, 'in-game', 'playerBalance')
-    assert coins.text == playerBalance.text, f'coins is: {coins.text} and Player Balance is: {playerBalance}'\
-   'Total coins and Player Balance should equal'
-
-# gets Lose or Win message with the values
-def LoseOrWin(driver):
-    waitElement(driver, 'in-game', 'resultToast')
-    result = findElement(driver, 'in-game', 'winloss')
-    if '-' in result.text:
-        getText = float(result.text.replace('W/L', '').replace('-','').replace(' ','').replace(':',''))
-        return f'Lose: {getText:.2f}'
-    else:
-        getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
-        return f'Win: {getText:.2f}'
-
-# Bet all coins until Insufficient funds message appear
-def coins_allin(driver, game, allin=False):
-    bet_areas = list(data(game))
-    coins = findElement(driver, 'in-game','balance')
-    table = findElement(driver, 'in-game','tableNumber')
-
-    for _ in range(0, 30):
-        index = random.choice(range(len(bet_areas)))
-        try:
-            wait_If_Clickable(driver, game, bet_areas[index])
-        except ElementClickInterceptedException:
-            waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-            wait_If_Clickable(driver, game, bet_areas[index])
-
-        insufficient = customJS(driver, 'toast_check();')
-
-        if insufficient:
-            screenshot(driver, 'Insufficient Balance', table.text, allin)
-            findElement(driver, 'action', 'confirm', click=True)
-            waitPresence(driver, 'in-game','balance', text='0.00')
-            assert coins.text == '0.00', f'All-in Bet coins expected should be 0.00: {coins.text}'\
-            ' \nCoins should be 0.00 after betting all-in'
-            break
