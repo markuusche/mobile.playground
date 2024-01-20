@@ -18,10 +18,6 @@ def deleteScreenshots():
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-    logs = 'logs.txt'
-    if os.path.exists(logs):
-        os.remove(logs)
-
 # reset coins to default amount when betting all-in. 
 # for every table loop
 def reset_coins(driver, game, amount):
@@ -37,11 +33,13 @@ def reset_coins(driver, game, amount):
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
 def checkPlayerBalance(driver):
+    dealer = findElement(driver, 'in-game','dealer')
     table = findElement(driver, 'in-game', 'tableNumber')
     coins = findElement(driver, 'in-game', 'balance')
     playerBalance = findElement(driver, 'in-game', 'playerBalance')
-    assert coins.text == playerBalance.text, f'Table {table.text} coins is: {coins.text} and Player Balance is: {playerBalance.text}'\
-   'Total coins and Player Balance should equal'
+    message = f'Table: {table.text} Dealer: {dealer.text} Top Panel Balance: {coins.text}'\
+    f' and Bottom Panel Balance: {playerBalance.text} should be equal'
+    assertion(message, coins.text, playerBalance.text)
 
 # gets Lose or Win message with the values
 def LoseOrWin(driver):
@@ -74,8 +72,8 @@ def coins_allin(driver, game, allin=False):
             screenshot(driver, 'Insufficient Balance', table.text, allin)
             findElement(driver, 'action', 'confirm', click=True)
             waitPresence(driver, 'in-game','balance', text='0.00')
-            assert coins.text == '0.00', f'Table {table.text} All-in Bet coins expected should be 0.00: {coins.text}'\
-            ' \nCoins should be 0.00 after betting all-in'
+            message = f'Table: {table.text} Coins should be 0.00 after betting all-in: {coins.text}'
+            assertion(message, coins.text, '0.00')
             break
 
 # verifies payrates matches with the payrate
@@ -109,7 +107,17 @@ def payrates_odds(driver, game, table, allin=False):
         if tableNumber.text in listDT:
             defaultPay[2] = '(1:8)'
 
-    assert defaultPay == list_pays, f'Table {table.text} Bet Limit Payrate {list_pays} should be equal to the harcoded'\
-    f' payrate {defaultPay} from yaml file <locator>.yaml'
+    message = f'Table: {table.text} Game Bet Limit Payrate: {list_pays} '\
+    f'and Hardcoded Bet Limit Payrate: {defaultPay} should be equal'
+    assertion(message, defaultPay, list_pays)
     findElement(driver, 'in-game', 'payrate-close', click=True)
 
+def assertion(name, comparison, comparison2):
+    red = '\033[91m'
+    green = '\033[32m'
+    default = '\033[0m'
+    try:
+        assert comparison == comparison2
+        print(f'{green}✅ PASSED{default} {name}')
+    except AssertionError:
+        print(f'{red}❌ FAILED{default} {name}')

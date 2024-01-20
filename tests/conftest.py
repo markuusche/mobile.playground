@@ -14,7 +14,7 @@ def headless(request):
     return request.config.getoption("headless")
 
 @pytest.fixture(scope='session')
-def driver(device, headless):
+def driver(headless):
     #setup
     deleteScreenshots()
     URL = play()
@@ -28,18 +28,14 @@ def driver(device, headless):
     option.add_argument("--disable-default-apps ")
     option.add_argument("--incognito")
     option.add_argument("--mute-audio")
-    devices = phone()['deviceName']
-    getRandom = random.choice(devices)
-
-    if device:
-        option.add_experimental_option("mobileEmulation", {"deviceName": device})
-    else:
-        option.add_experimental_option("mobileEmulation", {"deviceName": getRandom})
-        print(f'Device used to run: {getRandom}')
+    option.add_experimental_option("mobileEmulation", emulation())
 
     driver = webdriver.Chrome(options=option)
+    driver.set_window_size(425, 1065)
     driver.get(URL)
+
     yield driver
+    
     #teardown
     driver.quit()
 
@@ -48,3 +44,16 @@ def lobby(request, driver):
   yield
   if request.session.testsfailed:
     driver.refresh()
+
+def emulation():
+    return {
+        "deviceMetrics": {
+            "width": 500, 
+            "height": 930, 
+            "pixelRatio": 3.0
+            },
+        "userAgent": 'Mozilla/5.0'\
+        '(Linux; Android 14.0; Samsung Galaxy S20 Ultra/MRA58N)'\
+        'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97'\
+        'Mobile Safari/537.36'
+    }

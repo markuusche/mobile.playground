@@ -162,7 +162,6 @@ def betOn(driver, bet, betArea, allin=False):
                     wl = LoseOrWin(driver)
                     balance = float(remainingMoney.text.replace(',',''))
                     total = 0
-                    back = 0
 
                     # =================================================
                     # calculates the expected lose and win
@@ -173,8 +172,9 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin:
                             screenshot(driver, 'Lose Balance', table.text, allin)
                         
-                        assert f'{calcAmount:.2f}' == f'{balance:.2f}', f'Table {table.text} calcAmount: {calcAmount} balance: {balance}'\
-                        ' \nAmount Calculation and Balance should be equal'
+                        message = f'Table: {table.text} Dealer: {dealer.text} '\
+                        f'Balance after Losing: {calcAmount} and Latest Balance: {balance} should be equal'
+                        assertion(message, f'{calcAmount:.2f}', f'{balance:.2f}')
 
                         checkPlayerBalance(driver)
                     else:
@@ -191,19 +191,21 @@ def betOn(driver, bet, betArea, allin=False):
                         match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
 
                         # special case for Three-cards odds
-                        if allin == False:
+                        if not allin:
                             if bet == 'three-cards' and betArea == 'Lucky':
                                 calc_odds = lucky_result * cFloat
-                                assert calc_odds == resultBal, f'Table {table.text} Calculation Odds: {calc_odds} Result Balance: {resultBal}'\
-                                ' \nOdds Calculation and Results Balance should be equal'
+                                message = f'Table: {table.text} Dealer: {dealer.text} '\
+                                f'Odds won: {calc_odds} and Balance Result: {resultBal} should be equal'
+                                assertion(message, calc_odds, resultBal)
                             else:
                                 if match:
                                     val = match.group(1)
                                     odds = float(val.split(':', 1)[1])
                                     winOdds = cFloat * odds
                                     if resultBal != 0.00:
-                                        assert winOdds == resultBal, f'Table {table.text} winOdds: {winOdds} resultBal: {resultBal}'\
-                                        ' \nWinning Odds and Result Balance should be equal'
+                                        message = f'Table: {table.text} Dealer: {dealer.text} '\
+                                        f'Odds won: {winOdds} and Balance Result: {resultBal} should be equal'
+                                        assertion(message, winOdds, resultBal)
                                 else:
                                     print("Odds not found")
                                 
@@ -213,9 +215,8 @@ def betOn(driver, bet, betArea, allin=False):
                         driver.save_screenshot(f'screenshots/{"Win Total"} {table.text} {count}.png')
                         # checks if the total winnings + the current balance is
                         # equal to the latest balance
-                        assert f'{total:.2f}' == f'{balance:.2f}', f'Table {table.text} Total Amount: {total} Remaining Balance {balance}'\
-                        ' \nTotal Amount and Remaning Balance should be equal'
-
+                        message = f'Table: {table.text} Dealer: {dealer.text} Balance after Winning: {total} and Latest Balance: {balance} should be equal'
+                        assertion(message, total, balance)
                         checkPlayerBalance(driver)
                     
                     if allin:
@@ -231,8 +232,9 @@ def betOn(driver, bet, betArea, allin=False):
                                     ExceptionMessage.append(str(e))
 
                             screenshot(driver, 'Bet on CLOSED', table.text, allin)
-                            assert len(ExceptionMessage) == len(bet_areas), f'Table {table.text} Expected Failed Clicks: {len(ExceptionMessage)} Bet Area Length {len(bet_areas)}'\
-                            ' \nFailed clicks count should be equal to Bet Area Length Count'
+                            message = f'Table: {table.text} Dealer: {dealer.text} '\
+                            f'Expected Failed Clicks Count: {len(ExceptionMessage)} should be equal to Bet Area Length Count: {len(bet_areas)}'
+                            assertion(message, len(ExceptionMessage), len(bet_areas))
 
                         # check if bet limit payrate are equal
                         payrates_odds(driver, bet, table, allin)
@@ -240,7 +242,4 @@ def betOn(driver, bet, betArea, allin=False):
                          # takes a screenshot of digital message for not betting 3 times
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', table.text, allin)
-
-                    with open('logs.txt', 'a') as logs:
-                        logs.write(f'===============================\n{table.text} {dealer.text} - BET on: {betArea}\nCurrent Balance: {oldBalance:.2f}\nBet: {getBets:.2f}\nPre-Balance: {preBalance:.2f}\n{wl}\nCash back: {back}\nFinal Balance: {balance:.2f}\nWin Result: {total} - {balance}\n===============================\n' + '\n')
                     break
