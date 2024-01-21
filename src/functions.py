@@ -33,11 +33,10 @@ def reset_coins(driver, game, amount):
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
 def checkPlayerBalance(driver):
-    dealer = findElement(driver, 'in-game','dealer')
-    table = findElement(driver, 'in-game', 'tableNumber')
+    tableDealer = table_dealer(driver)
     coins = findElement(driver, 'in-game', 'balance')
     playerBalance = findElement(driver, 'in-game', 'playerBalance')
-    message = f'Table: {table.text} Dealer: {dealer.text} Top Panel Balance: {coins.text}'\
+    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] Top Panel Balance: {coins.text}'\
     f' and Bottom Panel Balance: {playerBalance.text} should be equal'
     assertion(message, coins.text, playerBalance.text)
 
@@ -56,7 +55,7 @@ def LoseOrWin(driver):
 def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     coins = findElement(driver, 'in-game','balance')
-    table = findElement(driver, 'in-game','tableNumber')
+    tableDealer = table_dealer(driver)
 
     for _ in range(0, 30):
         index = random.choice(range(len(bet_areas)))
@@ -69,10 +68,11 @@ def coins_allin(driver, game, allin=False):
         insufficient = customJS(driver, 'toast_check();')
 
         if insufficient:
-            screenshot(driver, 'Insufficient Balance', table.text, allin)
+            screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
             findElement(driver, 'action', 'confirm', click=True)
             waitPresence(driver, 'in-game','balance', text='0.00')
-            message = f'Table: {table.text} Coins should be 0.00 after betting all-in: {coins.text}'
+            message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+            f'Coins: {coins.text} should be 0.00 after betting all-in'
             assertion(message, coins.text, '0.00')
             break
 
@@ -82,14 +82,14 @@ def payrates_odds(driver, game, table, allin=False):
     defaultPay = []
     list_pays = []
     betLimit = data('bet-limit').get(game)
-    tableNumber = findElement(driver, 'in-game', 'tableNumber')
+    tableDealer = table_dealer(driver)
 
     for _, x in betLimit.items():
         defaultPay.append(x)
 
     wait_If_Clickable(driver, 'in-game', 'payrate-modal')
     waitElement(driver, 'in-game', 'modal-bet')
-    screenshot(driver, 'BET Limit - Payrate', table.text, allin)
+    screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
     payrates = findElements(driver, 'in-game', 'payrates')
     sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
     
@@ -104,14 +104,27 @@ def payrates_odds(driver, game, table, allin=False):
         getDT = env('newDT')
         listDT = getDT.split(':')
 
-        if tableNumber.text in listDT:
+        if tableDealer[0] in listDT:
             defaultPay[2] = '(1:8)'
 
-    message = f'Table: {table.text} Game Bet Limit Payrate: {list_pays} '\
+    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+    f'Game Bet Limit Payrate: {list_pays} '\
     f'and Hardcoded Bet Limit Payrate: {defaultPay} should be equal'
     assertion(message, defaultPay, list_pays)
     findElement(driver, 'in-game', 'payrate-close', click=True)
 
+# gets table number and dealer name
+def table_dealer(driver):
+    tableNumber = findElement(driver, 'in-game', 'tableNumber')
+    dealer = findElement(driver, 'in-game','dealer')
+    return tableNumber.text, dealer.text
+
+# console log separator
+def dashes():
+    w_console = os.get_terminal_size().columns
+    print('=' * (w_console // 2))
+
+# wannabe soft assertion function lol
 def assertion(name, comparison, comparison2):
     red = '\033[91m'
     green = '\033[32m'
