@@ -2,6 +2,8 @@ from src.modules import *
 from src.helpers import *
 from src.api import *
 
+
+
 # for digital message screenshots
 def screenshot(driver, name, val, allin=False):
     if allin:
@@ -53,9 +55,15 @@ def LoseOrWin(driver):
 
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
-    bet_areas = list(data(game))
     coins = findElement(driver, 'in-game','balance')
     tableDealer = table_dealer(driver)
+    bet_areas = list(data(game))
+    global s6
+    s6 = random.choice(range(0, 2))
+    if s6 == 1 and game == 'baccarat':
+        wait_If_Clickable(driver, 'super6', 'r-area')
+        waitElement(driver, 'super6', 's6')
+        wait_If_Clickable(driver, 'super6', 's6')
 
     for _ in range(0, 30):
         index = random.choice(range(len(bet_areas)))
@@ -78,7 +86,7 @@ def coins_allin(driver, game, allin=False):
 
 # verifies payrates matches with the payrate
 # from yaml file
-def payrates_odds(driver, game, table, allin=False):
+def payrates_odds(driver, game, allin=False):
     defaultPay = []
     list_pays = []
     betLimit = data('bet-limit').get(game)
@@ -95,6 +103,10 @@ def payrates_odds(driver, game, table, allin=False):
     
     for payrate in payrates:
         list_pays.append(payrate.text)
+
+    if game == 'baccarat' and s6 == 1:
+        defaultPay.append('(1:12)')
+        defaultPay[1] = '(1:1)'
 
     if game == 'sedie':
         for payrate in sedie_payrates:

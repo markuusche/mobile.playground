@@ -142,7 +142,6 @@ def betOn(driver, bet, betArea, allin=False):
 
                     bets = findElement(driver, 'in-game', 'bets')
                     getBets = float(bets.text.replace(',',''))
-                    oldBalance = float(balance[0].replace(',',''))
 
                     # get balance after bet
                     wl = LoseOrWin(driver)
@@ -205,7 +204,7 @@ def betOn(driver, bet, betArea, allin=False):
                         # equal to the latest balance
                         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                         f'Balance after Winning: {total:.2f} and Latest Balance: {balance} should be equal'
-                        assertion(message, total, balance)
+                        assertion(message, f'{total:.2f}', f'{balance:.2f}')
                         checkPlayerBalance(driver)
                     
                     if allin:
@@ -227,7 +226,7 @@ def betOn(driver, bet, betArea, allin=False):
                             assertion(message, len(ExceptionMessage), len(bet_areas))
 
                         # check if bet limit payrate are equal
-                        payrates_odds(driver, bet, tableDealer[0], allin)
+                        payrates_odds(driver, bet, allin)
 
                          # takes a screenshot of digital message for not betting 3 times
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')

@@ -123,6 +123,10 @@ sedie:
   threewhite:                         'div.bet-table.r1 .beads'
   white:                              'div.bet-table.r0 .beads'
 
+super6:
+  r-area: 'div.right-area img'
+  s6: 'div.bet-table.s'
+
 three-cards:
   Dragon:                             'div.bet-table-dragon'
   Phoenix:                            'div.bet-table-phoenix'
