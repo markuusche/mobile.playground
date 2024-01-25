@@ -58,7 +58,7 @@ def play(driver, game, bet, allin=False):
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', game)
-        dashes()
+        print('=' * 50)
 
 # this is where the betting process for single bet and Allbet (All)
 def playGame(driver, game, bet, allin=False):

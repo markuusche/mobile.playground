@@ -2,8 +2,6 @@ from src.modules import *
 from src.helpers import *
 from src.api import *
 
-
-
 # for digital message screenshots
 def screenshot(driver, name, val, allin=False):
     if allin:
@@ -131,11 +129,6 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game','dealer')
     return tableNumber.text, dealer.text
 
-# console log separator
-def dashes():
-    w_console = os.get_terminal_size().columns
-    print('=' * (w_console // 2))
-
 # wannabe soft assertion function lol
 def assertion(name, comparison, comparison2):
     red = '\033[91m'
@@ -143,6 +136,6 @@ def assertion(name, comparison, comparison2):
     default = '\033[0m'
     try:
         assert comparison == comparison2
-        print(f'{green}✅ PASSED{default} {name}')
+        print(f'{green}PASSED{default} {name}')
     except AssertionError:
-        print(f'{red}❌ FAILED{default} {name}')
+        print(f'{red}FAILED{default} {name}')
