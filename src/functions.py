@@ -53,10 +53,10 @@ def LoseOrWin(driver):
 
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
+    global s6
     coins = findElement(driver, 'in-game','balance')
     tableDealer = table_dealer(driver)
     bet_areas = list(data(game))
-    global s6
     s6 = random.choice(range(0, 2))
     if s6 == 1 and game == 'baccarat':
         wait_If_Clickable(driver, 'super6', 'r-area')

@@ -5,7 +5,7 @@ from src.functions import *
 count = 0
 
 # this is where the table looping happens
-def play(driver, game, bet, allin=False):
+def play(driver, game, bet, allin=False, name=""):
     global count
     print('\n')
     waitElement(driver, 'lobby', 'main')
@@ -17,18 +17,18 @@ def play(driver, game, bet, allin=False):
         gameName = elements[i]
         
         # look for 'DT' string on the table list
-        if game == 'dragontiger' and 'DT' not in gameName.text:
+        if game == 'dragontiger' and name not in gameName.text:
             continue
 
         elif game == 'baccarat' and i == 0:
             continue
         
         # look for 'Three' string on the table list
-        elif game == 'three-cards' and 'Three' not in gameName.text:
+        elif game == 'three-cards' and name not in gameName.text:
             continue
         
         # look for 'Sedie' string on the table list
-        elif game == 'sedie' and 'Sedie' not in gameName.text:
+        elif game == 'sedie' and name not in gameName.text:
             continue
         
         # use for all-in test case
@@ -131,12 +131,20 @@ def betOn(driver, bet, betArea, allin=False):
                     board = findElements(driver, 'in-game', 'board-result')
                     lucky_odds = dict(data('lucky'))
                     lucky_result = 0.00
+                    odds = []
                     for i in board:
                         board_result = i.text.split(' – ')[0]
 
                         if board_result in lucky_odds:
                             value = lucky_odds[board_result]
-                            lucky_result = float(value)
+                            odds.append(value)
+                            if len(odds) == 2:
+                                if odds[0] > odds[1]:
+                                    lucky_result = float(odds[0])
+                                else:
+                                    lucky_result = float(odds[1])
+                            else:
+                                lucky_result = float(value)
 
                     # =================================================
 
