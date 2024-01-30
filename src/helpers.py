@@ -21,9 +21,13 @@ def findElements(driver, *keys, click=False):
 # waits an element from the <locator> source
 # from locators.yaml to appear
 def waitElement(driver, *keys):
-    locator = (By.CSS_SELECTOR, data(*keys))
-    element = WebDriverWait(driver, 60)
-    element.until(EC.visibility_of_element_located(locator))
+    try:
+        locator = (By.CSS_SELECTOR, data(*keys))
+        element = WebDriverWait(driver, 60)
+        element.until(EC.visibility_of_element_located(locator))
+    except:
+        driver.save_screenshot(f'screenshots/Timedout.png')
+
     return element
 
 # waits an element from the <locator> source

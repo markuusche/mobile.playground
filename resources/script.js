@@ -1,8 +1,8 @@
-function toast_check() {
+function toast_check(text) {
     let digitalElement = document.querySelector('div#bet-msg-toast div');
     let confirmButton = document.querySelector('div.flex.Confirm .label-btn');
     if (digitalElement) {
-        if (digitalElement.textContent.trim() === 'Insufficient Balance') {
+        if (digitalElement.textContent.trim() === text) {
             confirmButton.click();
             return true;
         }

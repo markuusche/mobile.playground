@@ -25,6 +25,7 @@ def reset_coins(driver, game, amount):
     addBalance(env('deduc'), amount=getBalance)
     addBalance(env('add'), amount)
     driver.refresh()
+    waitElementInvis(driver, 'lobby', 'logo')
     waitElement(driver, 'lobby', 'main')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
@@ -54,24 +55,28 @@ def LoseOrWin(driver):
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
     global s6
+
     coins = findElement(driver, 'in-game','balance')
     tableDealer = table_dealer(driver)
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
+
     if s6 == 1 and game == 'baccarat':
         wait_If_Clickable(driver, 'super6', 'r-area')
         waitElement(driver, 'super6', 's6')
         wait_If_Clickable(driver, 'super6', 's6')
 
     for _ in range(0, 30):
+
         index = random.choice(range(len(bet_areas)))
+
         try:
             wait_If_Clickable(driver, game, bet_areas[index])
         except ElementClickInterceptedException:
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             wait_If_Clickable(driver, game, bet_areas[index])
 
-        insufficient = customJS(driver, 'toast_check();')
+        insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
         if insufficient:
             screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)

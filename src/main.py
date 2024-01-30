@@ -114,8 +114,10 @@ def betOn(driver, bet, betArea, allin=False):
                         waitElementInvis(driver, 'in-game', 'toast')
                         wait_If_Clickable(driver, 'action', 'confirm')
 
-                    waitPresence(driver, 'in-game','toast', text='Bet Successful!')
-                    screenshot(driver, 'Bet Sucessful', tableDealer[0], allin)
+                    betsuccess = customJS(driver, 'toast_check("Bet Successful!");')
+                    if betsuccess:
+                        screenshot(driver, 'Bet Sucessful', tableDealer[0], allin)
+
                     waitPresence(driver, 'in-game','toast', text='No More Bets!')
                     remainingMoney = findElement(driver, 'in-game', 'balance')
                     preBalance = float(remainingMoney.text.replace(',',''))

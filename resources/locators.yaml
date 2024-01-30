@@ -107,6 +107,7 @@ lucky:
   'Triple':                           8
 
 lobby:
+  logo:                               'div#pre-loading .img-logo'
   baccarat:                           'div[tableinfo="[object Object]"] .v-card'
   dragontiger:                        'div[tableinfo="[object Object]"]'
   main:                               'div#tables-panel'
