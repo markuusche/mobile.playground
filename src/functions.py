@@ -25,7 +25,6 @@ def reset_coins(driver, game, amount):
     addBalance(env('deduc'), amount=getBalance)
     addBalance(env('add'), amount)
     driver.refresh()
-    waitElementInvis(driver, 'lobby', 'logo')
     waitElement(driver, 'lobby', 'main')
     wait_If_Clickable(driver, 'category', game)
     elements = findElements(driver, 'lobby', game)
@@ -86,6 +85,8 @@ def coins_allin(driver, game, allin=False):
             f'Coins: {coins.text} should be 0.00 after betting all-in'
             assertion(message, coins.text, '0.00')
             break
+    
+    sumBetPlaced(driver, tableDealer[0], tableDealer[1])
 
 # verifies payrates matches with the payrate
 # from yaml file
@@ -127,6 +128,23 @@ def payrates_odds(driver, game, allin=False):
     f'and Hardcoded Bet Limit Payrate: {defaultPay} should be equal'
     assertion(message, defaultPay, list_pays)
     findElement(driver, 'in-game', 'payrate-close', click=True)
+
+# get the total placed chip value
+# and compare it to Bets from betting area
+def sumBetPlaced(driver, table, dealer):
+    chips = 0.00
+    placed_chips = findElements(driver, 'in-game', 'totalMoney')
+    bets = findElement(driver, 'in-game', 'bets')
+    total = float(bets.text.replace(',',''))
+
+    for i in placed_chips:
+        if i.text != '':
+            chips += float(i.text.replace(',',''))
+
+    message = f'[Table: {table} Dealer: {dealer}] '\
+    f'Total Placed Bets Value: {chips} '\
+    f'and Bets: {total} should be equal'
+    assertion(message, chips, total)
 
 # gets table number and dealer name
 def table_dealer(driver):
