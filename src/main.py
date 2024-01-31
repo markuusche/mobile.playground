@@ -30,6 +30,9 @@ def play(driver, bet, betArea, allin=False, name=""):
         # look for 'Sedie' string on the table list
         elif bet == 'sedie' and name not in gameName.text:
             continue
+
+        elif bet == 'sicbo' and name not in gameName.text:
+            continue
         
         # use for all-in test case
         if allin:
@@ -58,7 +61,7 @@ def play(driver, bet, betArea, allin=False, name=""):
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', bet)
-        print('=' * 50)
+        print('=' * 70)
 
 # this is where the betting process for single bet and Allbet (All)
 def playGame(driver, bet, betArea, allin=False):
@@ -171,7 +174,9 @@ def betOn(driver, bet, betArea, allin=False):
                         f'Balance after Losing: {calcAmount} and Latest Balance: {balance} should be equal'
                         assertion(message, f'{calcAmount:.2f}', f'{balance:.2f}')
 
+                        driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {count}.png')
                         checkPlayerBalance(driver)
+
                     else:
                         resultBal = float(wl.replace('Win: ',''))
                         total = preBalance + resultBal + getBets
@@ -219,21 +224,22 @@ def betOn(driver, bet, betArea, allin=False):
                     
                     if allin:
                         # Place a bet when the timer is CLOSED verification
-                        waitPresence(driver, 'in-game','toast', text='No More Bets!')
-                        if timer.text == 'CLOSED':
-                            bet_areas = list(data(bet))
-                            ExceptionMessage = []
-                            for i in range(len(bet_areas)):
-                                try:
-                                    wait_If_Clickable(driver, bet, bet_areas[i])
-                                except Exception as e:
-                                    ExceptionMessage.append(str(e))
+                        if bet != 'sicbo': # ignore sicbo for now
+                            waitPresence(driver, 'in-game','toast', text='No More Bets!')
+                            if timer.text == 'CLOSED':
+                                bet_areas = list(data(bet))
+                                ExceptionMessage = []
+                                for i in range(len(bet_areas)):
+                                    try:
+                                        wait_If_Clickable(driver, bet, bet_areas[i])
+                                    except Exception as e:
+                                        ExceptionMessage.append(str(e))
 
-                            screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
-                            message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                            f'Expected Failed Clicks Count: {len(ExceptionMessage)} '\
-                            f'should be equal to Bet Area Length Count: {len(bet_areas)}'
-                            assertion(message, len(ExceptionMessage), len(bet_areas))
+                                screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
+                                message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+                                f'Expected Failed Clicks Count: {len(ExceptionMessage)} '\
+                                f'should be equal to Bet Area Length Count: {len(bet_areas)}'
+                                assertion(message, len(ExceptionMessage), len(bet_areas))
 
                         # check if bet limit payrate are equal
                         payrates_odds(driver, bet, allin)

@@ -1,6 +1,6 @@
 function toast_check(text) {
     let digitalElement = document.querySelector('div#bet-msg-toast div');
-    let confirmButton = document.querySelector('div.flex.Confirm .label-btn');
+    let confirmButton = document.querySelector('div.flex.Confirm');
     if (digitalElement) {
         if (digitalElement.textContent.trim() === text) {
             confirmButton.click();
