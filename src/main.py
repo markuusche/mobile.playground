@@ -5,37 +5,37 @@ from src.functions import *
 count = 0
 
 # this is where the table looping happens
-def play(driver, game, bet, allin=False, name=""):
+def play(driver, bet, betArea, allin=False, name=""):
     global count
     print('\n')
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
-    wait_If_Clickable(driver, 'category', game)
-    elements = findElements(driver, 'lobby', game)
+    wait_If_Clickable(driver, 'category', bet)
+    elements = findElements(driver, 'lobby', bet)
 
     for i in range(len(elements)):
         gameName = elements[i]
         
         # look for 'DT' string on the table list
-        if game == 'dragontiger' and name not in gameName.text:
+        if bet == 'dragontiger' and name not in gameName.text:
             continue
 
-        elif game == 'baccarat' and i == 0:
+        elif bet == 'baccarat' and i == 0:
             continue
         
         # look for 'Three' string on the table list
-        elif game == 'three-cards' and name not in gameName.text:
+        elif bet == 'three-cards' and name not in gameName.text:
             continue
         
         # look for 'Sedie' string on the table list
-        elif game == 'sedie' and name not in gameName.text:
+        elif bet == 'sedie' and name not in gameName.text:
             continue
         
         # use for all-in test case
         if allin:
-            elements = reset_coins(driver, game, 1191.78)
+            elements = reset_coins(driver, bet, 1191.78)
         else:
-            elements = reset_coins(driver, game, 10000)
+            elements = reset_coins(driver, bet, 10000)
 
         table = elements[i]
 
@@ -52,22 +52,22 @@ def play(driver, game, bet, allin=False, name=""):
         waitElement(driver, 'in-game', 'game')
 
         # playing functions starts here
-        playGame(driver, game, bet, allin)
+        playGame(driver, bet, betArea, allin)
 
         # going back to lobby after the test is done
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
-        elements = findElements(driver, 'lobby', game)
+        elements = findElements(driver, 'lobby', bet)
         print('=' * 50)
 
 # this is where the betting process for single bet and Allbet (All)
-def playGame(driver, game, bet, allin=False):
-    bet_areas = list(data(game))
-    if bet == 'All':
+def playGame(driver, bet, betArea, allin=False):
+    bet_areas = list(data(bet))
+    if betArea == 'All':
         for i in range(len(bet_areas)):
-            betOn(driver, game, bet_areas[i])
+            betOn(driver, bet, bet_areas[i])
     else:
-        betOn(driver, game, bet, allin)
+        betOn(driver, bet, betArea, allin)
 
 # Main Test Case function for validation and assertions
 def betOn(driver, bet, betArea, allin=False):

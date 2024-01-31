@@ -91,6 +91,7 @@ in-game:
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
   settled:                            'div#bet-msg-toast'
   shuffling:                          'div.shuffling-text'
+  sidebet-l:                          'div.left-area'
   shoe:                               'div.table-number span:last-child'
   table:                              'div.baccarat-table'
   tableNumber:                        'div.table-number span:first-child'
@@ -123,6 +124,13 @@ sedie:
   threered:                           'div.bet-table.r3 .beads'
   threewhite:                         'div.bet-table.r1 .beads'
   white:                              'div.bet-table.r0 .beads'
+
+sidebet:
+  baccarat:
+    pbonus:                           'div.bet-table.pb'
+    bbonus:                           'div.bet-table.bb'
+    small:                            'div.bet-table.sm'
+    big:                              'div.bet-table.bg'
 
 super6:
   r-area: 'div.right-area img'
