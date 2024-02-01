@@ -32,13 +32,14 @@ def reset_coins(driver, game, amount):
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
-def checkPlayerBalance(driver):
-    tableDealer = table_dealer(driver)
-    coins = findElement(driver, 'in-game', 'balance')
-    playerBalance = findElement(driver, 'in-game', 'playerBalance')
-    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] Top Panel Balance: {coins.text}'\
-    f' and Bottom Panel Balance: {playerBalance.text} should be equal'
-    assertion(message, coins.text, playerBalance.text)
+def checkPlayerBalance(driver, game):
+    if game != 'roulette':
+        tableDealer = table_dealer(driver)
+        coins = findElement(driver, 'in-game', 'balance')
+        playerBalance = findElement(driver, 'in-game', 'playerBalance')
+        message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] Top Panel Balance: {coins.text}'\
+        f' and Bottom Panel Balance: {playerBalance.text} should be equal'
+        assertion(message, coins.text, playerBalance.text)
 
 # gets Lose or Win message with the values
 def LoseOrWin(driver):

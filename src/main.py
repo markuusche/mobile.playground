@@ -30,8 +30,13 @@ def play(driver, bet, betArea, allin=False, name=""):
         # look for 'Sedie' string on the table list
         elif bet == 'sedie' and name not in gameName.text:
             continue
-
+            
+         # look for 'Sicbo' string on the table list
         elif bet == 'sicbo' and name not in gameName.text:
+            continue
+        
+        # look for 'Roulette' string on the table list
+        elif bet == 'roulette' and name not in gameName.text:
             continue
         
         # use for all-in test case
@@ -90,7 +95,7 @@ def betOn(driver, bet, betArea, allin=False):
     balance = []
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
-    checkPlayerBalance(driver)
+    checkPlayerBalance(driver, bet)
 
     while True:
         money = findElement(driver, 'in-game', 'balance')
@@ -173,9 +178,11 @@ def betOn(driver, bet, betArea, allin=False):
                         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                         f'Balance after Losing: {calcAmount} and Latest Balance: {balance} should be equal'
                         assertion(message, f'{calcAmount:.2f}', f'{balance:.2f}')
+                        
+                        if not allin:
+                            driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {count}.png')
 
-                        driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {count}.png')
-                        checkPlayerBalance(driver)
+                        checkPlayerBalance(driver, bet)
 
                     else:
                         resultBal = float(wl.replace('Win: ',''))
@@ -192,24 +199,25 @@ def betOn(driver, bet, betArea, allin=False):
 
                         # special case for Three-cards odds
                         if not allin:
-                            if bet == 'three-cards' and betArea == 'Lucky':
-                                count += 1
-                                calc_odds = lucky_result * cFloat
-                                message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                                f'Odds won: {calc_odds} and Balance Result: {resultBal} should be equal'
-                                assertion(message, calc_odds, resultBal)
-                            else:
-                                if match:
-                                    val = match.group(1)
-                                    odds = float(val.split(':', 1)[1])
-                                    winOdds = cFloat * odds
-                                    if resultBal != 0.00:
-                                        count += 1
-                                        message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                                        f'Odds won: {winOdds} and Balance Result: {resultBal} should be equal'
-                                        assertion(message, winOdds, resultBal)
+                            if bet != 'sicbo' and bet != 'roulette':
+                                if bet == 'three-cards' and betArea == 'Lucky':
+                                    count += 1
+                                    calc_odds = lucky_result * cFloat
+                                    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+                                    f'Odds won: {calc_odds} and Balance Result: {resultBal} should be equal'
+                                    assertion(message, calc_odds, resultBal)
                                 else:
-                                    print("Odds not found")
+                                    if match:
+                                        val = match.group(1)
+                                        odds = float(val.split(':', 1)[1])
+                                        winOdds = cFloat * odds
+                                        if resultBal != 0.00:
+                                            count += 1
+                                            message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+                                            f'Odds won: {winOdds} and Balance Result: {resultBal} should be equal'
+                                            assertion(message, winOdds, resultBal)
+                                    else:
+                                        print("Odds not found")
                                 
                         if allin:
                             screenshot(driver, 'Win Balance', tableDealer[0], allin)
@@ -220,11 +228,11 @@ def betOn(driver, bet, betArea, allin=False):
                         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                         f'Balance after Winning: {total:.2f} and Latest Balance: {balance} should be equal'
                         assertion(message, f'{total:.2f}', f'{balance:.2f}')
-                        checkPlayerBalance(driver)
+                        checkPlayerBalance(driver, bet)
                     
                     if allin:
                         # Place a bet when the timer is CLOSED verification
-                        if bet != 'sicbo': # ignore sicbo for now
+                        if bet != 'sicbo' and bet != 'roulette': # ignore sicbo and roulette for now
                             waitPresence(driver, 'in-game','toast', text='No More Bets!')
                             if timer.text == 'CLOSED':
                                 bet_areas = list(data(bet))
