@@ -51,16 +51,8 @@ def wait_If_Clickable(driver, *keys):
 def waitPresence(driver, *keys, text):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
-        element = WebDriverWait(driver, 600)
+        element = WebDriverWait(driver, 350)
         element.until(EC.text_to_be_present_in_element(locator, text_=text))
         return element
     except TimeoutException:
         print(f'{text} did not appeared or not displayed.')
-
-# waits for the elemennt to be present?
-# (never used) for future reference
-def waitElementPresence(driver, *keys):
-    locator = (By.CSS_SELECTOR, data(*keys))
-    element = WebDriverWait(driver, 600)
-    element.until(EC.presence_of_all_elements_located(locator))
-    return element

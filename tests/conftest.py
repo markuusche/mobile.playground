@@ -28,16 +28,23 @@ def driver(headless):
     option.add_argument("--disable-default-apps ")
     option.add_argument("--incognito")
     option.add_argument("--mute-audio")
+    option.add_argument("--disable-cache")
+    option.add_argument("--disable-application-cache")
+    option.add_argument("--disk-cache-size=0")
+    option.add_argument("--media-cache-size=0")
+    option.add_argument("--v8-cache-options=off")
+    option.add_argument("--aggressive-cache-discard")
     option.add_experimental_option("mobileEmulation", emulation())
     option.add_experimental_option("excludeSwitches",["enable-automation"])
-
     driver = webdriver.Chrome(options=option)
+    driver.set_window_position(1410, 0)
     driver.set_window_size(425, 1065)
     driver.get(URL)
 
     yield driver
     
     #teardown
+    driver.close()
     driver.quit()
 
 @pytest.fixture
@@ -55,6 +62,6 @@ def emulation():
             },
         "userAgent": 'Mozilla/5.0'\
         '(Linux; Android 14.0; iPhone X/MRA58N)'\
-        'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97'\
+        'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.85'\
         'Mobile Safari/537.36'
     }

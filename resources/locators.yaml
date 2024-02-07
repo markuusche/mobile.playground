@@ -1,4 +1,5 @@
 action:
+  cancel:                             'div.flex.Cancel'
   confirm:                            'div.flex.Confirm'
   rebet:                              'div.flex.Repeat'
 
@@ -107,8 +108,13 @@ in-game:
   bets:                               'div.bets-info span'
   board-result:                       'div.result-cards .board-result'
   botnav:                             'div.v-tabs__wrapper'
+  chip amount:                        'div#chip-amounts'
+  clear:                              'div.v-input__slot div:nth-child(3) i'
   dealer:                             'div.dealer-name span'
+  edit:                               'div.chip-edit'
+  edit button:                        'button.edit-btn'
   game:                               'div#game-content'
+  input chips:                        'input[aria-label="Edit Chips"]'
   insufficient:                       'div#bet-msg-toast div'
   modal-bet:                          'div#bet-limit'
   msg:                                'div#bet-msg-toast'
@@ -116,15 +122,9 @@ in-game:
   payrate-modal:                      'div#game-buttons .btn-payrate'
   payrates:                           '.bet-label span.pay-rate'
   playerBalance:                      'div.player-balance'
-  playerName:                         'div.player-name'
   resultToast:                        'div#bet-msg-toast span'
-  row:                                'div#tables-panel'
+  save amount:                        'button.edit-btn div'
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
-  settled:                            'div#bet-msg-toast'
-  shuffling:                          'div.shuffling-text'
-  sidebet-l:                          'div.left-area'
-  shoe:                               'div.table-number span:last-child'
-  table:                              'div.baccarat-table'
   tableNumber:                        'div.table-number span:first-child'
   timer:                              'div#table-state-wrap .v-progress-circular__info span'
   toast:                              'div#bet-msg-toast div'
@@ -139,7 +139,6 @@ lucky:
   'Triple':                           8
 
 lobby:
-  logo:                               'div#pre-loading .img-logo'
   main:                               'div#tables-panel'
   baccarat:                           'div[tableinfo="[object Object]"] .v-card'
   dragontiger:                        'div[tableinfo="[object Object]"]'
