@@ -6,6 +6,7 @@ import pytest
 import yaml
 import os
 import re
+import math
 from time import sleep
 from faker import Faker
 from selenium import webdriver

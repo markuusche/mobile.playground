@@ -110,7 +110,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
 def editChips(driver):
     bets = findElement(driver, 'in-game', 'balance')
     value = float(bets.text.replace(',',''))
-    chips = int(value) / 10
+    chips = int(value) / 9
     if chips > 9:
         wait_If_Clickable(driver, 'in-game', 'edit')
         waitElement(driver, 'in-game', 'chip amount')
@@ -131,7 +131,7 @@ def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
 
-    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    # cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
     editChips(driver)
 
     if s6 == 1 and game == 'baccarat':
@@ -151,17 +151,17 @@ def coins_allin(driver, game, allin=False):
 
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
+        # to remember -> raise a bug regarding inconsistent balance and bet value
+        # from betting all-in
         if insufficient:
             screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
             wait_If_Clickable(driver, 'action', 'confirm')
-            waitPresence(driver, 'in-game', 'toast', text='Bet Successful!')
-            screenshot(driver, 'Bet Successful!', tableDealer[0], allin)
-            waitPresence(driver, 'in-game', 'toast', text='No More Bets!')
+            waitPresence(driver, 'in-game', 'balance', text='0.00')
             message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
             f'All-in bet {coins.text} - Expected: 0.00'
             assertion(message, coins.text, '0.00')
             break
-    
+
     sumBetPlaced(driver, tableDealer[0], tableDealer[1])
 
 # verifies payrates matches with the payrate

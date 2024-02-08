@@ -3,7 +3,6 @@ function toast_check(text) {
     let confirmButton = document.querySelector('div.flex.Confirm');
     if (digitalElement) {
         if (digitalElement.textContent.trim() === text) {
-            confirmButton.click();
             return true;
         }
     }

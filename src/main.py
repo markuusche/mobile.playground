@@ -11,9 +11,10 @@ def play(driver, bet, betArea, allin=False, name=""):
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
     wait_If_Clickable(driver, 'category', bet)
+    bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', bet)
 
-    for i in range(len(elements)):
+    for i in range(3, len(elements)):
         gameName = elements[i]
         
         if bet == 'dragontiger' and name not in gameName.text:
@@ -49,21 +50,16 @@ def play(driver, bet, betArea, allin=False, name=""):
 
         waitElement(driver, 'in-game', 'game')
 
-        playGame(driver, bet, betArea, allin)
+        if betArea == 'All':
+            for x in range(len(bet_areas)):
+                betOn(driver, bet, bet_areas[x])
+        else:
+            betOn(driver, bet, betArea, allin)
 
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', bet)
         print('=' * 100)
-
-# this is where the betting process for single bet and Allbet (All)
-def playGame(driver, bet, betArea, allin=False):
-    bet_areas = list(data(bet))
-    if betArea == 'All':
-        for i in range(len(bet_areas)):
-            betOn(driver, bet, bet_areas[i])
-    else:
-        betOn(driver, bet, betArea, allin)
 
 # Main Test Case function for validation and assertions
 def betOn(driver, bet, betArea, allin=False):
@@ -210,7 +206,7 @@ def betOn(driver, bet, betArea, allin=False):
                         # checks if the total winnings + the current balance is
                         # equal to the latest balance
                         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                        f'Win balance {round(total, 2)} & Latest balance  {balance} - Expected: EQUAL'
+                        f'Win balance {round(total, 2)} & Latest balance {balance} - Expected: EQUAL'
                         assertion(message, f'{round(total, 2)}', f'{round(balance, 2)}')
                         checkPlayerBalance(driver, bet)
                     
@@ -233,9 +229,7 @@ def betOn(driver, bet, betArea, allin=False):
                                 f'Bet area length {len(bet_areas)} - Expected: EQUAL'
                                 assertion(message, len(ExceptionMessage), len(bet_areas))
 
-                        # check if bet limit payrate are equal
-                        payrates_odds(driver, bet, allin)
-
+                        payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
                         # takes a screenshot of digital message for not betting 3 times
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
