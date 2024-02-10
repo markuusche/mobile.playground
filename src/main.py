@@ -14,7 +14,7 @@ def play(driver, bet, betArea, allin=False, name=""):
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', bet)
 
-    for i in range(3, len(elements)):
+    for i in range(len(elements)):
         gameName = elements[i]
         
         if bet == 'dragontiger' and name not in gameName.text:
@@ -106,7 +106,7 @@ def betOn(driver, bet, betArea, allin=False):
                         waitElementInvis(driver, 'in-game', 'toast')
                         wait_If_Clickable(driver, 'action', 'confirm')
 
-                    waitPresence(driver, 'in-game','toast', text='No More Bets!')
+                    waitPresence(driver, 'in-game','toast', text='No More Bets!', time=40)
                     remainingMoney = findElement(driver, 'in-game', 'balance')
                     preBalance = float(remainingMoney.text.replace(',',''))
 
@@ -157,7 +157,7 @@ def betOn(driver, bet, betArea, allin=False):
                         
                         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                         f'Balance after losing {round(calcAmount, 2)} Latest Balance {round(balance, 2)} - Expected: EQUAL'
-                        assertion(message, f'{round(calcAmount, 2)}', f'{round(balance, 2)}')
+                        assertion(message, f'{round(calcAmount, 2):.2f}', f'{round(balance, 2):.2f}')
                         
                         if not allin:
                             driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {count}.png')
@@ -213,7 +213,7 @@ def betOn(driver, bet, betArea, allin=False):
                     if allin:
                         # Place a bet when the timer is CLOSED verification
                         if bet != 'sicbo' and bet != 'roulette': # ignore sicbo and roulette for now
-                            waitPresence(driver, 'in-game','toast', text='No More Bets!')
+                            waitPresence(driver, 'in-game','toast', text='No More Bets!', time=40)
                             if timer.text == 'CLOSED':
                                 bet_areas = list(data(bet))
                                 ExceptionMessage = []

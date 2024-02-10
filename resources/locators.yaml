@@ -9,8 +9,8 @@ baccarat:
   Banker:                             'div.bet-table.b'
   PPair:                              'div.bet-table.pp'
   Any-Pair:                           'div.bet-table.etp'
-  BPair:                              'div.bet-table.bp'
   Perfect-Pair:                       'div.bet-table.pfp'
+  BPair:                              'div.bet-table.bp'
 
 bet-limit:
   baccarat:

@@ -2,12 +2,15 @@ from src.modules import *
 
 # find single element <locator> source from locators.yaml
 def findElement(driver, *keys, click=False):
-    locator = data(*keys)
-    element = driver.find_element(By.CSS_SELECTOR, locator)
-    if click:
-        element.click()
-    else:
-        return element
+    try:
+        locator = data(*keys)
+        element = driver.find_element(By.CSS_SELECTOR, locator)
+        if click:
+            element.click()
+        else:
+            return element
+    except NoSuchElementException as such:
+        print(f'\033[91mFAILED "{such}" ')
 
 # find multiple elements <locator> source from locators.yaml
 def findElements(driver, *keys, click=False):
@@ -48,11 +51,11 @@ def wait_If_Clickable(driver, *keys):
 
 # waits the presence of the element from the <locator> source
 # from locator.yaml to appear
-def waitPresence(driver, *keys, text):
+def waitPresence(driver, *keys, text, time=350):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
-        element = WebDriverWait(driver, 350)
+        element = WebDriverWait(driver, time)
         element.until(EC.text_to_be_present_in_element(locator, text_=text))
         return element
-    except TimeoutException:
-        print(f'{text} did not appeared or not displayed.')
+    except Exception:
+        print(f'\033[91mFAILED "{text}" was not captured by selenium.')

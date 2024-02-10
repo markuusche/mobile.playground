@@ -84,7 +84,7 @@ def getChipValue(driver):
 
 # cancel and then rebet test case
 def cancelRebet(driver, betArea, tableDealer, game, allin=False):
-    numbers = editChips(driver)
+    numbers = editChips(driver, 20)
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     assert chips > numbers
@@ -107,10 +107,10 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
 # edit chips from in-game
-def editChips(driver):
+def editChips(driver, divideBy=10):
     bets = findElement(driver, 'in-game', 'balance')
     value = float(bets.text.replace(',',''))
-    chips = int(value) / 9
+    chips = int(value) / divideBy
     if chips > 9:
         wait_If_Clickable(driver, 'in-game', 'edit')
         waitElement(driver, 'in-game', 'chip amount')
@@ -131,8 +131,8 @@ def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
 
-    # cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
-    editChips(driver)
+    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    editChips(driver, 10)
 
     if s6 == 1 and game == 'baccarat':
         wait_If_Clickable(driver, 'super6', 'r-area')
@@ -156,13 +156,13 @@ def coins_allin(driver, game, allin=False):
         if insufficient:
             screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
             wait_If_Clickable(driver, 'action', 'confirm')
-            waitPresence(driver, 'in-game', 'balance', text='0.00')
+            success = customJS(driver, 'toast_check("Insufficient Balance");')
+            waitPresence(driver, 'in-game', 'balance', text='0.00', time=10)
             message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
             f'All-in bet {coins.text} - Expected: 0.00'
             assertion(message, coins.text, '0.00')
+            sumBetPlaced(driver, tableDealer[0], tableDealer[1])
             break
-
-    sumBetPlaced(driver, tableDealer[0], tableDealer[1])
 
 # verifies payrates matches with the payrate
 # from yaml file
@@ -208,7 +208,8 @@ def payrates_odds(driver, game, allin=False):
 # and compare it to Bets from betting area
 def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
     chips = getChipValue(driver)
-            
+    total = 0.00
+
     # check if bet area has 0 chips
     if cancel:
         message = f'[Table: {table} Dealer: {dealer}] '\
@@ -216,12 +217,15 @@ def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
         assertion(message, chips, 0)
     else:
         bets = findElement(driver, 'in-game', 'bets')
-        total = float(bets.text.replace(',',''))
-
-        message = f'[Table: {table} Dealer: {dealer}] '\
-        f'Placed chips {round(chips, 2)} '\
-        f'Bets {total} - Expected: EQUAL'
-        assertion(message, round(chips, 2), total)
+        if bets != None:
+            total = float(bets.text.replace(',',''))
+            message = f'[Table: {table} Dealer: {dealer}] '\
+            f'Placed chips {round(chips, 2)} '\
+            f'Bets {total} - Expected: EQUAL'
+            assertion(message, round(chips, 2), total)
+        else:
+            message = f'\033[91mBalance is empty cannot count chips value'
+            assertion(message, skip=True)
 
 # gets table number and dealer name
 def table_dealer(driver):
