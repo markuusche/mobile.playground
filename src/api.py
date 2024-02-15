@@ -1,12 +1,10 @@
 from src.modules import *
 
-base = env('base')
-
 def getToken():
     header = {}
     header['X-Operator'] = env('XOp')
     header['X-Key'] = env('Xkey')
-    response = requests.get(base + env('desc'), headers=header)
+    response = requests.get(env('base') + env('desc'), headers=header)
     return response.json()
 
 def gameKey():
@@ -14,13 +12,15 @@ def gameKey():
     username = {'username': env('username')}
     token = fetch['data']['token']
     header = {'X-token': token}
-    response = requests.get(base + env('key'), params=username, headers=header)
+    response = requests.get(env('base') + env('key'), \
+    params=username, headers=header)
     return response.json()['data']['key'], header
 
 def play():
     key = gameKey()
     paramKey = {'key': key[0]}
-    response = requests.get(base + env('play'), params=paramKey, headers=key[1])
+    response = requests.get(env('base') + env('play'), \
+    params=paramKey, headers=key[1])
     return response.json()['data']['url']
 
 def addBalance(entry, amount):
@@ -32,6 +32,7 @@ def addBalance(entry, amount):
     body['balance'] = amount
     body['action'] = entry
     body['transferId'] = fake.passport_number()
-    response = requests.post(base + env('balance'), headers=header, json=body)
+    response = requests.post(env('base') + env('balance'), \
+    headers=header, json=body)
     assert response.status_code == 200
     return response.json()['data']['balance']
