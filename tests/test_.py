@@ -22,4 +22,3 @@ def test_DragonTiger_Allin_and_Odds(driver, lobby):
 def test_Baccarat_Allin_and_Odds(driver, lobby):
     play(driver, 'baccarat', 'All')
     play(driver, 'baccarat', 'Banker', allin=True)
-

@@ -115,7 +115,6 @@ in-game:
   edit button:                        'button.edit-btn'
   game:                               'div#game-content'
   input chips:                        'input[aria-label="Edit Chips"]'
-  insufficient:                       'div#bet-msg-toast div'
   modal-bet:                          'div#bet-limit'
   msg:                                'div#bet-msg-toast'
   payrate-close:                      'div.close-wrap .close'
@@ -140,12 +139,14 @@ lucky:
 
 lobby:
   main:                               'div#tables-panel'
-  baccarat:                           'div[tableinfo="[object Object]"] .v-card'
-  dragontiger:                        'div[tableinfo="[object Object]"]'
-  roulette:                           'div[tableinfo="[object Object]"]'
-  sedie:                              'div[tableinfo="[object Object]"]'
-  sicbo:                              'div[tableinfo="[object Object]"]'
-  three-cards:                        'div[tableinfo="[object Object]"]'
+  table panel:                        'div[tableinfo="[object Object]"]'
+
+digital results:
+  # bdt = bacc, drag, three
+  bdt:                              'div.v-image.result-board'
+  sedie:                            'div#sedie-result'
+  sicbo:                            'div#sicbo-result'
+  roulette:                         'div#roulette-result'
 
 roulette:
   # single bets
@@ -402,13 +403,6 @@ sicbo:
   dice4:                              'div.single .dice4'
   dice5:                              'div.single .dice5'
   dice6:                              'div.single .dice6'
-
-sidebet:
-  baccarat:
-    pbonus:                           'div.bet-table.pb'
-    bbonus:                           'div.bet-table.bb'
-    small:                            'div.bet-table.sm'
-    big:                              'div.bet-table.bg'
 
 super6:
   r-area:                             'div.right-area img'

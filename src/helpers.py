@@ -23,38 +23,47 @@ def findElements(driver, *keys, click=False):
     
 # waits an element from the <locator> source
 # from locators.yaml to appear
-def waitElement(driver, *keys):
+def waitElement(driver, *keys, setTimeout=60):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
-        element = WebDriverWait(driver, 60)
+        element = WebDriverWait(driver, setTimeout)
         element.until(EC.visibility_of_element_located(locator))
-    except:
-        driver.save_screenshot(f'screenshots/Timedout.png')
+    except:            
+        driver.save_screenshot(f'screenshots/Timeout.png')
 
     return element
 
 # waits an element from the <locator> source
 # from locators.yaml to disappear
-def waitElementInvis(driver, *keys):
-    locator = (By.CSS_SELECTOR, data(*keys))
-    element = WebDriverWait(driver, 600)
-    element.until(EC.invisibility_of_element(locator))
-
+def waitElementInvis(driver, *keys, setTimeout=600, isDigital=False, tableDealer=None):
+    try:
+        locator = (By.CSS_SELECTOR, data(*keys))
+        element = WebDriverWait(driver, setTimeout)
+        element.until(EC.invisibility_of_element(locator))
+        if isDigital:
+            print(f'\033[32mPASSED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+            f'New Round Digital Result is not displayed!')
+    except:
+        print(f'Element did not disappear {locator}')
+        if isDigital:
+            print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+            f'New Round Digital Result is displayed!')
+        
 # waits an element from the <locator> source
 # from locator.yaml to disappear
-def wait_If_Clickable(driver, *keys):
+def wait_If_Clickable(driver, *keys, setTimeout=15):
     locator = (By.CSS_SELECTOR, data(*keys))
-    wait = WebDriverWait(driver, 15)
+    wait = WebDriverWait(driver, setTimeout)
     element = wait.until(EC.element_to_be_clickable(locator)
                 ,message="\"Cannot find element\"")
     element.click()
 
 # waits the presence of the element from the <locator> source
 # from locator.yaml to appear
-def waitPresence(driver, *keys, text, time=350):
+def waitPresence(driver, *keys, text, setTimeout=350):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
-        element = WebDriverWait(driver, time)
+        element = WebDriverWait(driver, setTimeout)
         element.until(EC.text_to_be_present_in_element(locator, text_=text))
         return element
     except Exception:

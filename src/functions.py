@@ -21,14 +21,18 @@ def deleteScreenshots():
 # reset coins to default amount when betting all-in. 
 # for every table loop
 def reset_coins(driver, game, amount):
-    getBalance = addBalance(env('add'), amount)
-    addBalance(env('deduc'), amount=getBalance)
-    addBalance(env('add'), amount)
-    driver.refresh()
-    waitElement(driver, 'lobby', 'main')
-    wait_If_Clickable(driver, 'category', game)
-    elements = findElements(driver, 'lobby', game)
-    return elements
+    try: # catching error to prevent blank lobby after a long run
+        getBalance = addBalance(env('add'), amount)
+        addBalance(env('deduc'), amount=getBalance)
+        addBalance(env('add'), amount)
+        driver.refresh()
+        waitElement(driver, 'lobby', 'main')
+        wait_If_Clickable(driver, 'category', game)
+        elements = findElements(driver, 'lobby', 'table panel')
+        return elements
+    except:
+        # catch here -> refresh token and browser
+        driver.get(play())
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
@@ -39,7 +43,7 @@ def checkPlayerBalance(driver, game):
         playerBalance = findElement(driver, 'in-game', 'playerBalance')
         message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] Top balance {coins.text} '\
         f'Bottom balance {playerBalance.text} - Expected: EQUAL'
-        assertion(message, coins.text, playerBalance.text)
+        assertion(message, coins.text, '==', playerBalance.text)
 
 # gets Lose or Win message with the values
 def LoseOrWin(driver):
@@ -87,7 +91,9 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     numbers = editChips(driver, 20)
     betting(driver, betArea, game)
     chips = getChipValue(driver)
-    assert chips > numbers
+    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+    '\033[93mChips are being placed.'
+    assertion(message, chips, '>', numbers)
 
     cancelAssert(driver, tableDealer, allin, 'Chip placed & cancelled!')
     betting(driver, betArea, game, placeConfirm=True)
@@ -151,16 +157,13 @@ def coins_allin(driver, game, allin=False):
 
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
-        # to remember -> raise a bug regarding inconsistent balance and bet value
-        # from betting all-in
         if insufficient:
             screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
             wait_If_Clickable(driver, 'action', 'confirm')
-            success = customJS(driver, 'toast_check("Insufficient Balance");')
-            waitPresence(driver, 'in-game', 'balance', text='0.00', time=10)
+            waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
             message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
             f'All-in bet {coins.text} - Expected: 0.00'
-            assertion(message, coins.text, '0.00')
+            assertion(message, coins.text, '==', '0.00')
             sumBetPlaced(driver, tableDealer[0], tableDealer[1])
             break
 
@@ -201,7 +204,7 @@ def payrates_odds(driver, game, allin=False):
 
     message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
     f'Bet limit rate & Local bet limit rate - Expected: EQUAL'
-    assertion(message, defaultPay, list_pays)
+    assertion(message, defaultPay, '==', list_pays)
     findElement(driver, 'in-game', 'payrate-close', click=True)
 
 # get the total placed chip value
@@ -214,7 +217,7 @@ def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
     if cancel:
         message = f'[Table: {table} Dealer: {dealer}] '\
         f'{text} {chips} - Expected: No chips placed'
-        assertion(message, chips, 0)
+        assertion(message, chips, '==', 0)
     else:
         bets = findElement(driver, 'in-game', 'bets')
         if bets != None:
@@ -222,10 +225,34 @@ def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
             message = f'[Table: {table} Dealer: {dealer}] '\
             f'Placed chips {round(chips, 2)} '\
             f'Bets {total} - Expected: EQUAL'
-            assertion(message, round(chips, 2), total)
+            assertion(message, round(chips, 2), '==', total)
         else:
             message = f'\033[91mBalance is empty cannot count chips value'
             assertion(message, skip=True)
+
+# new round verification test case
+def verifiy_newRound(driver, bet, tableDealer):
+    if bet == 'baccarat' or bet == 'three-cards' or bet == 'dragontiger':
+        verify_digitalResult(driver, 'bdt', tableDealer)
+    elif bet == 'sicbo':
+        verify_digitalResult(driver, 'sicbo', tableDealer)
+    elif bet == 'roulette':
+        verify_digitalResult(driver, 'roulette', tableDealer)
+    else:
+        waitElementInvis(driver, 'digital results', 'sedie', \
+        setTimeout=3, isDigital=True, tableDealer=tableDealer)
+    
+    sumBetPlaced(driver, tableDealer[0], tableDealer[1], \
+    cancel=True, text='No placed chips after new round')
+
+def verify_digitalResult(driver, game, tableDealer):
+    digital = findElement(driver, 'digital results', game)
+    if digital.is_displayed():
+        print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+        'New Round Digital Result is displayed!')
+    else: 
+        print(f'\033[32mPASSED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+        'New Round Digital Result is not displayed!')
 
 # gets table number and dealer name
 def table_dealer(driver):
@@ -233,17 +260,24 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
-# wannabe soft assertion function lol
-def assertion(message, comparison=None, comparison2=None, skip=False):
+# soft assertion function
+def assertion(message, comparison=None, operator=None, comparison2=None, skip=False):
     red = '\033[91m'
     green = '\033[32m'
     default = '\033[0m'
     yellow = '\033[93m'
+    
     if skip:
         print(f'{yellow}SKIPPED{default} {message}')
     else:
         try:
-            assert comparison == comparison2
+            if operator == '==':
+                assert comparison == comparison2
+            elif operator == '>':
+                assert comparison > comparison2
+            elif operator == '<':
+                assert comparison < comparison2
+            
             print(f'{green}PASSED{default} {message}')
         except AssertionError:
             print(f'{red}FAILED{default} {message}')
