@@ -25,7 +25,7 @@ def reset_coins(driver, game, amount):
         getBalance = addBalance(env('add'), amount)
         addBalance(env('deduc'), amount=getBalance)
         addBalance(env('add'), amount)
-        driver.refresh()
+        driver.get(play())    
         waitElement(driver, 'lobby', 'main')
         wait_If_Clickable(driver, 'category', game)
         elements = findElements(driver, 'lobby', 'table panel')

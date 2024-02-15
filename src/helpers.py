@@ -9,8 +9,8 @@ def findElement(driver, *keys, click=False):
             element.click()
         else:
             return element
-    except NoSuchElementException as such:
-        print(f'\033[91mFAILED "{such}" ')
+    except NoSuchElementException:
+        print(f'\033[91mFAILED No such element "{locator}" ')
 
 # find multiple elements <locator> source from locators.yaml
 def findElements(driver, *keys, click=False):
