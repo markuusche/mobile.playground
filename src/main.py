@@ -115,7 +115,7 @@ def betOn(driver, bet, betArea, allin=False):
                     waitElement(driver, 'in-game', 'toast')
                     winner = findElement(driver, 'in-game', 'toast')
                     screenshot(driver, winner.text, tableDealer[0], allin)
-                    
+                                            
                     # =================================================
                     # get game result text from digital message
                     board = findElements(driver, 'in-game', 'board-result')
@@ -230,6 +230,8 @@ def betOn(driver, bet, betArea, allin=False):
 
                         payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
                         # takes a screenshot of digital message for not betting 3 times
+                        summary(driver, tableDealer)
+                        
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
                     break

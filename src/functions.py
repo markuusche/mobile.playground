@@ -227,7 +227,7 @@ def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
             f'Bets {total} - Expected: EQUAL'
             assertion(message, round(chips, 2), '==', total)
         else:
-            message = f'\033[91mBalance is empty cannot count chips value'
+            message = f'\033[91m"Bets:" is empty cannot count chips value'
             assertion(message, skip=True)
 
 # new round verification test case
@@ -250,9 +250,25 @@ def verify_digitalResult(driver, game, tableDealer):
     if digital.is_displayed():
         print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
         'New Round Digital Result is displayed!')
-    else: 
+    else:
         print(f'\033[32mPASSED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
         'New Round Digital Result is not displayed!')
+ 
+# verifies in-game roadmap summary visibility       
+def summary(driver, tableDealer):
+    summaries = findElements(driver, 'in-game', 'summary')
+    total = 0
+    for x in summaries:
+        match = re.search(r'\d+', x.text)
+        if match:
+            number = int(match.group())
+            total += number
+    
+    shoe = findElement(driver, 'in-game', 'shoe')
+    value = int(shoe.text.split('-')[1])
+    message = (f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+    f'Rodmap total summary {total}, Shoe round {value} - Expected: round > total')
+    assertion(message, total, '==', value -1)
 
 # gets table number and dealer name
 def table_dealer(driver):

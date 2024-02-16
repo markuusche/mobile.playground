@@ -1,4 +1,4 @@
-selenium==4.11.2
+selenium
 pytest
 pyyaml
 requests
