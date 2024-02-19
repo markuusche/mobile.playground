@@ -7,6 +7,10 @@ def screenshot(driver, name, val, allin=False):
     if allin:
         driver.save_screenshot(f'screenshots/{name} {val}.png')
 
+def debuggerMsg(tableDealer, str="", str2=""):
+    return f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+        f'{str} {str2}'
+
 # delete all screenshots from screenshots/ folder
 def deleteScreenshots():
     path = 'screenshots/'
@@ -41,8 +45,8 @@ def checkPlayerBalance(driver, game):
         tableDealer = table_dealer(driver)
         coins = findElement(driver, 'in-game', 'balance')
         playerBalance = findElement(driver, 'in-game', 'playerBalance')
-        message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] Top balance {coins.text} '\
-        f'Bottom balance {playerBalance.text} - Expected: EQUAL'
+        message = debuggerMsg(tableDealer, f'Top balance {coins.text} & '\
+        f'Bottom balance {playerBalance.text} - Expected: EQUAL')
         assertion(message, coins.text, '==', playerBalance.text)
 
 # gets Lose or Win message with the values
@@ -59,7 +63,7 @@ def LoseOrWin(driver):
 def cancelAssert(driver, tableDealer, allin, texts):
     wait_If_Clickable(driver, 'action', 'cancel')
     screenshot(driver, texts, tableDealer[0], allin)
-    sumBetPlaced(driver, tableDealer[0], tableDealer[1], cancel=True, text=texts)
+    sumBetPlaced(driver, tableDealer, cancel=True, text=texts)
 
 def betting(driver, betArea, game, placeConfirm=False):
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
@@ -91,8 +95,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     numbers = editChips(driver, 20)
     betting(driver, betArea, game)
     chips = getChipValue(driver)
-    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-    '\033[93mChips are being placed.'
+    message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
     assertion(message, chips, '>', numbers)
 
     cancelAssert(driver, tableDealer, allin, 'Chip placed & cancelled!')
@@ -101,8 +104,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     wait_If_Clickable(driver, 'action', 'rebet')
 
     insufficient = customJS(driver, 'toast_check("Insufficient funds to rebet!");')
-    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-    f'Insufficient funds to rebet! Unable to Rebet and Cancel'
+    message = debuggerMsg(tableDealer, 'Insufficient funds to rebet! Unable to Rebet and Cancel')
     if insufficient:
         assertion(message, skip=True)
     else:
@@ -137,7 +139,7 @@ def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
 
-    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    #cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
     editChips(driver, 10)
 
     if s6 == 1 and game == 'baccarat':
@@ -161,10 +163,9 @@ def coins_allin(driver, game, allin=False):
             screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
             wait_If_Clickable(driver, 'action', 'confirm')
             waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
-            message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-            f'All-in bet {coins.text} - Expected: 0.00'
+            message = debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
             assertion(message, coins.text, '==', '0.00')
-            sumBetPlaced(driver, tableDealer[0], tableDealer[1])
+            sumBetPlaced(driver, tableDealer)
             break
 
 # verifies payrates matches with the payrate
@@ -202,32 +203,29 @@ def payrates_odds(driver, game, allin=False):
         if tableDealer[0] in listDT:
             defaultPay[2] = '(1:8)'
 
-    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-    f'Bet limit rate & Local bet limit rate - Expected: EQUAL'
+    message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
     assertion(message, defaultPay, '==', list_pays)
     findElement(driver, 'in-game', 'payrate-close', click=True)
 
 # get the total placed chip value
 # and compare it to Bets from betting area
-def sumBetPlaced(driver, table, dealer, cancel=False, text=None):
+def sumBetPlaced(driver, tableDealer, cancel=False, text=None):
     chips = getChipValue(driver)
     total = 0.00
 
     # check if bet area has 0 chips
     if cancel:
-        message = f'[Table: {table} Dealer: {dealer}] '\
-        f'{text} {chips} - Expected: No chips placed'
+        message = debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
         assertion(message, chips, '==', 0)
     else:
         bets = findElement(driver, 'in-game', 'bets')
         if bets != None:
             total = float(bets.text.replace(',',''))
-            message = f'[Table: {table} Dealer: {dealer}] '\
-            f'Placed chips {round(chips, 2)} '\
-            f'Bets {total} - Expected: EQUAL'
+            message = debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
+            f'& Bets {total} - Expected: EQUAL')
             assertion(message, round(chips, 2), '==', total)
         else:
-            message = f'\033[91m"Bets:" is empty cannot count chips value'
+            message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty cannot count chips value')
             assertion(message, skip=True)
 
 # new round verification test case
@@ -242,8 +240,7 @@ def verifiy_newRound(driver, bet, tableDealer):
         waitElementInvis(driver, 'digital results', 'sedie', \
         setTimeout=3, isDigital=True, tableDealer=tableDealer)
     
-    sumBetPlaced(driver, tableDealer[0], tableDealer[1], \
-    cancel=True, text='No placed chips after new round')
+    sumBetPlaced(driver, tableDealer, cancel=True, text='No placed chips after new round')
 
 def verify_digitalResult(driver, game, tableDealer):
     digital = findElement(driver, 'digital results', game)
@@ -262,7 +259,7 @@ def summary(driver, game, tableDealer):
          
     if game == 'sedie':
         summaries = findElements(driver, 'in-game', 'sedie-summary')
-        
+    
     for j, i in enumerate(summaries):
         if game == 'three-cards' and j == 3:
             continue
@@ -280,9 +277,21 @@ def summary(driver, game, tableDealer):
     else:
         value = int(shoe.text.split('-')[1])
         
-    message = (f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-    f'Rodmap total summary {total}, Shoe round {value} - Expected: round > total')
+    message = debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
+    f'Shoe round {value} - Expected: round > total')
     assertion(message, total, '==', value -1)
+
+# check race tracker visibility
+def check_raceTracker(driver, tableDealer):
+    waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!')
+    findElement(driver, 'in-game', 'switch', click=True)
+    waitElement(driver, 'in-game', 'race-tracker', setTimeout=3)
+    raceTracker = findElement(driver, 'in-game', 'race-tracker')
+    try:
+        if raceTracker.is_displayed():
+            print('\033[32mPASSED\033[0m', debuggerMsg(tableDealer, 'Race Tracker is displayed.'))
+    except:
+        print('\033[91mFAILED\033[0m', debuggerMsg(tableDealer, 'Race Tracker is not displayed!!'))
 
 # gets table number and dealer name
 def table_dealer(driver):

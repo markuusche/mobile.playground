@@ -154,8 +154,8 @@ def betOn(driver, bet, betArea, allin=False):
                         if allin:
                             screenshot(driver, 'Lose Balance', tableDealer[0], allin)
                         
-                        message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                        f'Balance after losing {round(calcAmount, 2)} Latest Balance {round(balance, 2)} - Expected: EQUAL'
+                        message = debuggerMsg(tableDealer, f'Balance after losing {round(calcAmount, 2)} '\
+                        f'Latest Balance {round(balance, 2)} - Expected: EQUAL')
                         assertion(message, f'{round(calcAmount, 2):.2f}', '==', f'{round(balance, 2):.2f}')
                         
                         if not allin:
@@ -179,8 +179,8 @@ def betOn(driver, bet, betArea, allin=False):
                                 if bet == 'three-cards' and betArea == 'Lucky':
                                     count += 1
                                     calc_odds = lucky_result * cFloat
-                                    message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                                    f'Odds won: {calc_odds} & Balance Result: {resultBal} - Expected: EQUAL'
+                                    message = debuggerMsg(tableDealer, f'Odds won: {calc_odds} & '\
+                                    f'Balance Result: {resultBal} - Expected: EQUAL')
                                     assertion(message, calc_odds, '==', resultBal)
                                 else:
                                     if match:
@@ -189,8 +189,8 @@ def betOn(driver, bet, betArea, allin=False):
                                         winOdds = cFloat * odds
                                         if resultBal != 0.00:
                                             count += 1
-                                            message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                                            f'Odds won: {winOdds} & Balance Result: {resultBal} - Expected: EQUAL'
+                                            message = debuggerMsg(tableDealer, f'Odds won: {winOdds} & '\
+                                            f'Balance Result: {resultBal} - Expected: EQUAL')
                                             assertion(message, winOdds, '==', resultBal)
                                     else:
                                         print("Odds not found")
@@ -201,8 +201,8 @@ def betOn(driver, bet, betArea, allin=False):
                         driver.save_screenshot(f'screenshots/{"Win Total"} {tableDealer[0]} {count}.png')
                         # checks if the total winnings + the current balance is
                         # equal to the latest balance
-                        message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                        f'Win balance {round(total, 2)} & Latest balance {balance} - Expected: EQUAL'
+                        message = debuggerMsg(tableDealer, f'Win balance {round(total, 2)} & '\
+                        f'Latest balance {balance} - Expected: EQUAL')
                         assertion(message, f'{round(total, 2)}', '==', f'{round(balance, 2)}')
                         checkPlayerBalance(driver, bet)
 
@@ -210,9 +210,9 @@ def betOn(driver, bet, betArea, allin=False):
                         waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                         waitElementInvis(driver, 'in-game','toast')
                         verifiy_newRound(driver, bet, tableDealer)
-                        summary(driver, bet, tableDealer)
                         # Place a bet when the timer is CLOSED verification
                         if bet != 'sicbo' and bet != 'roulette': # ignore sicbo and roulette for now
+                            summary(driver, bet, tableDealer)
                             waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
                             if timer.text == 'CLOSED':
                                 bet_areas = list(data(bet))
@@ -224,13 +224,14 @@ def betOn(driver, bet, betArea, allin=False):
                                         ExceptionMessage.append(str(e))
 
                                 screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
-                                message = f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-                                f'Failed Clicks {len(ExceptionMessage)} '\
-                                f'Bet area length {len(bet_areas)} - Expected: EQUAL'
+                                message = debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
+                                f'Bet area length {len(bet_areas)} - Expected: EQUAL')
                                 assertion(message, len(ExceptionMessage), '==', len(bet_areas))
+                        else:
+                            check_raceTracker(driver, tableDealer)
                             
                         payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
-                        # takes a screenshot of digital message for not betting 3 times                        
+                        # takes a screenshot of digital message for not betting 3 times    
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
                     break

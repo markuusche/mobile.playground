@@ -10,7 +10,7 @@ def findElement(driver, *keys, click=False):
         else:
             return element
     except NoSuchElementException:
-        print(f'\033[91mFAILED No such element "{locator}" ')
+            print(f'\033[91mFAILED No such element "{locator}" ')
 
 # find multiple elements <locator> source from locators.yaml
 def findElements(driver, *keys, click=False):
@@ -29,7 +29,7 @@ def waitElement(driver, *keys, setTimeout=60):
         element = WebDriverWait(driver, setTimeout)
         element.until(EC.visibility_of_element_located(locator))
     except:            
-        driver.save_screenshot(f'screenshots/Timeout.png')
+        print(f'Element did not appear {locator}')
 
     return element
 
@@ -49,7 +49,6 @@ def waitElementInvis(driver, *keys, setTimeout=600, isDigital=False, tableDealer
             print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
             f'New Round Digital Result is displayed!')
 
-        
 # waits an element from the <locator> source
 # from locator.yaml to disappear
 def wait_If_Clickable(driver, *keys, setTimeout=15):
