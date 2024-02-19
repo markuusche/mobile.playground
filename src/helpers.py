@@ -35,13 +35,20 @@ def waitElement(driver, *keys, setTimeout=60):
 
 # waits an element from the <locator> source
 # from locators.yaml to disappear
-def waitElementInvis(driver, *keys, setTimeout=600):
+def waitElementInvis(driver, *keys, setTimeout=600, isDigital=False, tableDealer=None):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
         element = WebDriverWait(driver, setTimeout)
         element.until(EC.invisibility_of_element(locator))
+        if isDigital:
+            print(f'\033[32mPASSED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+            f'New Round Digital Result is not displayed!')
     except:
         print(f'Element did not disappear {locator}')
+        if isDigital:
+            print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+            f'New Round Digital Result is displayed!')
+
         
 # waits an element from the <locator> source
 # from locator.yaml to disappear

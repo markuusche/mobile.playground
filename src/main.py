@@ -210,6 +210,7 @@ def betOn(driver, bet, betArea, allin=False):
                         waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                         waitElementInvis(driver, 'in-game','toast')
                         verifiy_newRound(driver, bet, tableDealer)
+                        summary(driver, bet, tableDealer)
                         # Place a bet when the timer is CLOSED verification
                         if bet != 'sicbo' and bet != 'roulette': # ignore sicbo and roulette for now
                             waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
@@ -227,11 +228,9 @@ def betOn(driver, bet, betArea, allin=False):
                                 f'Failed Clicks {len(ExceptionMessage)} '\
                                 f'Bet area length {len(bet_areas)} - Expected: EQUAL'
                                 assertion(message, len(ExceptionMessage), '==', len(bet_areas))
-
+                            
                         payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
-                        # takes a screenshot of digital message for not betting 3 times
-                        summary(driver, tableDealer)
-                        
+                        # takes a screenshot of digital message for not betting 3 times                        
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
                     break

@@ -255,17 +255,31 @@ def verify_digitalResult(driver, game, tableDealer):
         'New Round Digital Result is not displayed!')
  
 # verifies in-game roadmap summary visibility       
-def summary(driver, tableDealer):
-    summaries = findElements(driver, 'in-game', 'summary')
+def summary(driver, game, tableDealer):
     total = 0
-    for x in summaries:
-        match = re.search(r'\d+', x.text)
+    if game == 'baccarat' or 'dragontiger':
+         summaries = findElements(driver, 'in-game', 'summary')
+         
+    if game == 'sedie':
+        summaries = findElements(driver, 'in-game', 'sedie-summary')
+        
+    for j, i in enumerate(summaries):
+        if game == 'three-cards' and j == 3:
+            continue
+        if game == 'sedie' and j != 2 and j != 3:
+             continue
+        
+        match = re.search(r'\d+', i.text)
         if match:
             number = int(match.group())
             total += number
     
     shoe = findElement(driver, 'in-game', 'shoe')
-    value = int(shoe.text.split('-')[1])
+    if game in ['three-cards', 'sedie']:
+        value = int(shoe.text)
+    else:
+        value = int(shoe.text.split('-')[1])
+        
     message = (f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
     f'Rodmap total summary {total}, Shoe round {value} - Expected: round > total')
     assertion(message, total, '==', value -1)

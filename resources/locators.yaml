@@ -124,6 +124,7 @@ in-game:
   resultToast:                        'div#bet-msg-toast span'
   save amount:                        'button.edit-btn div'
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
+  sedie-summary:                      'div.road-map-info .flex'
   shoe:                               'div.table-number span:last-child'
   summary:                            'div.bead-result.xs2'
   tableNumber:                        'div.table-number span:first-child'
