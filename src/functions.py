@@ -139,7 +139,7 @@ def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
 
-    #cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
     editChips(driver, 10)
 
     if s6 == 1 and game == 'baccarat':
@@ -245,13 +245,13 @@ def verifiy_newRound(driver, bet, tableDealer):
 def verify_digitalResult(driver, game, tableDealer):
     digital = findElement(driver, 'digital results', game)
     if digital.is_displayed():
-        print(f'\033[91mFAILED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-        'New Round Digital Result is displayed!')
+        print(f'\033[91mFAILED\033[0m', debuggerMsg(tableDealer, \
+        f'New Round Digital Result is displayed!'))
     else:
-        print(f'\033[32mPASSED\033[0m [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
-        'New Round Digital Result is not displayed!')
+        print(f'\033[32mPASSED\033[0m', debuggerMsg(tableDealer, \
+        f'New Round Digital Result is not displayed!'))
  
-# verifies in-game roadmap summary visibility       
+# verifies in-game roadmap summary visibility and assertion    
 def summary(driver, game, tableDealer):
     total = 0
     if game == 'baccarat' or 'dragontiger':
@@ -259,6 +259,9 @@ def summary(driver, game, tableDealer):
          
     if game == 'sedie':
         summaries = findElements(driver, 'in-game', 'sedie-summary')
+        sideBtn = findElements(driver, 'in-game', 'sedie-sidebtn')
+        for buttons in sideBtn[::-1]:
+            buttons.click()
     
     for j, i in enumerate(summaries):
         if game == 'three-cards' and j == 3:

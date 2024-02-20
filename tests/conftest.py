@@ -17,7 +17,6 @@ def headless(request):
 def driver(headless):
     #setup
     deleteScreenshots()
-    URL = play()
     option = webdriver.EdgeOptions()
     option.add_argument("--hide-scrollbars")
 
@@ -28,12 +27,12 @@ def driver(headless):
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
+    option.add_argument("window-position=1410,0")
+    option.add_argument("window-size=446,972")
+    option.add_argument(f"--app={play()}")
     option.add_experimental_option("mobileEmulation", emulation())
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
-    driver.set_window_position(1410, 0)
-    driver.set_window_size(0, 970)
-    driver.get(URL)
 
     yield driver
     
@@ -50,8 +49,8 @@ def lobby(request, driver):
 def emulation():
     return {
         "deviceMetrics": {
-            "width": 492, 
-            "height": 880, 
+            "width": 430, 
+            "height": 932, 
             "pixelRatio": 3.0
             },
         "userAgent": 'Mozilla/5.0'\
