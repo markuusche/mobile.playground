@@ -1,6 +1,7 @@
 from src.modules import *
 from src.helpers import *
 from src.functions import *
+from . import GS_REPORT
 
 count = 0
 
@@ -60,21 +61,10 @@ def play(driver, bet, betArea, allin=False, name=""):
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', 'table panel')
         print('=' * 100)
-
+        sendReport(GS_REPORT, bet)
+        
 # Main Test Case function for validation and assertions
 def betOn(driver, bet, betArea, allin=False):
-    '''
-    this function:
-    assert coins and player balance matched,
-    asserts the balance is deducted by betting,
-    asserts the remaining balance after betting,
-    asserts the the added and lose amount after game results,
-    asserts No more bets to be made,
-    waits for Successful Bet,
-    waits for Betting is open,
-    logs the the overall results,
-    logs table and dealer name,
-    '''
     global count
     balance = []
     tableDealer = table_dealer(driver)
@@ -235,3 +225,4 @@ def betOn(driver, bet, betArea, allin=False):
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
                     break
+    

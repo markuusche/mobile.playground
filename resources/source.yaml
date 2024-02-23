@@ -100,6 +100,14 @@ dragontiger:
   Tie:                                'div.bet-table.tie'
   Tiger:                              'div.bet-table.t'
 
+gsheet:
+    three-cards:                      'D7:D19'
+    sedie:                            'D20:D32'
+    roulette:                         'D33:D46'
+    sicbo:                            'D47:D59'
+    dragontiger:                      'D60:D72'
+    baccarat:                         'D73:D85'
+
 in-game:
   back:                               'div#btn-exit'
   balance:                            'div.user-data.balance span'

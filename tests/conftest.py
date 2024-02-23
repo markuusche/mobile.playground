@@ -2,12 +2,7 @@ from src.modules import *
 from src.functions import *
 
 def pytest_addoption(parser):
-    parser.addoption("--device", action="store", default=None)
     parser.addoption("--headless", action="store_true", default=False)
-
-@pytest.fixture(scope='session')
-def device(request):
-    return request.config.getoption("device")
 
 @pytest.fixture(scope='session')
 def headless(request):
@@ -16,7 +11,6 @@ def headless(request):
 @pytest.fixture(scope='session')
 def driver(headless):
     #setup
-    deleteScreenshots()
     option = webdriver.EdgeOptions()
     option.add_argument("--hide-scrollbars")
 
@@ -29,7 +23,7 @@ def driver(headless):
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
     option.add_argument("window-position=1410,0")
     option.add_argument("window-size=446,972")
-    option.add_argument(f"--app={play()}")
+    option.add_argument(f"--app={getURL()}")
     option.add_experimental_option("mobileEmulation", emulation())
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
@@ -58,3 +52,4 @@ def emulation():
         'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.85'\
         'Mobile Safari/537.36'
     }
+

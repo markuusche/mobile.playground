@@ -1,14 +1,10 @@
 __pycache__
 .pytest_cache
-venv
 __venv__
 bashrc
 .bashrc
 ~/.bashrc
-testing.py
 *.png
 *.PNG
-test.py
-logs.txt
 screenshots/
-chat.py
+*.json

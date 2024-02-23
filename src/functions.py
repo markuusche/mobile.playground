@@ -1,6 +1,7 @@
 from src.modules import *
 from src.helpers import *
 from src.api import *
+from . import GS_REPORT
 
 # for digital message screenshots
 def screenshot(driver, name, val, allin=False):
@@ -29,14 +30,14 @@ def reset_coins(driver, game, amount):
         getBalance = addBalance(env('add'), amount)
         addBalance(env('deduc'), amount=getBalance)
         addBalance(env('add'), amount)
-        driver.get(play())    
+        driver.get(getURL())    
         waitElement(driver, 'lobby', 'main')
         wait_If_Clickable(driver, 'category', game)
         elements = findElements(driver, 'lobby', 'table panel')
         return elements
     except:
         # catch here -> refresh token and browser
-        driver.get(play())
+        driver.get(getURL())
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
@@ -321,5 +322,8 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
                 assert comparison < comparison2
             
             print(f'{green}PASSED{default} {message}')
+            GS_REPORT.append(['PASSED'])
         except AssertionError:
             print(f'{red}FAILED{default} {message}')
+            GS_REPORT.append(['FAILED'])
+            
