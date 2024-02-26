@@ -57,10 +57,27 @@ def createNew_sheet():
     body={'requests': [sendRequest]}).execute()
 
 # send report to Google Sheet
-def sendReport(sample, bet):
+def sendReport(sample, bet, tableDealer):
+    rangeValue = []
     sheet, _, date = gsheet_api()
     sendReport = sheet.worksheet(f'Results of {date}')
     sendReport.update(range_name=f'{data('gsheet', bet)}', values=sample)
+    
+    getRange = re.findall(r'\d+', data('gsheet', bet))
+    for i in getRange:
+        rangeValue.append(i)
+    
+    for row in range(int(rangeValue[0]), int(rangeValue[1]) + 1):
+        getValue = sendReport.cell(row, 4).value
+        if getValue == 'FAILED':
+            getValue = sendReport.cell(row, 5).value
+            if getValue not in [None, '']:
+                updateCell = getValue + ", " + str(tableDealer[0])
+            else:
+                updateCell = str(tableDealer[0])
+                
+            sendReport.update_cell(row, 5, updateCell)
+            
     GS_REPORT.clear()
 
 def gsheet_api():

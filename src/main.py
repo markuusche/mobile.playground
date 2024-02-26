@@ -61,7 +61,6 @@ def play(driver, bet, betArea, allin=False, name=""):
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', 'table panel')
         print('=' * 100)
-        sendReport(GS_REPORT, bet)
         
 # Main Test Case function for validation and assertions
 def betOn(driver, bet, betArea, allin=False):
@@ -224,5 +223,5 @@ def betOn(driver, bet, betArea, allin=False):
                         # takes a screenshot of digital message for not betting 3 times    
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
+                        sendReport(GS_REPORT, bet, tableDealer)
                     break
-    
