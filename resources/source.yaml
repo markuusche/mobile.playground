@@ -95,6 +95,13 @@ category:
   sicbo:                              '.v-tabs__container .v-tabs__div.others > a'
   three-cards:                        '.v-tabs__container .v-tabs__div.cards > a'
 
+digital results:
+  # bdt = bacc, drag, three
+  bdt:                              'div.v-image.result-board'
+  sedie:                            'div#sedie-result'
+  sicbo:                            'div#sicbo-result'
+  roulette:                         'div#roulette-result'
+
 dragontiger:
   Dragon:                             'div.bet-table.d'
   Tie:                                'div.bet-table.tie'
@@ -103,10 +110,10 @@ dragontiger:
 gsheet:
     three-cards:                      'D7:D19'
     sedie:                            'D20:D32'
-    roulette:                         'D33:D46'
-    sicbo:                            'D47:D59'
-    dragontiger:                      'D60:D72'
-    baccarat:                         'D73:D85'
+    sicbo:                            'D33:D44'
+    roulette:                         'D45:D57'
+    dragontiger:                      'D58:D70'
+    baccarat:                         'D71:D83'
 
 in-game:
   back:                               'div#btn-exit'
@@ -154,13 +161,6 @@ lucky:
 lobby:
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
-
-digital results:
-  # bdt = bacc, drag, three
-  bdt:                              'div.v-image.result-board'
-  sedie:                            'div#sedie-result'
-  sicbo:                            'div#sicbo-result'
-  roulette:                         'div#roulette-result'
 
 roulette:
   # single bets

@@ -200,23 +200,28 @@ def betOn(driver, bet, betArea, allin=False):
                         waitElementInvis(driver, 'in-game','toast')
                         verifiy_newRound(driver, bet, tableDealer)
                         # Place a bet when the timer is CLOSED verification
-                        if bet != 'sicbo' and bet != 'roulette': # ignore sicbo and roulette for now
-                            summary(driver, bet, tableDealer)
-                            waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
-                            if timer.text == 'CLOSED':
-                                bet_areas = list(data(bet))
-                                ExceptionMessage = []
-                                for i in range(len(bet_areas)):
-                                    try:
+                        summary(driver, bet, tableDealer)
+                        waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
+                        if timer.text == 'CLOSED':
+                            bet_areas = list(data(bet))
+                            setRange = 10 if bet in ['sicbo', 'roulette'] else len(bet_areas)
+                            ExceptionMessage = []
+                            for i in range(setRange):
+                                index = random.choice(range(len(betArea)))
+                                try:
+                                    if bet != 'sicbo' or bet != 'roulette':
+                                        wait_If_Clickable(driver, bet, bet_areas[index])
+                                    else:
                                         wait_If_Clickable(driver, bet, bet_areas[i])
-                                    except Exception as e:
-                                        ExceptionMessage.append(str(e))
+                                except Exception as e:
+                                    ExceptionMessage.append(str(e))
 
-                                screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
-                                message = debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
-                                f'Bet area length {len(bet_areas)} - Expected: EQUAL')
-                                assertion(message, len(ExceptionMessage), '==', len(bet_areas))
-                        else:
+                            screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
+                            message = debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
+                            f'Bet area length {setRange} - Expected: EQUAL')
+                            assertion(message, len(ExceptionMessage), '==', setRange)
+                            
+                        if bet == 'roulette':
                             check_raceTracker(driver, tableDealer)
                             
                         payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
