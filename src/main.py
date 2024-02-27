@@ -199,6 +199,10 @@ def betOn(driver, bet, betArea, allin=False):
                         waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                         waitElementInvis(driver, 'in-game','toast')
                         verifiy_newRound(driver, bet, tableDealer)
+                        
+                        if bet == 'roulette':
+                            check_raceTracker(driver, tableDealer)
+                            
                         # Place a bet when the timer is CLOSED verification
                         summary(driver, bet, tableDealer)
                         waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
@@ -207,12 +211,8 @@ def betOn(driver, bet, betArea, allin=False):
                             setRange = 10 if bet in ['sicbo', 'roulette'] else len(bet_areas)
                             ExceptionMessage = []
                             for i in range(setRange):
-                                index = random.choice(range(len(betArea)))
                                 try:
-                                    if bet != 'sicbo' or bet != 'roulette':
-                                        wait_If_Clickable(driver, bet, bet_areas[index])
-                                    else:
-                                        wait_If_Clickable(driver, bet, bet_areas[i])
+                                    wait_If_Clickable(driver, bet, bet_areas[i])
                                 except Exception as e:
                                     ExceptionMessage.append(str(e))
 
@@ -220,9 +220,6 @@ def betOn(driver, bet, betArea, allin=False):
                             message = debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
                             f'Bet area length {setRange} - Expected: EQUAL')
                             assertion(message, len(ExceptionMessage), '==', setRange)
-                            
-                        if bet == 'roulette':
-                            check_raceTracker(driver, tableDealer)
                             
                         payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
                         # takes a screenshot of digital message for not betting 3 times    

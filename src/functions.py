@@ -97,7 +97,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
-    assertion(message, chips, '>', numbers)
+    assertion(message, chips, '>', numbers, notice=True)
 
     cancelAssert(driver, tableDealer, allin, 'Chip placed & cancelled!')
     betting(driver, betArea, game, placeConfirm=True)
@@ -245,57 +245,51 @@ def verifiy_newRound(driver, bet, tableDealer):
 
 def verify_digitalResult(driver, game, tableDealer):
     digital = findElement(driver, 'digital results', game)
-    if digital.is_displayed():
-        print(f'\033[91mFAILED\033[0m', debuggerMsg(tableDealer, \
-        f'New Round Digital Result is displayed!'))
-    else:
-        print(f'\033[32mPASSED\033[0m', debuggerMsg(tableDealer, \
-        f'New Round Digital Result is not displayed!'))
+    message = debuggerMsg(tableDealer, 'New Round Digital Result is displayed!')
+    assertion(message, digital.is_displayed(), '==', False)
  
 # verifies in-game roadmap summary visibility and assertion    
 def summary(driver, game, tableDealer):
     total = 0
-    if game == 'baccarat' or 'dragontiger':
-         summaries = findElements(driver, 'in-game', 'summary')
-         
-    if game == 'sedie':
-        summaries = findElements(driver, 'in-game', 'sedie-summary')
-        sideBtn = findElements(driver, 'in-game', 'sedie-sidebtn')
-        for buttons in sideBtn[::-1]:
-            buttons.click()
-    
-    for j, i in enumerate(summaries):
-        if game == 'three-cards' and j == 3:
-            continue
-        if game == 'sedie' and j != 2 and j != 3:
-             continue
+    if game not in ['sicbo', 'roulette']:
+        if game == 'baccarat' or 'dragontiger':
+            summaries = findElements(driver, 'in-game', 'summary')
+            
+        if game == 'sedie':
+            summaries = findElements(driver, 'in-game', 'sedie-summary')
+            sideBtn = findElements(driver, 'in-game', 'sedie-sidebtn')
+            for buttons in sideBtn[::-1]:
+                buttons.click()
         
-        match = re.search(r'\d+', i.text)
-        if match:
-            number = int(match.group())
-            total += number
-    
-    shoe = findElement(driver, 'in-game', 'shoe')
-    if game in ['three-cards', 'sedie']:
-        value = int(shoe.text)
-    else:
-        value = int(shoe.text.split('-')[1])
+        for j, i in enumerate(summaries):
+            if game == 'three-cards' and j == 3:
+                continue
+            if game == 'sedie' and j != 2 and j != 3:
+                continue
+            
+            match = re.search(r'\d+', i.text)
+            if match:
+                number = int(match.group())
+                total += number
         
-    message = debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
-    f'Shoe round {value} - Expected: round > total')
-    assertion(message, total, '==', value -1)
+        shoe = findElement(driver, 'in-game', 'shoe')
+        if game in ['three-cards', 'sedie']:
+            value = int(shoe.text)
+        else:
+            value = int(shoe.text.split('-')[1])
+            
+        message = debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
+        f'Shoe round {value} - Expected: round > total')
+        assertion(message, total, '==', value -1)
 
 # check race tracker visibility
 def check_raceTracker(driver, tableDealer):
-    waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!')
     findElement(driver, 'in-game', 'switch', click=True)
     waitElement(driver, 'in-game', 'race-tracker', setTimeout=3)
     raceTracker = findElement(driver, 'in-game', 'race-tracker')
-    try:
-        if raceTracker.is_displayed():
-            print('\033[32mPASSED\033[0m', debuggerMsg(tableDealer, 'Race Tracker is displayed.'))
-    except:
-        print('\033[91mFAILED\033[0m', debuggerMsg(tableDealer, 'Race Tracker is not displayed!!'))
+    message = debuggerMsg(tableDealer, 'Race Tracker is displayed.')
+    assertion(message, raceTracker.is_displayed(), '==', True)
+    findElement(driver, 'in-game', 'switch', click=True)
 
 # gets table number and dealer name
 def table_dealer(driver):
@@ -304,7 +298,7 @@ def table_dealer(driver):
     return tableNumber.text, dealer.text
 
 # soft assertion function
-def assertion(message, comparison=None, operator=None, comparison2=None, skip=False):
+def assertion(message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):
     red = '\033[91m'
     green = '\033[32m'
     default = '\033[0m'
@@ -312,6 +306,9 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
     
     if skip:
         print(f'{yellow}SKIPPED{default} {message}')
+        GS_REPORT.append(['SKIPPED'])
+    elif notice:
+        print(f'{yellow}NOTICE{default} {message}')
     else:
         try:
             if operator == '==':

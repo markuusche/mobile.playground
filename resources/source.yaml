@@ -109,11 +109,11 @@ dragontiger:
 
 gsheet:
     three-cards:                      'D7:D19'
-    sedie:                            'D20:D32'
-    sicbo:                            'D33:D44'
-    roulette:                         'D45:D57'
-    dragontiger:                      'D58:D70'
-    baccarat:                         'D71:D83'
+    sedie:                            'D20:D31'
+    sicbo:                            'D32:D43'
+    roulette:                         'D44:D54'
+    dragontiger:                      'D55:D67'
+    baccarat:                         'D68:D80'
 
 in-game:
   back:                               'div#btn-exit'
