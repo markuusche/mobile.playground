@@ -45,16 +45,21 @@ def createNew_sheet():
     spreadID = env('gsheetKey')
     getsheetID = copy_sheet.id
     service = build('sheets', 'v4', credentials=creds)
-    sendRequest = {
-        "duplicateSheet":{
-            "sourceSheetId": getsheetID,
-            "insertSheetIndex": 0,
-            "newSheetName": f'Results of {date}'
-        }
-    }
 
-    service.spreadsheets().batchUpdate(spreadsheetId=spreadID,\
-    body={'requests': [sendRequest]}).execute()
+    checkNameExist = sheet.worksheets()
+    sheetName = [worksheet.title for worksheet in checkNameExist]
+    newName = f'Results of {date}'
+    if newName not in sheetName:
+        sendRequest = {
+            "duplicateSheet":{
+                "sourceSheetId": getsheetID,
+                "insertSheetIndex": 0,
+                "newSheetName": newName
+            }
+        }
+
+        service.spreadsheets().batchUpdate(spreadsheetId=spreadID,\
+        body={'requests': [sendRequest]}).execute()
 
 # send report to Google Sheet
 def sendReport(sample, bet, tableDealer):

@@ -3,10 +3,15 @@ from src.functions import *
 
 def pytest_addoption(parser):
     parser.addoption("--headless", action="store_true", default=False)
+    parser.addoption("--gsreport", action="store_true", default=False)
 
 @pytest.fixture(scope='session')
 def headless(request):
     return request.config.getoption("headless")
+
+@pytest.fixture(scope='session')
+def gsreport(request):
+    return request.config.getoption("gsreport")
 
 @pytest.fixture(scope='session')
 def driver(headless):

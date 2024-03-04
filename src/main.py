@@ -6,7 +6,7 @@ from . import GS_REPORT
 count = 0
 
 # this is where the table looping happens
-def play(driver, bet, betArea, allin=False, name=""):
+def play(driver, gsreport, bet, betArea, allin=False, name=""):
     global count
     print('\n')
     waitElement(driver, 'lobby', 'main')
@@ -55,15 +55,15 @@ def play(driver, bet, betArea, allin=False, name=""):
             for x in range(len(bet_areas)):
                 betOn(driver, bet, bet_areas[x])
         else:
-            betOn(driver, bet, betArea, allin)
+            betOn(driver, gsreport, bet, betArea, allin)
 
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
         elements = findElements(driver, 'lobby', 'table panel')
         print('=' * 100)
-        
+    
 # Main Test Case function for validation and assertions
-def betOn(driver, bet, betArea, allin=False):
+def betOn(driver, gsreport, bet, betArea, allin=False):
     global count
     balance = []
     tableDealer = table_dealer(driver)
@@ -225,5 +225,6 @@ def betOn(driver, bet, betArea, allin=False):
                         # takes a screenshot of digital message for not betting 3 times    
                         waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
                         screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
-                        sendReport(GS_REPORT, bet, tableDealer)
+                        if gsreport:
+                            sendReport(GS_REPORT, bet, tableDealer)
                     break
