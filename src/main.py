@@ -11,6 +11,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     print('\n')
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
+    createNew_sheet(driver)
     wait_If_Clickable(driver, 'category', bet)
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
@@ -19,7 +20,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         gameName = elements[i]
         
         if bet == 'dragontiger' and name not in gameName.text:
-            continue
+            continue 
 
         elif bet == 'baccarat' and i == 0:
             continue

@@ -1,5 +1,6 @@
-from src.modules import *
 from . import GS_REPORT
+from src.modules import *
+from src.helpers import *
 
 def getToken():
     header = {}
@@ -39,7 +40,7 @@ def addBalance(entry, amount):
     return response.json()['data']['balance']
 
 # duplicate report format
-def createNew_sheet():
+def createNew_sheet(driver):
     sheet, creds, date = gsheet_api()
     copy_sheet = sheet.worksheet('Report Format')
     spreadID = env('gsheetKey')
@@ -60,13 +61,17 @@ def createNew_sheet():
 
         service.spreadsheets().batchUpdate(spreadsheetId=spreadID,\
         body={'requests': [sendRequest]}).execute()
+        sendReport = sheet.worksheet(f'Results of {date}')
+        getVersion = customJS(driver, 'currVersion();')
+        version = [[f'VERSION: {getVersion}']]
+        sendReport.update(range_name='B5:E5', values=version)
 
 # send report to Google Sheet
 def sendReport(sample, bet, tableDealer):
     rangeValue = []
     sheet, _, date = gsheet_api()
     sendReport = sheet.worksheet(f'Results of {date}')
-    sendReport.update(range_name=f'{data('gsheet', bet)}', values=sample)
+    sendReport.update(range_name=f"{data('gsheet', bet)}", values=sample)
     
     getRange = re.findall(r'\d+', data('gsheet', bet))
     for i in getRange:
@@ -92,5 +97,5 @@ def gsheet_api():
     creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
     authcreds = gspread.authorize(creds)
     spreadsheet = authcreds.open_by_url(
-    f'https://docs.google.com/spreadsheets/d/{env('gsheetKey')}/edit#gid=0')
+    f'https://docs.google.com/spreadsheets/d/{env("gsheetKey")}/edit#gid=0')
     return spreadsheet, creds, dateFormat

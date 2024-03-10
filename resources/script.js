@@ -32,13 +32,18 @@ function preventFullScreen() {
     }
 }
 
-function noFullScreen(){
+function noFullScreen() {
     document.addEventListener('fullscreenchange', preventFullScreen);
     document.addEventListener('webkitfullscreenchange', preventFullScreen);
     document.addEventListener('mozfullscreenchange', preventFullScreen);
     document.addEventListener('MSFullscreenChange', preventFullScreen);
 }
 
-function scrollToTop(){
+function scrollToTop() {
     window.scrollTo(0, 0);
+}
+
+function currVersion() {
+    let version = document.querySelector('div.dev-version');
+    return version.textContent;
 }
