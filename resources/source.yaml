@@ -94,13 +94,14 @@ category:
   sedie:                              '.v-tabs__container .v-tabs__div.others > a'
   sicbo:                              '.v-tabs__container .v-tabs__div.others > a'
   three-cards:                        '.v-tabs__container .v-tabs__div.cards > a'
+  niuniu:                             '.v-tabs__container .v-tabs__div.cards > a'
 
 digital results:
   # bdt = bacc, drag, three
-  bdt:                              'div.v-image.result-board'
-  sedie:                            'div#sedie-result'
-  sicbo:                            'div#sicbo-result'
-  roulette:                         'div#roulette-result'
+  bdt:                                'div.v-image.result-board'
+  sedie:                              'div#sedie-result'
+  sicbo:                              'div#sicbo-result'
+  roulette:                           'div#roulette-result'
 
 dragontiger:
   Dragon:                             'div.bet-table.d'
@@ -112,8 +113,9 @@ gsheet:
     sedie:                            'D20:D31'
     sicbo:                            'D32:D43'
     roulette:                         'D44:D54'
-    dragontiger:                      'D55:D67'
-    baccarat:                         'D68:D80'
+    dragontiger:                      'D66:D78'
+    baccarat:                         'D79:D91'
+    niuniu:                           'D55:D62'
 
 in-game:
   back:                               'div#btn-exit'
@@ -161,6 +163,31 @@ lucky:
 lobby:
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
+
+niuniu:
+  B1 Double:                          'div.bet-area div:nth-child(1) .layout'
+  B1 Equal:                           'div.bet-area div:nth-child(2) .layout'
+  B1 Many:                            'div.bet-area div:nth-child(3) .layout'
+
+  B2 Double:                          'div.bet-area div:nth-child(4) .layout'
+  B2 Equal:                           'div.bet-area div:nth-child(5) .layout'
+  B2 Many:                            'div.bet-area div:nth-child(6) .layout'
+
+  B3 Double:                          'div.bet-area div:nth-child(7) .layout'
+  B3 Equal:                           'div.bet-area div:nth-child(8) .layout'
+  B3 Many:                            'div.bet-area div:nth-child(9) .layout'
+
+  P1 Double:                          'div.bet-area div:nth-child(10) .layout'
+  P1 Equal:                           'div.bet-area div:nth-child(11) .layout'
+  P1 Many:                            'div.bet-area div:nth-child(12) .layout'
+
+  P2 Double:                          'div.bet-area div:nth-child(13) .layout'
+  P2 Equal:                           'div.bet-area div:nth-child(14) .layout'
+  P2 Many:                            'div.bet-area div:nth-child(15) .layout'
+
+  P3 Double:                          'div.bet-area div:nth-child(16) .layout'
+  P3 Equal:                           'div.bet-area div:nth-child(17) .layout'
+  P3 Many:                            'div.bet-area div:nth-child(18) .layout'
 
 roulette:
   # single bets

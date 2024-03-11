@@ -161,52 +161,57 @@ def coins_allin(driver, game, allin=False):
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
         if insufficient:
-            screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
-            wait_If_Clickable(driver, 'action', 'confirm')
-            waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
-            message = debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
-            assertion(message, coins.text, '==', '0.00')
-            sumBetPlaced(driver, tableDealer)
-            break
+            if game != 'niuniu':
+                screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
+                wait_If_Clickable(driver, 'action', 'confirm')
+                waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
+                message = debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
+                assertion(message, coins.text, '==', '0.00')
+                sumBetPlaced(driver, tableDealer)
+                break
+            else:
+                wait_If_Clickable(driver, 'action', 'confirm')
+                break
 
 # verifies payrates matches with the payrate
 # from yaml file
 def payrates_odds(driver, game, allin=False):
-    defaultPay = []
-    list_pays = []
-    betLimit = data('bet-limit').get(game)
-    tableDealer = table_dealer(driver)
+    if game != 'niuniu':
+        defaultPay = []
+        list_pays = []
+        betLimit = data('bet-limit').get(game)
+        tableDealer = table_dealer(driver)
 
-    for _, x in betLimit.items():
-        defaultPay.append(x)
+        for _, x in betLimit.items():
+            defaultPay.append(x)
 
-    wait_If_Clickable(driver, 'in-game', 'payrate-modal')
-    waitElement(driver, 'in-game', 'modal-bet')
-    screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
-    payrates = findElements(driver, 'in-game', 'payrates')
-    sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
-    
-    for payrate in payrates:
-        list_pays.append(payrate.text)
-
-    if game == 'baccarat' and s6 == 1:
-        defaultPay.append('(1:12)')
-        defaultPay[1] = '(1:1)'
-
-    if game == 'sedie':
-        for payrate in sedie_payrates:
+        wait_If_Clickable(driver, 'in-game', 'payrate-modal')
+        waitElement(driver, 'in-game', 'modal-bet')
+        screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
+        payrates = findElements(driver, 'in-game', 'payrates')
+        sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
+        
+        for payrate in payrates:
             list_pays.append(payrate.text)
 
-    if game == 'dragontiger':
-        getDT = env('newDT')
-        listDT = getDT.split(':')
+        if game == 'baccarat' and s6 == 1:
+            defaultPay.append('(1:12)')
+            defaultPay[1] = '(1:1)'
 
-        if tableDealer[0] in listDT:
-            defaultPay[2] = '(1:8)'
+        if game == 'sedie':
+            for payrate in sedie_payrates:
+                list_pays.append(payrate.text)
 
-    message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
-    assertion(message, defaultPay, '==', list_pays)
-    findElement(driver, 'in-game', 'payrate-close', click=True)
+        if game == 'dragontiger':
+            getDT = env('newDT')
+            listDT = getDT.split(':')
+
+            if tableDealer[0] in listDT:
+                defaultPay[2] = '(1:8)'
+
+        message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
+        assertion(message, defaultPay, '==', list_pays)
+        findElement(driver, 'in-game', 'payrate-close', click=True)
 
 # get the total placed chip value
 # and compare it to Bets from betting area
@@ -231,7 +236,7 @@ def sumBetPlaced(driver, tableDealer, cancel=False, text=None):
 
 # new round verification test case
 def verifiy_newRound(driver, bet, tableDealer):
-    if bet == 'baccarat' or bet == 'three-cards' or bet == 'dragontiger':
+    if bet in ['baccarat', 'three-cards', 'dragontiger', 'niuniu']:
         verify_digitalResult(driver, 'bdt', tableDealer)
     elif bet == 'sicbo':
         verify_digitalResult(driver, 'sicbo', tableDealer)
@@ -250,37 +255,38 @@ def verify_digitalResult(driver, game, tableDealer):
  
 # verifies in-game roadmap summary visibility and assertion    
 def summary(driver, game, tableDealer):
-    total = 0
-    if game not in ['sicbo', 'roulette']:
-        if game == 'baccarat' or 'dragontiger':
-            summaries = findElements(driver, 'in-game', 'summary')
+    if game != 'niuniu':
+        total = 0
+        if game not in ['sicbo', 'roulette']:
+            if game == 'baccarat' or 'dragontiger':
+                summaries = findElements(driver, 'in-game', 'summary')
+                
+            if game == 'sedie':
+                summaries = findElements(driver, 'in-game', 'sedie-summary')
+                sideBtn = findElements(driver, 'in-game', 'sedie-sidebtn')
+                for buttons in sideBtn[::-1]:
+                    buttons.click()
             
-        if game == 'sedie':
-            summaries = findElements(driver, 'in-game', 'sedie-summary')
-            sideBtn = findElements(driver, 'in-game', 'sedie-sidebtn')
-            for buttons in sideBtn[::-1]:
-                buttons.click()
-        
-        for j, i in enumerate(summaries):
-            if game == 'three-cards' and j == 3:
-                continue
-            if game == 'sedie' and j != 2 and j != 3:
-                continue
+            for j, i in enumerate(summaries):
+                if game == 'three-cards' and j == 3:
+                    continue
+                if game == 'sedie' and j != 2 and j != 3:
+                    continue
+                
+                match = re.search(r'\d+', i.text)
+                if match:
+                    number = int(match.group())
+                    total += number
             
-            match = re.search(r'\d+', i.text)
-            if match:
-                number = int(match.group())
-                total += number
-        
-        shoe = findElement(driver, 'in-game', 'shoe')
-        if game in ['three-cards', 'sedie']:
-            value = int(shoe.text)
-        else:
-            value = int(shoe.text.split('-')[1])
-            
-        message = debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
-        f'Shoe round {value} - Expected: round > total')
-        assertion(message, total, '==', value -1)
+            shoe = findElement(driver, 'in-game', 'shoe')
+            if game in ['three-cards', 'sedie']:
+                value = int(shoe.text)
+            else:
+                value = int(shoe.text.split('-')[1])
+                
+            message = debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
+            f'Shoe round {value} - Expected: round > total')
+            assertion(message, total, '==', value -1)
 
 # check race tracker visibility
 def check_raceTracker(driver, tableDealer):

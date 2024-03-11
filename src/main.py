@@ -36,6 +36,9 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
 
         elif bet == 'roulette' and name not in gameName.text:
             continue
+
+        elif bet == 'niuniu' and name not in gameName.text:
+            continue
         
         if allin:
             elements = reset_coins(driver, bet, 2191.78)
