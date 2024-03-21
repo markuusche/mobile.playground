@@ -109,13 +109,13 @@ dragontiger:
   Tiger:                              'div.bet-table.t'
 
 gsheet:
-    three-cards:                      'D7:D19'
-    sedie:                            'D20:D31'
-    sicbo:                            'D32:D43'
-    roulette:                         'D44:D54'
-    dragontiger:                      'D66:D78'
-    baccarat:                         'D79:D91'
-    niuniu:                           'D55:D62'
+    three-cards:                      'D7:D20'
+    sedie:                            'D21:D33'
+    sicbo:                            'D34:D46'
+    roulette:                         'D47:D57'
+    niuniu:                           'D58:D69'
+    dragontiger:                      'D70:D83'
+    baccarat:                         'D84:D97'
 
 in-game:
   back:                               'div#btn-exit'
@@ -161,6 +161,7 @@ lucky:
   'Triple':                           8
 
 lobby:
+  balance:                            'div.user-info .user-data span'
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
 

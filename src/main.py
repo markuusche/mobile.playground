@@ -16,6 +16,8 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
 
+    userBalance = ""
+
     for i in range(len(elements)):
         gameName = elements[i]
         
@@ -50,16 +52,17 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         customJS(driver, 'noFullScreen();')
         customJS(driver, 'scrollToTop();')
         driver.execute_script("arguments[0].scrollIntoView();", table)
- 
+        getPlayerBalance = findElement(driver, 'lobby', 'balance')
+        userBalance += getPlayerBalance.text.strip()
+
         table.click()
 
         waitElement(driver, 'in-game', 'game')
-
         if betArea == 'All':
             for x in range(len(bet_areas)):
-                betOn(driver, bet, bet_areas[x])
+                betOn(driver, gsreport, bet, bet_areas[x], lobBalance=userBalance)
         else:
-            betOn(driver, gsreport, bet, betArea, allin)
+            betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
 
         wait_If_Clickable(driver, 'in-game', 'back')
         waitElement(driver, 'lobby', 'main')
@@ -67,12 +70,12 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         print('=' * 100)
     
 # Main Test Case function for validation and assertions
-def betOn(driver, gsreport, bet, betArea, allin=False):
+def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
     global count
     balance = []
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
-    checkPlayerBalance(driver, bet)
+    checkPlayerBalance(driver, bet, value=lobBalance, lobbyBal=True)
 
     while True:
         money = findElement(driver, 'in-game', 'balance')

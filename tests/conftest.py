@@ -22,16 +22,16 @@ def driver(headless):
     if headless:
         option.add_argument("--headless=new")
 
-    option.add_argument("--inprivate")
+    option.add_argument("--incognito")
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
     option.add_argument("window-position=1410,0")
     option.add_argument("window-size=446,972")
-    option.add_argument(f"--app={getURL()}")
     option.add_experimental_option("mobileEmulation", emulation())
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
+    driver.get(getURL())
 
     yield driver
     
