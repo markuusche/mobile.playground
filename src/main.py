@@ -16,8 +16,6 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
 
-    userBalance = ""
-
     for i in range(len(elements)):
         gameName = elements[i]
         
@@ -53,7 +51,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         customJS(driver, 'scrollToTop();')
         driver.execute_script("arguments[0].scrollIntoView();", table)
         getPlayerBalance = findElement(driver, 'lobby', 'balance')
-        userBalance += getPlayerBalance.text.strip()
+        userBalance = getPlayerBalance.text.strip()
 
         table.click()
 

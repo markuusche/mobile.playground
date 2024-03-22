@@ -217,7 +217,23 @@ def payrates_odds(driver, game, allin=False):
 
         message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
         assertion(message, defaultPay, '==', list_pays)
-        findElement(driver, 'in-game', 'payrate-close', click=True)
+
+    minMax = findElements(driver, 'in-game', 'min-max')
+    isDisplayed = []
+    for i in minMax:
+        if i.text != None and i.text != '':
+            isDisplayed.append(True)
+        else:
+            isDisplayed.append(False)
+
+    if any(not x for x in isDisplayed):
+        message = debuggerMsg(tableDealer, f'Bet limit min-max are not all displayed')
+        assertion(message, 1, '==', 0)
+    else:
+        message = debuggerMsg(tableDealer, f'Bet limit min-max are all displayed')
+        assertion(message, 1, '==', 1)
+
+    findElement(driver, 'in-game', 'payrate-close', click=True)
 
 # get the total placed chip value
 # and compare it to Bets from betting area

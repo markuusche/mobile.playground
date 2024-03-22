@@ -109,13 +109,13 @@ dragontiger:
   Tiger:                              'div.bet-table.t'
 
 gsheet:
-    three-cards:                      'D7:D20'
-    sedie:                            'D21:D33'
-    sicbo:                            'D34:D46'
-    roulette:                         'D47:D57'
-    niuniu:                           'D58:D69'
-    dragontiger:                      'D70:D83'
-    baccarat:                         'D84:D97'
+    three-cards:                      'D7:D21'
+    sedie:                            'D22:D35'
+    sicbo:                            'D36:D49'
+    roulette:                         'D50:D61'
+    niuniu:                           'D62:D74'
+    dragontiger:                      'D75:D89'
+    baccarat:                         'D90:D104'
 
 in-game:
   back:                               'div#btn-exit'
@@ -132,6 +132,7 @@ in-game:
   edit button:                        'button.edit-btn'
   game:                               'div#game-content'
   input chips:                        'input[aria-label="Edit Chips"]'
+  min-max:                            'div#bet-limit .min-max span'
   modal-bet:                          'div#bet-limit'
   msg:                                'div#bet-msg-toast'
   payrate-close:                      'div.close-wrap .close'
