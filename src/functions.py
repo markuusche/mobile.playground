@@ -325,6 +325,47 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
+def betHistory(driver):
+    wait_If_Clickable(driver, 'history', 'button')
+    waitElement(driver, 'history', 'modal')
+    wait_If_Clickable(driver, 'history', 'detail')
+    blueCards = findElements(driver, 'history', 'result-blue')
+    redCards = findElements(driver, 'history', 'result-red')
+    baseValue = []
+    for blue, red in zip(blueCards, redCards):
+        attValueBlue = blue.get_attribute('class')
+        attValueRed = red.get_attribute('class')
+
+        if 'card-hidden' not in attValueBlue or 'card-hidden' not in attValueRed:
+            for att in (attValueBlue, attValueRed):
+                getBase = re.sub(r'.*?(?=iVBOR)', '', att)
+                baseValue.append(getBase)
+
+    #double check 'card-hidden' if removed
+    newDecode = []
+    for item in baseValue:
+        if 'card-hidden' not in item:
+            newDecode.append(item)
+
+    for i, baseString in enumerate(newDecode):
+        base = base64.b64decode(baseString)
+        getImage = Image.open(BytesIO(base))
+        getImage.save(f'decoded\\card {i}.png')
+
+    path = 'decoded/'
+    images = os.listdir(path)
+    results = []
+    for image in images:
+        read = cv2.imread(f'decoded\\{image}')
+        gray = cv2.cvtColor(read, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 6, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        value = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+        results.append(value)
+
+    print(results)
+    for items in results:
+        assert str(items[0]) in str(data('cards'))
+
 # soft assertion function
 def assertion(message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):
     red = '\033[91m'
@@ -345,6 +386,8 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
                 assert comparison > comparison2
             elif operator == '<':
                 assert comparison < comparison2
+            elif operator == 'in':
+                assert comparison in comparison2
             
             print(f'{green}PASSED{default} {message}')
             GS_REPORT.append(['PASSED'])

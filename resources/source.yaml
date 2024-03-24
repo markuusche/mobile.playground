@@ -86,7 +86,22 @@ bet-limit:
     RED BLACK:                        '(1:1)'
     ODD EVEN:                         '(1:1)'
     BIG SMALL:                        '(1:1)'
-    
+
+cards:
+  - A
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - J
+  - Q
+  - K
+
 category:
   baccarat:                           '.v-tabs__container .v-tabs__div.baccarat > a'
   dragontiger:                        '.v-tabs__container .v-tabs__div.cards > a'
@@ -116,6 +131,14 @@ gsheet:
     niuniu:                           'D62:D74'
     dragontiger:                      'D75:D89'
     baccarat:                         'D90:D104'
+
+history:
+    button:                           'div#btn-history'
+    modal:                            'div#history'
+    detail:                           'div.data-table tbody .bet-code'
+    result-blue:                      'div.result-blue-history .table-card-history'
+    result-red:                       'div.result-red-history .table-card-history'
+    expand:                           'div.history-more .v-responsive__content'
 
 in-game:
   back:                               'div#btn-exit'

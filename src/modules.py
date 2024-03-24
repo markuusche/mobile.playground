@@ -7,10 +7,16 @@ import yaml
 import os
 import re
 import math
+import cv2
+import pytesseract
 from time import sleep
 from faker import Faker
 from selenium import webdriver
 import gspread
+import pytesseract as tess
+import base64
+from io import BytesIO
+from PIL import Image
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -26,6 +32,10 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
+
+deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()
 
