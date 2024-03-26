@@ -7,6 +7,8 @@ import yaml
 import os
 import re
 import math
+import cv2
+import pytesseract
 from time import sleep
 from faker import Faker
 from selenium import webdriver
