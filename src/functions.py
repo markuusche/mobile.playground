@@ -12,16 +12,13 @@ def debuggerMsg(tableDealer, str="", str2=""):
     return f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
         f'{str} {str2}'
 
-# delete all screenshots from screenshots/ folder
-def deleteScreenshots():
-    path = 'screenshots/'
+# delete all screenshots and images
+def deleteImages(folder):
+    path = f'{folder}\\'
     files = os.listdir(path)
-    for file_name in files:
-        _, file_extension = os.path.splitext(file_name)
-        if file_extension.lower() in ['.png', '.PNG']:
-            file_path = os.path.join(path, file_name)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+    for file in files:
+        pathFile = os.path.join(path, file)
+        os.remove(pathFile)
 
 # reset coins to default amount when betting all-in. 
 # for every table loop
@@ -41,8 +38,8 @@ def reset_coins(driver, game, amount):
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
-def checkPlayerBalance(driver, game, value="", lobbyBal=False):
-    if game != 'roulette':
+def checkPlayerBalance(driver, game, value="", allin=False, lobbyBal=False):
+    if allin and game != 'roulette':
         tableDealer = table_dealer(driver)
         coins = findElement(driver, 'in-game', 'balance')
         playerBalance = findElement(driver, 'in-game', 'playerBalance')
@@ -126,16 +123,16 @@ def editChips(driver, divideBy=10):
     bets = findElement(driver, 'in-game', 'balance')
     value = float(bets.text.replace(',',''))
     chips = int(value) / divideBy
-    if chips > 9:
-        wait_If_Clickable(driver, 'in-game', 'edit')
-        waitElement(driver, 'in-game', 'chip amount')
-        wait_If_Clickable(driver, 'in-game', 'edit button')
-        wait_If_Clickable(driver, 'in-game', 'clear')
-        input = findElement(driver, 'in-game', 'input chips')
-        input.send_keys(int(chips))
-        wait_If_Clickable(driver, 'in-game', 'save amount')
-        wait_If_Clickable(driver, 'in-game', 'payrate-close')
-        return chips
+    wait_If_Clickable(driver, 'in-game', 'edit')
+    waitElement(driver, 'in-game', 'chip amount')
+    wait_If_Clickable(driver, 'in-game', 'edit button')
+    wait_If_Clickable(driver, 'in-game', 'clear')
+    input = findElement(driver, 'in-game', 'input chips')
+    input.send_keys(int(chips))
+    wait_If_Clickable(driver, 'in-game', 'save amount')
+    wait_If_Clickable(driver, 'in-game', 'payrate-close')
+    waitElementInvis(driver, 'in-game', 'chip amount')
+    return chips
 
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
@@ -159,7 +156,8 @@ def coins_allin(driver, game, allin=False):
         index = random.choice(range(len(bet_areas)))
 
         try:
-            wait_If_Clickable(driver, game, bet_areas[index])
+            sheesh = {data(game, bet_areas[index])}
+            customJS(driver, f'bet(`${sheesh}`);')
         except ElementClickInterceptedException:
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             wait_If_Clickable(driver, game, bet_areas[index])
@@ -167,7 +165,7 @@ def coins_allin(driver, game, allin=False):
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
         if insufficient:
-            if game != 'niuniu':
+            if game != 'bull bull':
                 screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
                 wait_If_Clickable(driver, 'action', 'confirm')
                 waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
@@ -181,13 +179,11 @@ def coins_allin(driver, game, allin=False):
 
 # verifies payrates matches with the payrate
 # from yaml file
-def payrates_odds(driver, game, allin=False):
-    if game != 'niuniu':
+def payrates_odds(driver, game, tableDealer, allin=False):
+    if game != 'bull bull':
         defaultPay = []
         list_pays = []
         betLimit = data('bet-limit').get(game)
-        tableDealer = table_dealer(driver)
-
         for _, x in betLimit.items():
             defaultPay.append(x)
 
@@ -258,7 +254,7 @@ def sumBetPlaced(driver, tableDealer, cancel=False, text=None):
 
 # new round verification test case
 def verifiy_newRound(driver, bet, tableDealer):
-    if bet in ['baccarat', 'three-cards', 'dragontiger', 'niuniu']:
+    if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
         verify_digitalResult(driver, 'bdt', tableDealer)
     elif bet == 'sicbo':
         verify_digitalResult(driver, 'sicbo', tableDealer)
@@ -277,7 +273,7 @@ def verify_digitalResult(driver, game, tableDealer):
  
 # verifies in-game roadmap summary visibility and assertion    
 def summary(driver, game, tableDealer):
-    if game != 'niuniu':
+    if game != 'bull bull':
         total = 0
         if game not in ['sicbo', 'roulette']:
             if game == 'baccarat' or 'dragontiger':
@@ -325,6 +321,82 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
+def betHistory(driver, status):
+    blueCards = findElements(driver, 'history', 'result-blue')
+    redCards = findElements(driver, 'history', 'result-red')
+    baseValue = []
+    for blue, red in zip(blueCards, redCards):
+        attValueBlue = blue.get_attribute('class')
+        attValueRed = red.get_attribute('class')
+
+        if 'card-hidden' not in attValueBlue or 'card-hidden' not in attValueRed:
+            for att in (attValueBlue, attValueRed):
+                getBase = re.sub(r'.*?(?=iVBOR)', '', att)
+                baseValue.append(getBase)
+
+    #double check 'card-hidden' if removed
+    newDecode = []
+    for item in baseValue:
+        if 'card-hidden' not in item:
+            newDecode.append(item)
+
+    for i, baseString in enumerate(newDecode):
+        base = base64.b64decode(baseString)
+        getImage = Image.open(BytesIO(base))
+        size = (10, 0, 80, 65)
+        resizeImage = getImage.crop(size)
+        resizeImage.save(f'decoded\\card {i}.png')
+        value = tess.image_to_string(Image.open(f'decoded\\card {i}.png'), config='--psm 10')
+        if str(value.replace('\n','')) in str(data('cards')):
+            status.append(True)
+        else:
+            print(str(value.replace('\n','')))
+            status.append(False)
+
+    deleteImages('decoded')
+
+def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
+    wait_If_Clickable(driver, 'history', 'button')
+    waitElement(driver, 'history', 'modal')
+    expand = findElement(driver, 'history', 'expand', status=True)
+    try:
+        while expand.is_displayed():
+            wait_If_Clickable(driver, 'history', 'expand', setTimeout=3)
+    except:
+        ...
+
+    row = findElement(driver, 'history', 'transactions')
+    parseRow = int(row.text.replace(',',''))
+    if parseRow != 0:
+        if updates:
+            rowsAdded = parseRow - oldRow
+            message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
+            assertion(message, notice=True)
+            dataTable = findElement(driver, 'history', 'data table')
+            driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
+            wait_If_Clickable(driver, 'history', 'game')
+            gameList = findElements(driver, 'history', 'filter')
+            if game in ['baccarat', 'dragontiger', 'three-cards']:
+                for _ in range(len(gameList)):
+                    gameList[data('game list', game)].click()
+                    break
+
+            status = []
+            detail = findElements(driver, 'history', 'detail')
+            for i in range(rowsAdded):
+                detail[i].click()
+                waitElement(driver, 'history', 'result')
+                betHistory(driver, status)
+                wait_If_Clickable(driver, 'history', 'close card')
+
+            message = debuggerMsg(tableDealer, 'History results are flipped and displayed')
+            assertion(message,all(status), '==', True)
+
+    wait_If_Clickable(driver, 'in-game', 'payrate-close')
+    waitElementInvis(driver, 'history', 'modal')
+
+    return parseRow
+
 # soft assertion function
 def assertion(message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):
     red = '\033[91m'
@@ -345,10 +417,11 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
                 assert comparison > comparison2
             elif operator == '<':
                 assert comparison < comparison2
+            elif operator == 'in':
+                assert comparison in comparison2 
             
             print(f'{green}PASSED{default} {message}')
             GS_REPORT.append(['PASSED'])
         except AssertionError:
             print(f'{red}FAILED{default} {message}')
             GS_REPORT.append(['FAILED'])
-            

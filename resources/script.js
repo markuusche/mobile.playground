@@ -1,6 +1,5 @@
 function toast_check(text) {
     let digitalElement = document.querySelector('div#bet-msg-toast div');
-    let confirmButton = document.querySelector('div.flex.Confirm');
     if (digitalElement) {
         if (digitalElement.textContent.trim() === text) {
             return true;
@@ -46,4 +45,9 @@ function scrollToTop() {
 function currVersion() {
     let version = document.querySelector('div.dev-version');
     return version.textContent;
+}
+
+//selenium click too slow with slow internet, improvinsing with JS clicks ;0
+function bet(game){
+    document.querySelector(`${game}`).click();
 }

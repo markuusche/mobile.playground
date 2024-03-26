@@ -1,7 +1,7 @@
 from src.modules import *
 
 # find single element <locator> source from locators.yaml
-def findElement(driver, *keys, click=False):
+def findElement(driver, *keys, click=False, status=False):
     try:
         locator = data(*keys)
         element = driver.find_element(By.CSS_SELECTOR, locator)
@@ -10,6 +10,9 @@ def findElement(driver, *keys, click=False):
         else:
             return element
     except NoSuchElementException:
+        if status:
+            return False
+        else:
             print(f'\033[91mFAILED No such element "{locator}" ')
 
 # find multiple elements <locator> source from locators.yaml

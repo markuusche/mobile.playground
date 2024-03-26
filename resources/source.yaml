@@ -4,13 +4,13 @@ action:
   rebet:                              'div.flex.Repeat'
 
 baccarat:
-  Player:                             'div.bet-table.p'
-  Tie:                                'div.bet-table.tie'
-  Banker:                             'div.bet-table.b'
-  PPair:                              'div.bet-table.pp'
-  Any-Pair:                           'div.bet-table.etp'
-  Perfect-Pair:                       'div.bet-table.pfp'
-  BPair:                              'div.bet-table.bp'
+  Player:                             'div.bet-table.p .container'
+  Tie:                                'div.bet-table.tie .container'
+  Banker:                             'div.bet-table.b .container'
+  PPair:                              'div.bet-table.pp .container'
+  Any-Pair:                           'div.bet-table.etp .container'
+  Perfect-Pair:                       'div.bet-table.pfp .container'
+  BPair:                              'div.bet-table.bp .container'
 
 bet-limit:
   baccarat:
@@ -86,7 +86,22 @@ bet-limit:
     RED BLACK:                        '(1:1)'
     ODD EVEN:                         '(1:1)'
     BIG SMALL:                        '(1:1)'
-    
+
+cards:
+  -                                   A
+  -                                   2
+  -                                   3
+  -                                   4
+  -                                   5
+  -                                   6
+  -                                   7
+  -                                   8
+  -                                   9
+  -                                   10
+  -                                   J
+  -                                   Q
+  -                                   K
+
 category:
   baccarat:                           '.v-tabs__container .v-tabs__div.baccarat > a'
   dragontiger:                        '.v-tabs__container .v-tabs__div.cards > a'
@@ -94,7 +109,7 @@ category:
   sedie:                              '.v-tabs__container .v-tabs__div.others > a'
   sicbo:                              '.v-tabs__container .v-tabs__div.others > a'
   three-cards:                        '.v-tabs__container .v-tabs__div.cards > a'
-  niuniu:                             '.v-tabs__container .v-tabs__div.cards > a'
+  bull bull:                          '.v-tabs__container .v-tabs__div.cards > a'
 
 digital results:
   # bdt = bacc, drag, three
@@ -104,18 +119,43 @@ digital results:
   roulette:                           'div#roulette-result'
 
 dragontiger:
-  Dragon:                             'div.bet-table.d'
-  Tie:                                'div.bet-table.tie'
-  Tiger:                              'div.bet-table.t'
+  Dragon:                             'div.bet-table.d .container'
+  Tie:                                'div.bet-table.tie .container'
+  Tiger:                              'div.bet-table.t .container'
+
+game list:
+  baccarat:                           1
+  dragontiger:                        2
+  three-cards:                        4
+  sedie:                              7
+  roulette:                           3
+  sicbo:                              6
+  bull bull:                          5
 
 gsheet:
     three-cards:                      'D7:D21'
     sedie:                            'D22:D35'
     sicbo:                            'D36:D49'
     roulette:                         'D50:D61'
-    niuniu:                           'D62:D74'
+    bull bull:                           'D62:D74'
     dragontiger:                      'D75:D89'
     baccarat:                         'D90:D104'
+
+history:
+  button:                             'div#btn-history'
+  close card:                         'div.close-result-card'
+  data table:                         'div.xs12.mt-2 .v-table__overflow'
+  detail:                             'div.data-table tbody .bet-code'
+  expand:                             'div.history-more .v-responsive__content'
+  filter:                             'div.v-menu__content--fixed .v-list__tile__title'
+  filter modal:                       'div#app > div:nth-child(3) .v-select-list'
+  game:                               'div.xs12 .xs6:last-child .v-input__append-inner'
+  modal:                              'div#history'
+  result:                             'div#history-result'
+  result-blue:                        'div.result-blue-history .table-card-history'
+  result-red:                         'div.result-red-history .table-card-history'
+  transactions:                       'div.summary div:first-child span:last-child'
+  row:                                'div.data-table tbody tr'
 
 in-game:
   back:                               'div#btn-exit'
@@ -137,7 +177,7 @@ in-game:
   msg:                                'div#bet-msg-toast'
   payrate-close:                      'div.close-wrap .close'
   payrate-modal:                      'div#game-buttons .btn-payrate'
-  payrates:                           '.bet-label span.pay-rate'
+  payrates:                           'div.bet-label span.pay-rate'
   playerBalance:                      'div.player-balance'
   race-tracker:                       'div.round-table .container'
   resultToast:                        'div#bet-msg-toast span'
@@ -166,7 +206,7 @@ lobby:
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
 
-niuniu:
+bull bull:
   B1 Double:                          'div.bet-area div:nth-child(1) .layout'
   B1 Equal:                           'div.bet-area div:nth-child(2) .layout'
   B1 Many:                            'div.bet-area div:nth-child(3) .layout'

@@ -22,7 +22,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         if bet == 'dragontiger' and name not in gameName.text:
             continue 
 
-        elif bet == 'baccarat' and i == 0:
+        elif bet == 'baccarat' and i < 2:
             continue
         
         elif bet == 'three-cards' and name not in gameName.text:
@@ -37,7 +37,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         elif bet == 'roulette' and name not in gameName.text:
             continue
 
-        elif bet == 'niuniu' and name not in gameName.text:
+        elif bet == 'bull bull' and name not in gameName.text:
             continue
         
         if allin:
@@ -58,7 +58,7 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         waitElement(driver, 'in-game', 'game')
         if betArea == 'All':
             for x in range(len(bet_areas)):
-                betOn(driver, gsreport, bet, bet_areas[x], lobBalance=userBalance)
+                betOn(driver, gsreport, bet, bet_areas[x])
         else:
             betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
 
@@ -73,13 +73,14 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
     balance = []
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
-    checkPlayerBalance(driver, bet, value=lobBalance, lobbyBal=True)
+    checkPlayerBalance(driver, bet, value=lobBalance, allin=allin, lobbyBal=True)
+    currHistoryRow = openBetHistory(driver, bet, tableDealer)
 
     while True:
         money = findElement(driver, 'in-game', 'balance')
         balance.append(money.text)
         timer = findElement(driver, 'in-game', 'timer')
-        
+
         if timer.text == 'CLOSED':
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             screenshot(driver, 'Please Place Your Bet', tableDealer[0], allin)
@@ -226,10 +227,8 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
                             f'Bet area length {setRange} - Expected: EQUAL')
                             assertion(message, len(ExceptionMessage), '==', setRange)
                             
-                        payrates_odds(driver, bet, allin) # check if bet limit payrate are equal
-                        # takes a screenshot of digital message for not betting 3 times    
-                        waitPresence(driver, 'in-game','toast', text='You have NOT bet for 3 times, 2 more and you\'ll be redirected to lobby!')
-                        screenshot(driver, 'You have NOT bet for 3 times', tableDealer[0], allin)
+                        payrates_odds(driver, bet, tableDealer, allin) # check if bet limit payrate are equal
+                        openBetHistory(driver, bet, tableDealer, currHistoryRow, updates=True)
                         if gsreport:
                             sendReport(GS_REPORT, bet, tableDealer)
                     break

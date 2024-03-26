@@ -1,3 +1,3 @@
 from src.functions import *
 
-deleteScreenshots()
+deleteImages('screenshots')

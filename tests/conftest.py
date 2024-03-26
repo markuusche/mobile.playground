@@ -22,7 +22,7 @@ def driver(headless):
     if headless:
         option.add_argument("--headless=new")
 
-    option.add_argument("--incognito")
+    option.add_argument("--InPrivate")
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
