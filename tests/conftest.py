@@ -26,15 +26,19 @@ def driver(headless):
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
+    option.add_argument("--no-sandbox")
+    option.add_argument("--disable-dev-shm-usage")
+    option.add_argument("--disable-infobars")
+    option.add_argument("--disable-extensions")
     option.add_argument("window-position=910,0")
     option.add_argument("window-size=375,770")
-    option.add_experimental_option("mobileEmulation", emulation())
+    option.add_argument(f"--user-agent=")
+    option.add_argument(f"--app={getURL()}")
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
-    driver.get(getURL())
 
     yield driver
-    
+        
     #teardown
     driver.close()
     driver.quit()
@@ -44,17 +48,3 @@ def lobby(request, driver):
   yield
   if request.session.testsfailed:
     driver.refresh()
-
-def emulation():
-    return {
-        "deviceMetrics": {
-            "width": 375, 
-            "height": 667, 
-            "pixelRatio": 3.0
-            },
-        "userAgent": 'Mozilla/5.0'\
-        '(Linux; Android 14.0; iPhone 14 Pro Max/MRA58N)'\
-        'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.85'\
-        'Mobile Safari/537.36'
-    }
-

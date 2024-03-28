@@ -76,7 +76,7 @@ def betting(driver, betArea, game, placeConfirm=False):
     while i < loopRange:
         index = random.choice(range(len(betArea)))
         try:
-            wait_If_Clickable(driver, game, betArea[index])
+            customJS(driver, f'bet("{data(game, betArea[index])}");')
             if placeConfirm:
                 wait_If_Clickable(driver, 'action', 'confirm')
 
@@ -115,7 +115,6 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         wait_If_Clickable(driver, 'action', 'rebet')
         wait_If_Clickable(driver, 'action', 'confirm')
         screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
-        editChips(driver)
         waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
 # edit chips from in-game
@@ -137,7 +136,6 @@ def editChips(driver, divideBy=10):
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
     global s6
-
     coins = findElement(driver, 'in-game','balance')
     tableDealer = table_dealer(driver)
     bet_areas = list(data(game))
@@ -148,16 +146,18 @@ def coins_allin(driver, game, allin=False):
         waitElement(driver, 'super6', 's6')
         wait_If_Clickable(driver, 'super6', 's6')
 
+    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    editChips(driver)
+
     for _ in range(0, 50):
 
         index = random.choice(range(len(bet_areas)))
 
         try:
-            sheesh = {data(game, bet_areas[index])}
-            customJS(driver, f'bet(`${sheesh}`);')
+            customJS(driver, f'bet("{data(game, bet_areas[index])}");')
         except ElementClickInterceptedException:
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-            wait_If_Clickable(driver, game, bet_areas[index])
+            customJS(driver, f'bet("{data(game, bet_areas[index])}");')
 
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
@@ -364,62 +364,64 @@ def betHistory(driver, status, tableDealer, equalValue):
 
 #load and opens bet history records
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
-    wait_If_Clickable(driver, 'history', 'button')
-    waitElement(driver, 'history', 'modal')
-    expand = findElement(driver, 'history', 'expand', status=True)
-    try:
-        while expand.is_displayed():
-            wait_If_Clickable(driver, 'history', 'expand', setTimeout=3)
-    except:
-        ...
+    if game in ['baccarat', 'dragontiger', 'three-cards']:
+        wait_If_Clickable(driver, 'history', 'button')
+        waitElement(driver, 'history', 'modal')
+        expand = findElement(driver, 'history', 'expand', status=True)
+        try:
+            while expand.is_displayed():
+                wait_If_Clickable(driver, 'history', 'expand', setTimeout=3)
+        except:
+            ...
 
-    row = findElement(driver, 'history', 'transactions')
-    parseRow = int(row.text.replace(',',''))
-    if parseRow != 0:
-        if updates:
-            rowsAdded = parseRow - oldRow
-            message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
-            assertion(message, notice=True)
-            dataTable = findElement(driver, 'history', 'data table')
-            driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
-            wait_If_Clickable(driver, 'history', 'game')
-            gameList = findElements(driver, 'history', 'filter')
-            if game in ['baccarat', 'dragontiger', 'three-cards']:
-                for _ in range(len(gameList)):
-                    gameList[data('game list', game)].click()
-                    break
-
-            status = []
-            lengths = []
-
-            detail = findElements(driver, 'history', 'detail')
-            tableStage = findElements(driver, 'history', 'table')
-            for i in range(rowsAdded):
-                detail[i].click()
-                getTable = tableStage[i].text
-                waitElement(driver, 'history', 'result')
-                baseList = betHistory(driver, status, tableDealer, lengths)
-                
-                #creates log history for debugging in case of failure
-                with open('logs.txt', 'a') as logs:
-                    logs.write(f'Index {i} {getTable.replace('\n',' ')} - Cards {baseList} \n')
-
-                wait_If_Clickable(driver, 'history', 'close card')
-
-            if len(status) != 0:
-                message = debuggerMsg(tableDealer, 'History results are flipped and displayed')
-                assertion(message,all(status), '==', True)
-            else:
-                message = debuggerMsg(tableDealer, 'History results is empty!')
+        row = findElement(driver, 'history', 'transactions')
+        parseRow = int(row.text.replace(',',''))
+        if parseRow != 0:
+            if updates:
+                rowsAdded = parseRow - oldRow
+                message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
                 assertion(message, notice=True)
+                dataTable = findElement(driver, 'history', 'data table')
+                driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
+                wait_If_Clickable(driver, 'history', 'game')
+                gameList = findElements(driver, 'history', 'filter')
+                if game in ['baccarat', 'dragontiger', 'three-cards']:
+                    for _ in range(len(gameList)):
+                        gameList[data('game list', game)].click()
+                        break
 
-            message = debuggerMsg(tableDealer, f'Decoded base64 & Extract Card count - Expected - EQUAL ')
-            assertion(message, all(lengths), '==', True, notice=True)
+                status = []
+                lengths = []
 
-    wait_If_Clickable(driver, 'in-game', 'payrate-close')
-    waitElementInvis(driver, 'history', 'modal')
+                detail = findElements(driver, 'history', 'detail')
+                tableStage = findElements(driver, 'history', 'table')
+                for i in range(rowsAdded):
+                    detail[i].click()
+                    getTable = tableStage[i].text
+                    waitElement(driver, 'history', 'result')
+                    baseList = betHistory(driver, status, tableDealer, lengths)
+                    
+                    #creates log history for debugging in case of failure
+                    with open('logs.txt', 'a') as logs:
+                        newLine = '\n'
+                        logs.write(f'Index {i} {getTable.replace(f"{newLine}"," ")} - Cards {baseList} {newLine} ')
 
-    return parseRow
+                    wait_If_Clickable(driver, 'history', 'close card')
+
+                message = debuggerMsg(tableDealer, f'Decoded base64 Image & Extracted Card Value count - Expected - EQUAL ')
+                assertion(message, all(lengths), '==', True, notice=True)
+
+                if len(status) != 0:
+                    message = debuggerMsg(tableDealer, 'History results matched, flipped & displayed')
+                    assertion(message,all(status), '==', True)
+                else:
+                    message = debuggerMsg(tableDealer, 'History results is empty!')
+                    assertion(message, notice=True)
+
+        wait_If_Clickable(driver, 'in-game', 'payrate-close')
+        waitElementInvis(driver, 'history', 'modal')
+
+        return parseRow
 
 # soft assertion function
 def assertion(message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):

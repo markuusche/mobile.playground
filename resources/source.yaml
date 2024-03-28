@@ -87,6 +87,31 @@ bet-limit:
     ODD EVEN:                         '(1:1)'
     BIG SMALL:                        '(1:1)'
 
+bull bull:
+  B1 Double:                          'div.bet-area div:nth-child(1) .layout'
+  B1 Equal:                           'div.bet-area div:nth-child(2) .layout'
+  B1 Many:                            'div.bet-area div:nth-child(3) .layout'
+
+  B2 Double:                          'div.bet-area div:nth-child(4) .layout'
+  B2 Equal:                           'div.bet-area div:nth-child(5) .layout'
+  B2 Many:                            'div.bet-area div:nth-child(6) .layout'
+
+  B3 Double:                          'div.bet-area div:nth-child(7) .layout'
+  B3 Equal:                           'div.bet-area div:nth-child(8) .layout'
+  B3 Many:                            'div.bet-area div:nth-child(9) .layout'
+
+  P1 Double:                          'div.bet-area div:nth-child(10) .layout'
+  P1 Equal:                           'div.bet-area div:nth-child(11) .layout'
+  P1 Many:                            'div.bet-area div:nth-child(12) .layout'
+
+  P2 Double:                          'div.bet-area div:nth-child(13) .layout'
+  P2 Equal:                           'div.bet-area div:nth-child(14) .layout'
+  P2 Many:                            'div.bet-area div:nth-child(15) .layout'
+
+  P3 Double:                          'div.bet-area div:nth-child(16) .layout'
+  P3 Equal:                           'div.bet-area div:nth-child(17) .layout'
+  P3 Many:                            'div.bet-area div:nth-child(18) .layout'
+
 cards:
   -                                   A
   -                                   2
@@ -126,11 +151,11 @@ dragontiger:
 game list:
   baccarat:                           1
   dragontiger:                        2
-  three-cards:                        4
-  sedie:                              7
-  roulette:                           3
-  sicbo:                              6
-  bull bull:                          5
+  three-cards:                        5
+  sedie:                              8
+  roulette:                           4
+  sicbo:                              7
+  bull bull:                          6
 
 gsheet:
   three-cards:                        'D7:D21'
@@ -206,31 +231,6 @@ lobby:
   balance:                            'div.user-info .user-data span'
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
-
-bull bull:
-  B1 Double:                          'div.bet-area div:nth-child(1) .layout'
-  B1 Equal:                           'div.bet-area div:nth-child(2) .layout'
-  B1 Many:                            'div.bet-area div:nth-child(3) .layout'
-
-  B2 Double:                          'div.bet-area div:nth-child(4) .layout'
-  B2 Equal:                           'div.bet-area div:nth-child(5) .layout'
-  B2 Many:                            'div.bet-area div:nth-child(6) .layout'
-
-  B3 Double:                          'div.bet-area div:nth-child(7) .layout'
-  B3 Equal:                           'div.bet-area div:nth-child(8) .layout'
-  B3 Many:                            'div.bet-area div:nth-child(9) .layout'
-
-  P1 Double:                          'div.bet-area div:nth-child(10) .layout'
-  P1 Equal:                           'div.bet-area div:nth-child(11) .layout'
-  P1 Many:                            'div.bet-area div:nth-child(12) .layout'
-
-  P2 Double:                          'div.bet-area div:nth-child(13) .layout'
-  P2 Equal:                           'div.bet-area div:nth-child(14) .layout'
-  P2 Many:                            'div.bet-area div:nth-child(15) .layout'
-
-  P3 Double:                          'div.bet-area div:nth-child(16) .layout'
-  P3 Equal:                           'div.bet-area div:nth-child(17) .layout'
-  P3 Many:                            'div.bet-area div:nth-child(18) .layout'
 
 roulette:
   # single bets
@@ -411,11 +411,11 @@ roulette:
   four:                             'div.bet-area.f.f'
 
 sedie:
-  big:                                'div.bet-table.bg'
-  even:                               'div.bet-table.ev'
-  odd:                                'div.bet-table.od'
+  big:                                'div.bet-table.bg .container'
+  even:                               'div.bet-table.ev .container'
+  odd:                                'div.bet-table.od .container'
   red:                                'div.bet-table.r4 .beads'
-  small:                              'div.bet-table.sm'
+  small:                              'div.bet-table.sm .container'
   threered:                           'div.bet-table.r3 .beads'
   threewhite:                         'div.bet-table.r1 .beads'
   white:                              'div.bet-table.r0 .beads'
@@ -493,6 +493,6 @@ super6:
   s6:                                 'div.bet-table.s'
 
 three-cards:
-  Dragon:                             'div.bet-table-dragon'
-  Phoenix:                            'div.bet-table-phoenix'
-  Lucky:                              'div.bet-table-lucky'
+  Dragon:                             'div.bet-table-dragon .container'
+  Phoenix:                            'div.bet-table-phoenix .container'
+  Lucky:                              'div.bet-table-lucky .container'

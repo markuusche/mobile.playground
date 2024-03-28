@@ -72,7 +72,6 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
     global count
     balance = []
     tableDealer = table_dealer(driver)
-    bet_areas = list(data(bet))
     waitElement(driver, 'in-game', 'timer')
     checkPlayerBalance(driver, bet, value=lobBalance, allin=allin, lobbyBal=True)
     currHistoryRow = openBetHistory(driver, bet, tableDealer)
@@ -97,7 +96,6 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
             else:
                 if timerInt >= 10:
                     if allin:
-                        cancelRebet(driver, bet_areas, tableDealer, bet, allin=True)
                         coins_allin(driver, bet, allin)
                     else:
                         wait_If_Clickable(driver, bet, betArea)
