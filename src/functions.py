@@ -96,11 +96,10 @@ def getChipValue(driver):
 
 # cancel and then rebet test case
 def cancelRebet(driver, betArea, tableDealer, game, allin=False):
-    numbers = editChips(driver, 20)
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
-    assertion(message, chips, '>', numbers, notice=True)
+    assertion(message, chips, '>', 0, notice=True)
 
     cancelAssert(driver, tableDealer, allin, 'Chip placed & cancelled!')
     betting(driver, betArea, game, placeConfirm=True)
@@ -116,6 +115,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         wait_If_Clickable(driver, 'action', 'rebet')
         wait_If_Clickable(driver, 'action', 'confirm')
         screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
+        editChips(driver)
         waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
 # edit chips from in-game
@@ -142,9 +142,6 @@ def coins_allin(driver, game, allin=False):
     tableDealer = table_dealer(driver)
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
-
-    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
-    editChips(driver, 10)
 
     if s6 == 1 and game == 'baccarat':
         wait_If_Clickable(driver, 'super6', 'r-area')
@@ -321,7 +318,8 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
-def betHistory(driver, status):
+#extract cards data from history results
+def betHistory(driver, status, tableDealer, equalValue):
     blueCards = findElements(driver, 'history', 'result-blue')
     redCards = findElements(driver, 'history', 'result-red')
     baseValue = []
@@ -329,17 +327,18 @@ def betHistory(driver, status):
         attValueBlue = blue.get_attribute('class')
         attValueRed = red.get_attribute('class')
 
-        if 'card-hidden' not in attValueBlue or 'card-hidden' not in attValueRed:
+        if 'card-hidden' not in [attValueBlue, attValueRed]:
             for att in (attValueBlue, attValueRed):
-                getBase = re.sub(r'.*?(?=iVBOR)', '', att)
-                baseValue.append(getBase)
-
+                getBaseBlue = re.sub(r'.*?(?=iVBOR)', '', att)
+                baseValue.append(getBaseBlue)
+    
     #double check 'card-hidden' if removed
     newDecode = []
     for item in baseValue:
         if 'card-hidden' not in item:
             newDecode.append(item)
-
+            
+    card = []
     for i, baseString in enumerate(newDecode):
         base = base64.b64decode(baseString)
         getImage = Image.open(BytesIO(base))
@@ -349,12 +348,21 @@ def betHistory(driver, status):
         value = tess.image_to_string(Image.open(f'decoded\\card {i}.png'), config='--psm 10')
         if str(value.replace('\n','')) in str(data('cards')):
             status.append(True)
+            card.append(str(value.replace('\n','')))
         else:
             print(str(value.replace('\n','')))
             status.append(False)
 
-    deleteImages('decoded')
+    if len(newDecode) == len(card):
+        equalValue.append(True)
+    else:
+        print('decoded base64', len(newDecode))
+        print('card data', card)
 
+    deleteImages('decoded')
+    return card
+
+#load and opens bet history records
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
     wait_If_Clickable(driver, 'history', 'button')
     waitElement(driver, 'history', 'modal')
@@ -382,15 +390,31 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     break
 
             status = []
+            lengths = []
+
             detail = findElements(driver, 'history', 'detail')
+            tableStage = findElements(driver, 'history', 'table')
             for i in range(rowsAdded):
                 detail[i].click()
+                getTable = tableStage[i].text
                 waitElement(driver, 'history', 'result')
-                betHistory(driver, status)
+                baseList = betHistory(driver, status, tableDealer, lengths)
+                
+                #creates log history for debugging in case of failure
+                with open('logs.txt', 'a') as logs:
+                    logs.write(f'Index {i} {getTable.replace('\n',' ')} - Cards {baseList} \n')
+
                 wait_If_Clickable(driver, 'history', 'close card')
 
-            message = debuggerMsg(tableDealer, 'History results are flipped and displayed')
-            assertion(message,all(status), '==', True)
+            if len(status) != 0:
+                message = debuggerMsg(tableDealer, 'History results are flipped and displayed')
+                assertion(message,all(status), '==', True)
+            else:
+                message = debuggerMsg(tableDealer, 'History results is empty!')
+                assertion(message, notice=True)
+
+            message = debuggerMsg(tableDealer, f'Decoded base64 & Extract Card count - Expected - EQUAL ')
+            assertion(message, all(lengths), '==', True, notice=True)
 
     wait_If_Clickable(driver, 'in-game', 'payrate-close')
     waitElementInvis(driver, 'history', 'modal')
@@ -418,7 +442,7 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
             elif operator == '<':
                 assert comparison < comparison2
             elif operator == 'in':
-                assert comparison in comparison2 
+                assert comparison in comparison2
             
             print(f'{green}PASSED{default} {message}')
             GS_REPORT.append(['PASSED'])

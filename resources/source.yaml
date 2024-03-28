@@ -133,13 +133,13 @@ game list:
   bull bull:                          5
 
 gsheet:
-    three-cards:                      'D7:D21'
-    sedie:                            'D22:D35'
-    sicbo:                            'D36:D49'
-    roulette:                         'D50:D61'
-    bull bull:                           'D62:D74'
-    dragontiger:                      'D75:D89'
-    baccarat:                         'D90:D104'
+  three-cards:                        'D7:D21'
+  sedie:                              'D22:D35'
+  sicbo:                              'D36:D49'
+  roulette:                           'D50:D61'
+  bull bull:                          'D62:D74'
+  dragontiger:                        'D75:D89'
+  baccarat:                           'D90:D104'
 
 history:
   button:                             'div#btn-history'
@@ -154,6 +154,7 @@ history:
   result:                             'div#history-result'
   result-blue:                        'div.result-blue-history .table-card-history'
   result-red:                         'div.result-red-history .table-card-history'
+  table:                              'div.data-table tbody td:nth-child(2)'
   transactions:                       'div.summary div:first-child span:last-child'
   row:                                'div.data-table tbody tr'
 

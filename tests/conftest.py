@@ -26,8 +26,8 @@ def driver(headless):
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
     option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
-    option.add_argument("window-position=1410,0")
-    option.add_argument("window-size=446,972")
+    option.add_argument("window-position=910,0")
+    option.add_argument("window-size=375,770")
     option.add_experimental_option("mobileEmulation", emulation())
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
@@ -48,8 +48,8 @@ def lobby(request, driver):
 def emulation():
     return {
         "deviceMetrics": {
-            "width": 430, 
-            "height": 932, 
+            "width": 375, 
+            "height": 667, 
             "pixelRatio": 3.0
             },
         "userAgent": 'Mozilla/5.0'\

@@ -1,11 +1,13 @@
 __pycache__
-.pytest_cache
 __venv__
+venv
 bashrc
+.pytest_cache
 .bashrc
-~/.bashrc
 *.png
 *.PNG
-screenshots/
 *.json
+screenshots/
 decoded/
+~/.bashrc
+logs.txt
