@@ -13,12 +13,16 @@ def debuggerMsg(tableDealer, str="", str2=""):
         f'{str} {str2}'
 
 # delete all screenshots and images
-def deleteImages(folder):
+def deleteImages(folder, logs=False):
     path = f'{folder}\\'
     files = os.listdir(path)
     for file in files:
         pathFile = os.path.join(path, file)
         os.remove(pathFile)
+
+    if logs:
+        if os.path.exists('logs.txt'):
+            os.remove('logs.txt')
 
 # reset coins to default amount when betting all-in. 
 # for every table loop
@@ -141,13 +145,13 @@ def coins_allin(driver, game, allin=False):
     bet_areas = list(data(game))
     s6 = random.choice(range(0, 2))
 
+    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    editChips(driver)
+
     if s6 == 1 and game == 'baccarat':
         wait_If_Clickable(driver, 'super6', 'r-area')
         waitElement(driver, 'super6', 's6')
         wait_If_Clickable(driver, 'super6', 's6')
-
-    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
-    editChips(driver)
 
     for _ in range(0, 50):
 
@@ -318,28 +322,21 @@ def table_dealer(driver):
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
-#extract cards data from history results
-def betHistory(driver, status, tableDealer, equalValue):
-    blueCards = findElements(driver, 'history', 'result-blue')
-    redCards = findElements(driver, 'history', 'result-red')
-    baseValue = []
-    for blue, red in zip(blueCards, redCards):
-        attValueBlue = blue.get_attribute('class')
-        attValueRed = red.get_attribute('class')
+#a regex for extracting base64 data
+def getBaseImage(cards, attribute, cardList):
+    for card in cards:
+        attValue = card.get_attribute(f'{attribute}')
 
-        if 'card-hidden' not in [attValueBlue, attValueRed]:
-            for att in (attValueBlue, attValueRed):
-                getBaseBlue = re.sub(r'.*?(?=iVBOR)', '', att)
-                baseValue.append(getBaseBlue)
-    
-    #double check 'card-hidden' if removed
-    newDecode = []
-    for item in baseValue:
-        if 'card-hidden' not in item:
-            newDecode.append(item)
-            
+        if 'card-hidden' not in attValue and 'base64' in attValue:
+            pattern = r'.*?(?=iVBOR)|\); background-position: center center;$'
+            getBase = re.sub(pattern, '', attValue)
+            baseString = getBase.replace('background-position: center center;','')
+            cardList.append(baseString)
+
+#decode image and crop
+def decodeCropImage(decoded, status, equalValue):
     card = []
-    for i, baseString in enumerate(newDecode):
+    for i, baseString in enumerate(decoded):
         base = base64.b64decode(baseString)
         getImage = Image.open(BytesIO(base))
         size = (10, 0, 80, 65)
@@ -352,19 +349,51 @@ def betHistory(driver, status, tableDealer, equalValue):
         else:
             print(str(value.replace('\n','')))
             status.append(False)
-
-    if len(newDecode) == len(card):
+    
+    if len(decoded) == len(card):
         equalValue.append(True)
     else:
-        print('decoded base64', len(newDecode))
-        print('card data', card)
+        print('Decoded base64', len(decoded))
+        print('Card data', card)
 
-    deleteImages('decoded')
     return card
+
+#extract cards data from history results
+def betHistory(driver, game, status, equalValue):
+    if game not in ['sedie', 'sicbo', 'roulette']:
+        blueValue = []
+        redValue = []
+        selector = 'result-blue' if game != 'bull bull' else 'result-blue-bull'
+        blueCards = findElements(driver, 'history', selector)
+        redCards = findElements(driver, 'history', 'result-red')
+        atrribute = 'class' if game != 'bull bull' else 'style'
+        getBaseImage(blueCards, atrribute, blueValue)
+        getBaseImage(redCards, 'class', redValue)
+
+        #remove empty strings
+        newItems = []
+        newItems2 = []
+        for blue in blueValue:
+            if blue.strip():
+                newItems.append(blue)
+
+        for red in redValue:
+            if red.strip():
+                newItems2.append(red)
+        
+        newDecode = []
+        for item, item2 in zip(newItems, newItems2):
+            if 'card-hidden' not in item or 'card-hidden' not in item2:
+                newDecode.extend([item, item2])
+
+        card = decodeCropImage(newDecode, status, equalValue)
+        return card
+    
+    deleteImages('decoded')
 
 #load and opens bet history records
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
-    if game in ['baccarat', 'dragontiger', 'three-cards']:
+    if game not in ['sedie', 'sicbo', 'roulette']:
         wait_If_Clickable(driver, 'history', 'button')
         waitElement(driver, 'history', 'modal')
         expand = findElement(driver, 'history', 'expand', status=True)
@@ -378,6 +407,8 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
         parseRow = int(row.text.replace(',',''))
         if parseRow != 0:
             if updates:
+                status = []
+                lengths = []
                 rowsAdded = parseRow - oldRow
                 message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
                 assertion(message, notice=True)
@@ -385,13 +416,10 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                 driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
                 wait_If_Clickable(driver, 'history', 'game')
                 gameList = findElements(driver, 'history', 'filter')
-                if game in ['baccarat', 'dragontiger', 'three-cards']:
+                if game not in ['sedie', 'sicbo', 'roulette']:
                     for _ in range(len(gameList)):
                         gameList[data('game list', game)].click()
                         break
-
-                status = []
-                lengths = []
 
                 detail = findElements(driver, 'history', 'detail')
                 tableStage = findElements(driver, 'history', 'table')
@@ -399,7 +427,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     detail[i].click()
                     getTable = tableStage[i].text
                     waitElement(driver, 'history', 'result')
-                    baseList = betHistory(driver, status, tableDealer, lengths)
+                    baseList = betHistory(driver, game, status, lengths)
                     
                     #creates log history for debugging in case of failure
                     with open('logs.txt', 'a') as logs:

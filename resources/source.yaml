@@ -178,6 +178,8 @@ history:
   modal:                              'div#history'
   result:                             'div#history-result'
   result-blue:                        'div.result-blue-history .table-card-history'
+  result-blue-bull:                   'div.result-blue-history .table-card-history .v-image__image'
+  beads:                              'div.beads-img .v-image__image'
   result-red:                         'div.result-red-history .table-card-history'
   table:                              'div.data-table tbody td:nth-child(2)'
   transactions:                       'div.summary div:first-child span:last-child'
