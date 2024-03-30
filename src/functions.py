@@ -115,6 +115,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     if insufficient:
         assertion(message, skip=True)
     else:
+        driver.implicitly_wait(1)
         cancelAssert(driver, tableDealer, allin, 'Rebet & Cancelled!')
         wait_If_Clickable(driver, 'action', 'rebet')
         wait_If_Clickable(driver, 'action', 'confirm')
@@ -413,16 +414,17 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                 message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
                 assertion(message, notice=True)
                 dataTable = findElement(driver, 'history', 'data table')
+                detail = findElements(driver, 'history', 'detail')
+                tableStage = findElements(driver, 'history', 'table')
+                gameList = findElements(driver, 'history', 'filter')
                 driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
                 wait_If_Clickable(driver, 'history', 'game')
-                gameList = findElements(driver, 'history', 'filter')
+
                 if game not in ['sedie', 'sicbo', 'roulette']:
                     for _ in range(len(gameList)):
                         gameList[data('game list', game)].click()
                         break
 
-                detail = findElements(driver, 'history', 'detail')
-                tableStage = findElements(driver, 'history', 'table')
                 for i in range(rowsAdded):
                     detail[i].click()
                     getTable = tableStage[i].text
@@ -436,7 +438,8 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
 
                     wait_If_Clickable(driver, 'history', 'close card')
 
-                message = debuggerMsg(tableDealer, f'Decoded base64 Image & Extracted Card Value count - Expected - EQUAL ')
+                message = debuggerMsg(tableDealer, f'Decoded base64 Image & '\
+                f'Extracted Card Value count - Expected - EQUAL ')
                 assertion(message, all(lengths), '==', True, notice=True)
 
                 if len(status) != 0:
@@ -451,6 +454,41 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
 
         return parseRow
 
+#function to test chatbox
+def chat(driver, game, tableDealer):
+    if game not in ['sicbo', 'roulette']:
+        wait_If_Clickable(driver, 'chat', 'button')
+        waitPresence(driver, 'chat', 'send', text='Send', setTimeout=3)
+        sendMessage = findElement(driver, 'chat', 'input')
+        cn = Faker(['zh_TW'])
+        getLength = []
+        while True:
+            sendMessage.send_keys(cn.text())
+            wait_If_Clickable(driver, 'chat', 'send')
+            for _ in range(10):
+                sendMessage.click()
+                pyperclip.copy(fake.emoji())
+                action = ActionChains(driver)
+                action.key_down(Keys.CONTROL).send_keys("v")
+                action.key_up(Keys.CONTROL).perform()
+
+            wait_If_Clickable(driver, 'chat', 'send')
+            text = findElements(driver, 'chat', 'messages')
+            sendMessage.send_keys(fake.text())
+            wait_If_Clickable(driver, 'chat', 'send')
+            message = debuggerMsg(tableDealer, 'Chatbox messages are displayed or not empty')
+            assertion(message, len(text), '!=', 0, notice=True)
+            for msg in text:
+                if len(msg.text) <= 22:
+                    getLength.append(True)
+                else:
+                    getLength.append(False)
+                    print(msg.text, len(msg.text))
+            break
+
+        message = debuggerMsg(tableDealer, 'Chat messages sent does not exceed 22 characters')
+        assertion(message, all(getLength), '==', True)
+    
 # soft assertion function
 def assertion(message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):
     red = '\033[91m'
@@ -467,6 +505,8 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
         try:
             if operator == '==':
                 assert comparison == comparison2
+            elif operator == '!=':
+                assert comparison != comparison2
             elif operator == '>':
                 assert comparison > comparison2
             elif operator == '<':

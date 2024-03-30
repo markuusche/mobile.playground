@@ -229,6 +229,7 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
                             assertion(message, len(ExceptionMessage), '==', setRange)
                             
                         payrates_odds(driver, bet, tableDealer, allin) # check if bet limit payrate are equal
+                        chat(driver, bet, tableDealer)
                         openBetHistory(driver, bet, tableDealer, currHistoryRow, updates=True)
                         if gsreport:
                             sendReport(GS_REPORT, bet, tableDealer)

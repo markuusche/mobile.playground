@@ -136,6 +136,13 @@ category:
   three-cards:                        '.v-tabs__container .v-tabs__div.cards > a'
   bull bull:                          '.v-tabs__container .v-tabs__div.cards > a'
 
+chat:
+  button:                             'div#btn-chat'
+  chatbox:                            'div#chat-box #chat-content'
+  input:                              'div#chat-box #typing-area'
+  send:                               'div#chat-box .v-input__append-inner div'
+  messages:                           'div#chat-box #messages .message'
+
 digital results:
   # bdt = bacc, drag, three
   bdt:                                'div.v-image.result-board'

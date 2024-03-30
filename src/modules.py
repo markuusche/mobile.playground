@@ -16,6 +16,7 @@ import gspread
 import cv2
 import pytesseract as tess
 import base64
+import pyperclip
 from io import BytesIO
 from PIL import Image
 from selenium.webdriver.chrome.options import Options
