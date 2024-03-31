@@ -84,7 +84,7 @@ Run the script with gsreport in headless mode
    
 </br>
 
-> Note: It is expect that you cannot run this project without the api base url and its endpoints.</br>
+> **Note:** It is expected that you cannot run this project without the api base url and its endpoints.</br>
 > The purpose of this project is to demonstrate that I've developed something for personal use and future reference.</br>
 > If you have any questions, feel free to contact me through one of my socials on my github profile.
 
