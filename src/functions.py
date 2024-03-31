@@ -335,7 +335,7 @@ def getBaseImage(cards, attribute, cardList):
             cardList.append(baseString)
 
 #decode image and crop
-def decodeCropImage(decoded, status, equalValue):
+def decodeCropImage(decoded, status):
     card = []
     for i, baseString in enumerate(decoded):
         base = base64.b64decode(baseString)
@@ -348,19 +348,13 @@ def decodeCropImage(decoded, status, equalValue):
             status.append(True)
             card.append(str(value.replace('\n','')))
         else:
-            print(str(value.replace('\n','')))
+            print(str(value.replace('\n',''), 'card value that is not in data("cards")'))
             status.append(False)
-    
-    if len(decoded) == len(card):
-        equalValue.append(True)
-    else:
-        print('Decoded base64', len(decoded))
-        print('Card data', card)
 
     return card
 
 #extract cards data from history results
-def betHistory(driver, game, status, equalValue):
+def betHistory(driver, game, status, cardResults, extracted):
     if game not in ['sedie', 'sicbo', 'roulette']:
         blueValue = []
         redValue = []
@@ -370,7 +364,7 @@ def betHistory(driver, game, status, equalValue):
         atrribute = 'class' if game != 'bull bull' else 'style'
         getBaseImage(blueCards, atrribute, blueValue)
         getBaseImage(redCards, 'class', redValue)
-
+        flippedCards = cardResults + len(blueCards + redValue)
         #remove empty strings
         newItems = []
         newItems2 = []
@@ -386,9 +380,11 @@ def betHistory(driver, game, status, equalValue):
         for item, item2 in zip(newItems, newItems2):
             if 'card-hidden' not in item or 'card-hidden' not in item2:
                 newDecode.extend([item, item2])
+        
+        card = decodeCropImage(newDecode, status)
+        cardData = extracted + len(newItems + newItems2)
 
-        card = decodeCropImage(newDecode, status, equalValue)
-        return card
+        return card, flippedCards, cardData
     
     deleteImages('decoded')
 
@@ -409,9 +405,10 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
         if parseRow != 0:
             if updates:
                 status = []
-                lengths = []
+                flippedCards = 0
+                extracted = 0
                 rowsAdded = parseRow - oldRow
-                message = debuggerMsg(tableDealer, f'{rowsAdded} New Rows has been added')
+                message = debuggerMsg(tableDealer, f'Bet History {rowsAdded} new rows has been added')
                 assertion(message, notice=True)
                 dataTable = findElement(driver, 'history', 'data table')
                 detail = findElements(driver, 'history', 'detail')
@@ -429,22 +426,25 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     detail[i].click()
                     getTable = tableStage[i].text
                     waitElement(driver, 'history', 'result')
-                    baseList = betHistory(driver, game, status, lengths)
+                    baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
                     
                     #creates log history for debugging in case of failure
                     with open('logs.txt', 'a') as logs:
                         newLine = '\n'
-                        logs.write(f'Index {i} {getTable.replace(f"{newLine}"," ")} - Cards {baseList} {newLine} ')
+                        logs.write(f'Index {i} {getTable.replace(f"{newLine}"," ")} -'\
+                        f'Cards {baseList} {newLine} ')
 
                     wait_If_Clickable(driver, 'history', 'close card')
 
-                message = debuggerMsg(tableDealer, f'Decoded base64 Image & '\
-                f'Extracted Card Value count - Expected - EQUAL ')
-                assertion(message, all(lengths), '==', True, notice=True)
-
                 if len(status) != 0:
-                    message = debuggerMsg(tableDealer, 'History results matched, flipped & displayed')
-                    assertion(message,all(status), '==', True)
+                    if all(status):
+                        message = debuggerMsg(tableDealer, f'Decoded base64 Image {flippedCards} & '\
+                        f'Extracted Card Value {extracted} - Expected - EQUAL ')
+                        assertion(message, flippedCards, '==', extracted)
+                    else:
+                        message = debuggerMsg(tableDealer, 'One or more extracted card data '\
+                        f'was not in the list of cards')
+                        assertion(message, notice=True)
                 else:
                     message = debuggerMsg(tableDealer, 'History results is empty!')
                     assertion(message, notice=True)
