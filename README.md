@@ -7,17 +7,23 @@ QA Automation Test
 Project Dependencies
 ---------------------
 
-- `Python`
-- `Selenium`
-- `Pytest`
-- `Pyyaml`
-- `Requests`
-- `Faker`
+- `python`
+- `selenium`
+- `pytest`
+- `pyyaml`
+- `requests`
+- `faker`
+- `gspread`
+- `oauth2client`
+- `google-api-python-client`
+- `opencv-python`
+- `pytesseract`
+- `pyperclip`
 
 Coverage
 ---------
 
-   * OG [Mobile] [Vue]
+   * [Mobile]
 
 Pre-Requisites
 --------------
@@ -26,14 +32,14 @@ Pre-Requisites
 2. Python Extension (VSCode)
 3. pip
 4. virtualenv
-
+5. [tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
 ------------------------------------------------
 Setting Up First Run on Your Local Machine
 ------------------------------------------
 
 1. Clone this project on your local machine
 
-   ``https://github.com/gloofo/Red-X-Cross.git``
+   ``https://github.com/gloofo/Red-X-Cross``
 
 2. Open a terminal inside your local clone of the repository.
 
@@ -66,6 +72,19 @@ Thats it! You have setup your local environment to run test for this project.
 
 Run the script by simply running this command
 
-   ``pytest -vs`` or ``pytest -vs --headless``
+   ``pytest -vs``
 
+Run the script in headless mode
+
+  ``pytest -vs --headless``
+
+Run the script with gsreport in headless mode
+
+   ``pytest -vs --gsreport --headless``
+   
+</br>
+
+> Note: It is expect that you cannot run this project without the api base url and its endpoints.</br>
+> The purpose of this project is to demonstrate that I've developed something for personal use and future reference.</br>
+> If you have any questions, feel free to contact me through one of my socials on my github profile.
 
