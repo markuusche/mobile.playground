@@ -9,20 +9,23 @@ count = 0
 def play(driver, gsreport, bet, betArea, allin=False, name=""):
     global count
     print('\n')
+    stream = False
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
-    createNew_sheet(driver)
+
+    if gsreport:
+        createNew_sheet(driver)
+
     wait_If_Clickable(driver, 'category', bet)
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
 
     for i in range(len(elements)):
         gameName = elements[i]
-        
         if bet == 'dragontiger' and name not in gameName.text:
-            continue 
+            continue
 
-        elif bet == 'baccarat' and i < 2:
+        elif bet == 'baccarat' and i == 0:
             continue
         
         elif bet == 'three-cards' and name not in gameName.text:
@@ -40,22 +43,28 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
         elif bet == 'bull bull' and name not in gameName.text:
             continue
         
-        if allin:
-            elements = reset_coins(driver, bet, 2191.78)
-        else:
-            elements = reset_coins(driver, bet, 10000)
-
+        elements = reset_coins(driver, bet)
         table = elements[i]
 
         customJS(driver, 'noFullScreen();')
-        customJS(driver, 'scrollToTop();')
-        driver.execute_script("arguments[0].scrollIntoView();", table)
+        driverJS(driver, 'window.scrollTo(0, 0);')
+        driverJS(driver, "arguments[0].scrollIntoView();", table)
         getPlayerBalance = findElement(driver, 'lobby', 'balance')
         userBalance = getPlayerBalance.text.strip()
 
         table.click()
 
         waitElement(driver, 'in-game', 'game')
+
+        #close video stream to avaoid lag
+        if not stream:
+            toggled = findElement(driver, 'in-game', 'video-toggled')
+            isToggled = toggled.get_attribute('class')
+            while 'toggled' in isToggled:
+                customJS(driver, f'click("{data('in-game', 'close-video')}");')
+                stream = True
+                break
+
         if betArea == 'All':
             for x in range(len(bet_areas)):
                 betOn(driver, gsreport, bet, bet_areas[x])

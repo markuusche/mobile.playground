@@ -1,6 +1,6 @@
 action:
   cancel:                             'div.flex.Cancel'
-  confirm:                            'div.flex.Confirm'
+  confirm:                            'div.flex.Confirm .label-btn'
   rebet:                              'div.flex.Repeat'
 
 baccarat:
@@ -88,29 +88,29 @@ bet-limit:
     BIG SMALL:                        '(1:1)'
 
 bull bull:
-  B1 Double:                          'div.bet-area div:nth-child(1) .layout'
-  B1 Equal:                           'div.bet-area div:nth-child(2) .layout'
-  B1 Many:                            'div.bet-area div:nth-child(3) .layout'
+  Z1 Double:                          'div.bet-area div:nth-child(1) .layout'
+  Z1 Equal:                           'div.bet-area div:nth-child(2) .layout'
+  Z1 Many:                            'div.bet-area div:nth-child(3) .layout'
 
-  B2 Double:                          'div.bet-area div:nth-child(4) .layout'
-  B2 Equal:                           'div.bet-area div:nth-child(5) .layout'
-  B2 Many:                            'div.bet-area div:nth-child(6) .layout'
+  Z2 Double:                          'div.bet-area div:nth-child(4) .layout'
+  Z2 Equal:                           'div.bet-area div:nth-child(5) .layout'
+  Z2 Many:                            'div.bet-area div:nth-child(6) .layout'
 
-  B3 Double:                          'div.bet-area div:nth-child(7) .layout'
-  B3 Equal:                           'div.bet-area div:nth-child(8) .layout'
-  B3 Many:                            'div.bet-area div:nth-child(9) .layout'
+  Z3 Double:                          'div.bet-area div:nth-child(7) .layout'
+  Z3 Equal:                           'div.bet-area div:nth-child(8) .layout'
+  Z3 Many:                            'div.bet-area div:nth-child(9) .layout'
 
-  P1 Double:                          'div.bet-area div:nth-child(10) .layout'
-  P1 Equal:                           'div.bet-area div:nth-child(11) .layout'
-  P1 Many:                            'div.bet-area div:nth-child(12) .layout'
+  X1 Double:                          'div.bet-area div:nth-child(10) .layout'
+  X1 Equal:                           'div.bet-area div:nth-child(11) .layout'
+  X1 Many:                            'div.bet-area div:nth-child(12) .layout'
 
-  P2 Double:                          'div.bet-area div:nth-child(13) .layout'
-  P2 Equal:                           'div.bet-area div:nth-child(14) .layout'
-  P2 Many:                            'div.bet-area div:nth-child(15) .layout'
+  X2 Double:                          'div.bet-area div:nth-child(13) .layout'
+  X2 Equal:                           'div.bet-area div:nth-child(14) .layout'
+  X2 Many:                            'div.bet-area div:nth-child(15) .layout'
 
-  P3 Double:                          'div.bet-area div:nth-child(16) .layout'
-  P3 Equal:                           'div.bet-area div:nth-child(17) .layout'
-  P3 Many:                            'div.bet-area div:nth-child(18) .layout'
+  X3 Double:                          'div.bet-area div:nth-child(16) .layout'
+  X3 Equal:                           'div.bet-area div:nth-child(17) .layout'
+  X3 Many:                            'div.bet-area div:nth-child(18) .layout'
 
 cards:
   -                                   A
@@ -165,13 +165,13 @@ game list:
   bull bull:                          6
 
 gsheet:
-  three-cards:                        'D7:D21'
-  sedie:                              'D22:D35'
-  sicbo:                              'D36:D49'
-  roulette:                           'D50:D61'
-  bull bull:                          'D62:D74'
-  dragontiger:                        'D75:D89'
-  baccarat:                           'D90:D104'
+  three-cards:                        'D7:D23'
+  sedie:                              'D24:D37'
+  sicbo:                              'D38:D51'
+  roulette:                           'D52:D63'
+  bull bull:                          'D64:D78'
+  dragontiger:                        'D79:D95'
+  baccarat:                           'D96:D112'
 
 history:
   button:                             'div#btn-history'
@@ -179,7 +179,7 @@ history:
   data table:                         'div.xs12.mt-2 .v-table__overflow'
   detail:                             'div.data-table tbody .bet-code'
   expand:                             'div.history-more .v-responsive__content'
-  filter:                             'div.v-menu__content--fixed .v-list__tile__title'
+  filter:                             'div#app > div:nth-child(3) .v-list .v-list__tile__title'
   filter modal:                       'div#app > div:nth-child(3) .v-select-list'
   game:                               'div.xs12 .xs6:last-child .v-input__append-inner'
   modal:                              'div#history'
@@ -202,6 +202,7 @@ in-game:
   botnav:                             'div.v-tabs__wrapper'
   chip amount:                        'div#chip-amounts'
   clear:                              'div.v-input__slot div:nth-child(3) i'
+  close-video:                        'div#game-setting .mb-3:nth-child(8) .v-image div:last-child'
   dealer:                             'div.dealer-name span'
   edit:                               'div.chip-edit'
   edit button:                        'button.edit-btn'
@@ -220,6 +221,8 @@ in-game:
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
   sedie-sidebtn:                      'div.side-button .flex'
   sedie-summary:                      'div.road-map-info .flex'
+  settings:                           'div#btn-setting'
+  settings-modal:                     'div#game-setting .layout'
   shoe:                               'div.table-number span:last-child'
   summary:                            'div.bead-result.xs2'
   switch:                             'div.v-input__slot'
@@ -227,6 +230,7 @@ in-game:
   timer:                              'div#table-state-wrap .v-progress-circular__info span'
   toast:                              'div#bet-msg-toast div'
   totalMoney:                         'div.user-bet-chip span'
+  video-toggled:                      'div#game-setting .mb-3:nth-child(8) > div:first-child'
   winloss:                            'div.winlose-info'
 
 lucky:
@@ -498,7 +502,7 @@ sicbo:
   dice6:                              'div.single .dice6'
 
 super6:
-  r-area:                             'div.right-area img'
+  r-area:                             'div.right-area img.super6'
   s6:                                 'div.bet-table.s'
 
 three-cards:

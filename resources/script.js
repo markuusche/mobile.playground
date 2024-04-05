@@ -38,16 +38,18 @@ function noFullScreen() {
     document.addEventListener('MSFullscreenChange', preventFullScreen);
 }
 
-function scrollToTop() {
-    window.scrollTo(0, 0);
-}
-
 function currVersion() {
     let version = document.querySelector('div.dev-version');
     return version.textContent;
 }
 
 //selenium click too slow with slow internet, improvinsing with JS clicks ;0
-function bet(game){
+function click(game){
     document.querySelector(`${game}`).click();
 }
+
+//clicks a single element from the list
+function selectGameList(selector, index){
+    let game = document.querySelectorAll(`${selector}`);
+        game[index].click();
+    }

@@ -9,3 +9,5 @@ google-api-python-client
 opencv-python
 pytesseract
 pyperclip
+fake_useragent
+grapheme

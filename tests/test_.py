@@ -15,8 +15,8 @@ def test_Sicbo(driver, gsreport, lobby):
 def test_Roulette(driver, gsreport, lobby):
     play(driver, gsreport, 'roulette', 'big', allin=True, name='Roulette')
 
-def test_NiuNiu(driver, gsreport, lobby):
-    play(driver, gsreport, 'niuniu', 'P1 Double', allin=True, name='Bull Bull')
+def test_BullBull(driver, gsreport, lobby):
+    play(driver, gsreport, 'bull bull', 'Z1 Double', allin=True, name='Bull Bull')
 
 def test_DragonTiger(driver, gsreport, lobby):
     play(driver, gsreport, 'dragontiger', 'All', name='DT')

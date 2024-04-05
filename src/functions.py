@@ -26,24 +26,22 @@ def deleteImages(folder, logs=False):
 
 # reset coins to default amount when betting all-in. 
 # for every table loop
-def reset_coins(driver, game, amount):
-    try: # catching error to prevent blank lobby after a long run
-        getBalance = addBalance(env('add'), amount)
-        addBalance(env('deduc'), amount=getBalance)
-        addBalance(env('add'), amount)
-        driver.get(getURL())    
-        waitElement(driver, 'lobby', 'main')
-        wait_If_Clickable(driver, 'category', game)
-        elements = findElements(driver, 'lobby', 'table panel')
-        return elements
-    except:
-        # catch here -> refresh token and browser
-        driver.get(getURL())
+def reset_coins(driver, game):
+    amount = round(random.uniform(2000.00, 10000.00), 2)
+    amount_str = f'{amount:.2f}'
+    getBalance = addBalance(env('add'), amount_str)
+    addBalance(env('deduc'), amount=getBalance)
+    addBalance(env('add'), amount)
+    driver.get(getURL())    
+    waitElement(driver, 'lobby', 'main')
+    wait_If_Clickable(driver, 'category', game)
+    elements = findElements(driver, 'lobby', 'table panel')
+    return elements
 
 # check if the player balance from top left panel icon
 # and in the middle panel matches.
 def checkPlayerBalance(driver, game, value="", allin=False, lobbyBal=False):
-    if allin and game != 'roulette':
+    if game != 'roulette':
         tableDealer = table_dealer(driver)
         coins = findElement(driver, 'in-game', 'balance')
         playerBalance = findElement(driver, 'in-game', 'playerBalance')
@@ -68,19 +66,26 @@ def LoseOrWin(driver):
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
     
-def cancelAssert(driver, tableDealer, allin, texts):
+def cancelAssert(driver, game, tableDealer, allin, texts):
     wait_If_Clickable(driver, 'action', 'cancel')
     screenshot(driver, texts, tableDealer[0], allin)
-    sumBetPlaced(driver, tableDealer, cancel=True, text=texts)
+    sumBetPlaced(driver, game, tableDealer, cancel=True, text=texts)
 
 def betting(driver, betArea, game, placeConfirm=False):
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
     loopRange = 10 if game in ['sicbo', 'roulette'] else len(betArea)
+    s6 = random.choice(range(2))
+    if placeConfirm:
+        if s6 == 1 and game == 'baccarat':
+            wait_If_Clickable(driver, 'super6', 'r-area')
+            waitElement(driver, 'super6', 's6')
+            wait_If_Clickable(driver, 'super6', 's6')
+
     i = 0
     while i < loopRange:
         index = random.choice(range(len(betArea)))
         try:
-            customJS(driver, f'bet("{data(game, betArea[index])}");')
+            customJS(driver, f'click("{data(game, betArea[index])}");')
             if placeConfirm:
                 wait_If_Clickable(driver, 'action', 'confirm')
 
@@ -105,22 +110,20 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
     assertion(message, chips, '>', 0, notice=True)
 
-    cancelAssert(driver, tableDealer, allin, 'Chip placed & cancelled!')
+    cancelAssert(driver, game, tableDealer, allin, 'Chip placed & cancelled!')
     betting(driver, betArea, game, placeConfirm=True)
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
     wait_If_Clickable(driver, 'action', 'rebet')
 
     insufficient = customJS(driver, 'toast_check("Insufficient funds to rebet!");')
-    message = debuggerMsg(tableDealer, 'Insufficient funds to rebet! Unable to Rebet and Cancel')
+    message = debuggerMsg(tableDealer, 'Insufficient funds to rebet!')
     if insufficient:
         assertion(message, skip=True)
     else:
-        driver.implicitly_wait(1)
-        cancelAssert(driver, tableDealer, allin, 'Rebet & Cancelled!')
+        cancelAssert(driver, game, tableDealer, allin, 'Rebet & Cancelled!')
         wait_If_Clickable(driver, 'action', 'rebet')
         wait_If_Clickable(driver, 'action', 'confirm')
         screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
-        waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
 # edit chips from in-game
 def editChips(driver, divideBy=10):
@@ -140,44 +143,47 @@ def editChips(driver, divideBy=10):
 
 # Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
-    global s6
-    coins = findElement(driver, 'in-game','balance')
-    tableDealer = table_dealer(driver)
     bet_areas = list(data(game))
-    s6 = random.choice(range(0, 2))
-
-    cancelRebet(driver, bet_areas, tableDealer, game, allin=True)
+    tableDealer = table_dealer(driver)
+    cancelRebet(driver, bet_areas, tableDealer, game, allin)
     editChips(driver)
 
-    if s6 == 1 and game == 'baccarat':
-        wait_If_Clickable(driver, 'super6', 'r-area')
-        waitElement(driver, 'super6', 's6')
-        wait_If_Clickable(driver, 'super6', 's6')
-
-    for _ in range(0, 50):
-
+    while True:
+        coins = findElement(driver, 'in-game','balance')
         index = random.choice(range(len(bet_areas)))
-
         try:
-            customJS(driver, f'bet("{data(game, bet_areas[index])}");')
+            customJS(driver, f'click("{data(game, bet_areas[index])}");')
         except ElementClickInterceptedException:
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-            customJS(driver, f'bet("{data(game, bet_areas[index])}");')
+            customJS(driver, f'click("{data(game, bet_areas[index])}");')
 
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 
         if insufficient:
-            if game != 'bull bull':
-                screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
-                wait_If_Clickable(driver, 'action', 'confirm')
-                waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
-                message = debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
-                assertion(message, coins.text, '==', '0.00')
-                sumBetPlaced(driver, tableDealer)
-                break
+            screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
+            wait_If_Clickable(driver, 'action', 'confirm')
+            waitElementInvis(driver, 'in-game','toast')
+            
+            if game == 'bull bull':
+                equalBet = []
+                coins = findElement(driver, 'in-game','balance')
+                for bet in bet_areas:
+                    if 'Equal' in bet:
+                        equalBet.append(bet)
+                        
+                randomSelect = random.choice(range(len(equalBet)))
+                if coins.text != '0.00':
+                    customJS(driver, f'click("{data(game, equalBet[randomSelect])}");')
+                    customJS(driver, f'click("{data('action', 'confirm')}");')
+                    waitElement(driver, 'in-game','toast')
+                    waitElementInvis(driver, 'in-game','toast')
             else:
-                wait_If_Clickable(driver, 'action', 'confirm')
-                break
+                waitPresence(driver, 'in-game', 'balance', text='0.00', setTimeout=10)
+            break
+        
+    message = debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
+    assertion(message, coins.text, '==', '0.00')
+    sumBetPlaced(driver, game, tableDealer)
 
 # verifies payrates matches with the payrate
 # from yaml file
@@ -194,11 +200,12 @@ def payrates_odds(driver, game, tableDealer, allin=False):
         screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
         payrates = findElements(driver, 'in-game', 'payrates')
         sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
-        
+        s6 = findElements(driver, 'super6', 's6')
+
         for payrate in payrates:
             list_pays.append(payrate.text)
 
-        if game == 'baccarat' and s6 == 1:
+        if game == 'baccarat' and len(s6) == 1:
             defaultPay.append('(1:12)')
             defaultPay[1] = '(1:1)'
 
@@ -216,43 +223,44 @@ def payrates_odds(driver, game, tableDealer, allin=False):
         message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
         assertion(message, defaultPay, '==', list_pays)
 
-    minMax = findElements(driver, 'in-game', 'min-max')
-    isDisplayed = []
-    for i in minMax:
-        if i.text != None and i.text != '':
-            isDisplayed.append(True)
-        else:
-            isDisplayed.append(False)
-
-    if any(not x for x in isDisplayed):
-        message = debuggerMsg(tableDealer, f'Bet limit min-max are not all displayed')
-        assertion(message, 1, '==', 0)
     else:
-        message = debuggerMsg(tableDealer, f'Bet limit min-max are all displayed')
-        assertion(message, 1, '==', 1)
+        wait_If_Clickable(driver, 'in-game', 'payrate-modal')
+        waitElement(driver, 'in-game', 'modal-bet')
+        screenshot(driver, 'BET Limit - MinMax', tableDealer[0], allin)
 
-    findElement(driver, 'in-game', 'payrate-close', click=True)
+    minMax = findElements(driver, 'in-game', 'min-max')
+    value = []
+    for i in minMax:
+        if len(i.text) != 0 or i.text is not None or i.text != '':
+            value.append(True)
+        else:
+            value.append(False)
+
+    message = debuggerMsg(tableDealer, f'Bet limit min-max are not all displayed')
+    assertion(message, all(value), '==', True)
+    wait_If_Clickable(driver, 'in-game', 'payrate-close')
 
 # get the total placed chip value
 # and compare it to Bets from betting area
-def sumBetPlaced(driver, tableDealer, cancel=False, text=None):
-    chips = getChipValue(driver)
-    total = 0.00
+def sumBetPlaced(driver, game, tableDealer, cancel=False, text=None):
+        chips = getChipValue(driver)
+        total = 0.00
 
-    # check if bet area has 0 chips
-    if cancel:
-        message = debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
-        assertion(message, chips, '==', 0)
-    else:
-        bets = findElement(driver, 'in-game', 'bets')
-        if bets != None:
-            total = float(bets.text.replace(',',''))
-            message = debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
-            f'& Bets {total} - Expected: EQUAL')
-            assertion(message, round(chips, 2), '==', total)
+        # check if bet area has 0 chips
+        if cancel:
+            message = debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
+            assertion(message, chips, '==', 0)
         else:
-            message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty cannot count chips value')
-            assertion(message, skip=True)
+            if game != 'bull bull':
+                bets = findElement(driver, 'in-game', 'bets')
+                if bets != None:
+                    total = float(bets.text.replace(',',''))
+                    message = debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
+                    f'& Bets {total} - Expected: EQUAL')
+                    assertion(message, round(chips, 2), '==', total)
+                else:
+                    message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty cannot count chips value')
+                    assertion(message, skip=True)
 
 # new round verification test case
 def verifiy_newRound(driver, bet, tableDealer):
@@ -266,7 +274,7 @@ def verifiy_newRound(driver, bet, tableDealer):
         waitElementInvis(driver, 'digital results', 'sedie', \
         setTimeout=3, isDigital=True, tableDealer=tableDealer)
     
-    sumBetPlaced(driver, tableDealer, cancel=True, text='No placed chips after new round')
+    sumBetPlaced(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
 
 def verify_digitalResult(driver, game, tableDealer):
     digital = findElement(driver, 'digital results', game)
@@ -364,10 +372,12 @@ def betHistory(driver, game, status, cardResults, extracted):
         atrribute = 'class' if game != 'bull bull' else 'style'
         getBaseImage(blueCards, atrribute, blueValue)
         getBaseImage(redCards, 'class', redValue)
-        flippedCards = cardResults + len(blueCards + redValue)
+        flippedCards = cardResults + len(blueValue + redValue)
         #remove empty strings
         newItems = []
         newItems2 = []
+        
+        #repeated loop to get cards base64 sequence same as the results
         for blue in blueValue:
             if blue.strip():
                 newItems.append(blue)
@@ -377,23 +387,32 @@ def betHistory(driver, game, status, cardResults, extracted):
                 newItems2.append(red)
         
         newDecode = []
-        for item, item2 in zip(newItems, newItems2):
-            if 'card-hidden' not in item or 'card-hidden' not in item2:
-                newDecode.extend([item, item2])
+        for item in newItems:
+            if 'card-hidden' not in item:
+                newDecode.append(item)
+        
+        for item2 in newItems2:
+            if 'card-hidden' not in item2:
+                newDecode.append(item2)
         
         card = decodeCropImage(newDecode, status)
         cardData = extracted + len(newItems + newItems2)
+        deleteImages('decoded')
 
         return card, flippedCards, cardData
     
-    deleteImages('decoded')
-
 #load and opens bet history records
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
     if game not in ['sedie', 'sicbo', 'roulette']:
         wait_If_Clickable(driver, 'history', 'button')
         waitElement(driver, 'history', 'modal')
         expand = findElement(driver, 'history', 'expand', status=True)
+
+        if game not in ['sedie', 'sicbo', 'roulette']:
+            selectGame = data('history', 'filter')
+            gameIndex = data('game list', game)
+            customJS(driver, f'selectGameList("{selectGame}", {gameIndex})')
+
         try:
             while expand.is_displayed():
                 wait_If_Clickable(driver, 'history', 'expand', setTimeout=3)
@@ -413,21 +432,16 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                 dataTable = findElement(driver, 'history', 'data table')
                 detail = findElements(driver, 'history', 'detail')
                 tableStage = findElements(driver, 'history', 'table')
-                gameList = findElements(driver, 'history', 'filter')
                 driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
-                wait_If_Clickable(driver, 'history', 'game')
-
-                if game not in ['sedie', 'sicbo', 'roulette']:
-                    for _ in range(len(gameList)):
-                        gameList[data('game list', game)].click()
-                        break
 
                 for i in range(rowsAdded):
                     detail[i].click()
                     getTable = tableStage[i].text
                     waitElement(driver, 'history', 'result')
-                    baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
-                    
+                    try:
+                        baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
+                    except:
+                        ...                    
                     #creates log history for debugging in case of failure
                     with open('logs.txt', 'a') as logs:
                         newLine = '\n'
@@ -435,6 +449,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                         f'Cards {baseList} {newLine} ')
 
                     wait_If_Clickable(driver, 'history', 'close card')
+                    waitElementInvis(driver, 'history', 'result')
 
                 if len(status) != 0:
                     if all(status):
@@ -466,7 +481,6 @@ def chat(driver, game, tableDealer):
             sendMessage.send_keys(cn.text())
             wait_If_Clickable(driver, 'chat', 'send')
             for _ in range(10):
-                sendMessage.click()
                 pyperclip.copy(fake.emoji())
                 action = ActionChains(driver)
                 action.key_down(Keys.CONTROL).send_keys("v")
@@ -479,7 +493,8 @@ def chat(driver, game, tableDealer):
             message = debuggerMsg(tableDealer, 'Chatbox messages are displayed or not empty')
             assertion(message, len(text), '!=', 0, notice=True)
             for msg in text:
-                if len(msg.text) <= 22:
+                textCount = sum(1 for _ in grapheme.graphemes(msg.text.strip()))
+                if textCount <= 22:
                     getLength.append(True)
                 else:
                     getLength.append(False)

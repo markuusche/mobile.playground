@@ -16,21 +16,20 @@ import gspread
 import cv2
 import pytesseract as tess
 import base64
+import grapheme
 import pyperclip
 from io import BytesIO
 from PIL import Image
+from fake_useragent import UserAgent
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.chrome.service import Service as ChromeService
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
@@ -40,6 +39,7 @@ path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesse
 tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()
+userAgent = UserAgent(platforms='mobile')
 
 def data(*keys):
     with open('resources/source.yaml','r') as file:
@@ -62,8 +62,8 @@ def customJS(driver, function=None):
         run = driver.execute_script(script)
         return run
 
-def driverJS(driver, script):
-    return driver.execute_script(script)
+def driverJS(driver, script, element = 'auto'):
+    return driver.execute_script(script, element)
 
 def env(value:str):
     return os.environ.get(value)
