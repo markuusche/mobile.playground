@@ -18,6 +18,7 @@ import pytesseract as tess
 import base64
 import grapheme
 import pyperclip
+import traceback
 from io import BytesIO
 from PIL import Image
 from fake_useragent import UserAgent

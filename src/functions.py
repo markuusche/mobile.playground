@@ -21,8 +21,38 @@ def deleteImages(folder, logs=False):
         os.remove(pathFile)
 
     if logs:
-        if os.path.exists('logs.txt'):
-            os.remove('logs.txt')
+        logpath = 'logs\\'
+        txt = os.listdir(logpath)
+        for log in txt:
+            truePath = os.path.join(logpath, log)
+            if os.path.exists(truePath):
+                os.remove(truePath)
+
+#close video stream to avoid lag
+def disableStream(driver, stream):
+    if not stream:
+        toggled = findElement(driver, 'in-game', 'video-toggled')
+        isToggled = toggled.get_attribute('class')
+        while 'toggled' in isToggled:
+            customJS(driver, f'click("{data("in-game", "close-video")}");')
+            stream = True
+            break
+
+#skip a failed table, get logs and proceed to next iteration
+def skipOnFail(driver, tableDealer, exception):
+    message = debuggerMsg(tableDealer, f'---- SKIPPED ----')
+    assertion(message, notice=True)
+    driver.refresh()
+    waitElement(driver, 'lobby', 'main')
+    print('=' * 100)
+    GS_REPORT.clear()
+    
+    exc = str(exception).split('Stacktrace:')[0].strip()
+    tb = traceback.format_exc().split('Stacktrace:')[0].strip()
+
+    with open('logs\\tracelogs.txt','a') as logs:
+        logs.write(f'Table: {tableDealer[0]} Dealer: {tableDealer[1]} \n {exc} \n'\
+        f'\nTraceback: {tb} \n\n')
 
 # reset coins to default amount when betting all-in. 
 # for every table loop
@@ -174,7 +204,7 @@ def coins_allin(driver, game, allin=False):
                 randomSelect = random.choice(range(len(equalBet)))
                 if coins.text != '0.00':
                     customJS(driver, f'click("{data(game, equalBet[randomSelect])}");')
-                    customJS(driver, f'click("{data('action', 'confirm')}");')
+                    customJS(driver, f'click("{data("action", "confirm")}");')
                     waitElement(driver, 'in-game','toast')
                     waitElementInvis(driver, 'in-game','toast')
             else:
@@ -259,7 +289,8 @@ def sumBetPlaced(driver, game, tableDealer, cancel=False, text=None):
                     f'& Bets {total} - Expected: EQUAL')
                     assertion(message, round(chips, 2), '==', total)
                 else:
-                    message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty cannot count chips value')
+                    message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty, cannot confirm and '\
+                    f'compare chips value with the placed chips\033[0m')
                     assertion(message, skip=True)
 
 # new round verification test case
@@ -428,7 +459,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                 extracted = 0
                 rowsAdded = parseRow - oldRow
                 message = debuggerMsg(tableDealer, f'Bet History {rowsAdded} new rows has been added')
-                assertion(message, notice=True)
+                assertion(message, parseRow, '>', oldRow, notice=True)
                 dataTable = findElement(driver, 'history', 'data table')
                 detail = findElements(driver, 'history', 'detail')
                 tableStage = findElements(driver, 'history', 'table')
@@ -443,7 +474,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     except:
                         ...                    
                     #creates log history for debugging in case of failure
-                    with open('logs.txt', 'a') as logs:
+                    with open('logs\\logs.txt', 'a') as logs:
                         newLine = '\n'
                         logs.write(f'Index {i} {getTable.replace(f"{newLine}"," ")} -'\
                         f'Cards {baseList} {newLine} ')
@@ -511,11 +542,16 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
     default = '\033[0m'
     yellow = '\033[93m'
     
+    if notice:
+        status = 'NOTICE'
+        color = yellow
+    else:
+        status = 'PASSED'
+        color = green
+    
     if skip:
         print(f'{yellow}SKIPPED{default} {message}')
         GS_REPORT.append(['SKIPPED'])
-    elif notice:
-        print(f'{yellow}NOTICE{default} {message}')
     else:
         try:
             if operator == '==':
@@ -529,8 +565,10 @@ def assertion(message, comparison=None, operator=None, comparison2=None, skip=Fa
             elif operator == 'in':
                 assert comparison in comparison2
             
-            print(f'{green}PASSED{default} {message}')
-            GS_REPORT.append(['PASSED'])
+            print(f'{color}{status}{default} {message}')
+            if not notice:
+                GS_REPORT.append(['PASSED'])
         except AssertionError:
             print(f'{red}FAILED{default} {message}')
-            GS_REPORT.append(['FAILED'])
+            if not notice:
+                GS_REPORT.append(['FAILED'])

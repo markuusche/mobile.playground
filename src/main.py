@@ -9,7 +9,6 @@ count = 0
 def play(driver, gsreport, bet, betArea, allin=False, name=""):
     global count
     print('\n')
-    stream = False
     waitElement(driver, 'lobby', 'main')
     waitElement(driver, 'in-game', 'botnav')
 
@@ -19,69 +18,64 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     wait_If_Clickable(driver, 'category', bet)
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
+    while True:
+        for i in range(len(elements)):
+            try:
+                gameName = elements[i]
+                if bet == 'dragontiger' and name not in gameName.text:
+                    continue
 
-    for i in range(len(elements)):
-        gameName = elements[i]
-        if bet == 'dragontiger' and name not in gameName.text:
-            continue
+                elif bet == 'baccarat' and i == 0:
+                    continue
+                
+                elif bet == 'three-cards' and name not in gameName.text:
+                    continue
+                
+                elif bet == 'sedie' and name not in gameName.text:
+                    continue
+                    
+                elif bet == 'sicbo' and name not in gameName.text:
+                    continue
 
-        elif bet == 'baccarat' and i == 0:
-            continue
-        
-        elif bet == 'three-cards' and name not in gameName.text:
-            continue
-        
-        elif bet == 'sedie' and name not in gameName.text:
-            continue
+                elif bet == 'roulette' and name not in gameName.text:
+                    continue
+
+                elif bet == 'bull bull' and name not in gameName.text:
+                    continue
+                
+                elements = reset_coins(driver, bet)
+                table = elements[i]
+                customJS(driver, 'noFullScreen();')
+                driverJS(driver, 'window.scrollTo(0, 0);')
+                driverJS(driver, "arguments[0].scrollIntoView();", table)
+                getPlayerBalance = findElement(driver, 'lobby', 'balance')
+                userBalance = getPlayerBalance.text.strip()
+                table.click()
+                waitElement(driver, 'in-game', 'game')
+
+                if betArea == 'All':
+                    for x in range(len(bet_areas)):
+                        betOn(driver, gsreport, bet, bet_areas[x])
+                else:
+                    betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
+
+                wait_If_Clickable(driver, 'in-game', 'back')
+                waitElement(driver, 'lobby', 'main')
+                elements = findElements(driver, 'lobby', 'table panel')
+                print('=' * 100)
+            except Exception as e:
+                i += 1
+                tableDealer = table_dealer(driver)
+                skipOnFail(driver, tableDealer, e)
             
-        elif bet == 'sicbo' and name not in gameName.text:
-            continue
-
-        elif bet == 'roulette' and name not in gameName.text:
-            continue
-
-        elif bet == 'bull bull' and name not in gameName.text:
-            continue
-        
-        elements = reset_coins(driver, bet)
-        table = elements[i]
-
-        customJS(driver, 'noFullScreen();')
-        driverJS(driver, 'window.scrollTo(0, 0);')
-        driverJS(driver, "arguments[0].scrollIntoView();", table)
-        getPlayerBalance = findElement(driver, 'lobby', 'balance')
-        userBalance = getPlayerBalance.text.strip()
-
-        table.click()
-
-        waitElement(driver, 'in-game', 'game')
-
-        #close video stream to avaoid lag
-        if not stream:
-            toggled = findElement(driver, 'in-game', 'video-toggled')
-            isToggled = toggled.get_attribute('class')
-            while 'toggled' in isToggled:
-                customJS(driver, f'click("{data('in-game', 'close-video')}");')
-                stream = True
-                break
-
-        if betArea == 'All':
-            for x in range(len(bet_areas)):
-                betOn(driver, gsreport, bet, bet_areas[x])
-        else:
-            betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
-
-        wait_If_Clickable(driver, 'in-game', 'back')
-        waitElement(driver, 'lobby', 'main')
-        elements = findElements(driver, 'lobby', 'table panel')
-        print('=' * 100)
-    
 # Main Test Case function for validation and assertions
 def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
     global count
     balance = []
+    stream = False
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
+    disableStream(driver, stream)
     checkPlayerBalance(driver, bet, value=lobBalance, allin=allin, lobbyBal=True)
     currHistoryRow = openBetHistory(driver, bet, tableDealer)
     editChips(driver, 20)
