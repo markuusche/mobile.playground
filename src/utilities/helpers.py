@@ -1,4 +1,4 @@
-from src.modules import *
+from src.libs.modules import *
 
 # find single element <locator> source from locators.yaml
 def findElement(driver, *keys, click=False, status=False):

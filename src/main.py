@@ -1,6 +1,6 @@
-from src.modules import *
-from src.helpers import *
-from src.functions import *
+from src.libs.modules import *
+from src.utilities.helpers import *
+from src.utilities.functions import *
 from . import GS_REPORT
 
 count = 0
@@ -18,55 +18,54 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     wait_If_Clickable(driver, 'category', bet)
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
-    while True:
-        for i in range(len(elements)):
-            try:
-                gameName = elements[i]
-                if bet == 'dragontiger' and name not in gameName.text:
-                    continue
+    for i in range(len(elements)):
+        try:
+            gameName = elements[i]
+            if bet == 'dragontiger' and name not in gameName.text:
+                continue
 
-                elif bet == 'baccarat' and i == 0:
-                    continue
+            elif bet == 'baccarat' and i == 0:
+                continue
+            
+            elif bet == 'three-cards' and name not in gameName.text:
+                continue
+            
+            elif bet == 'sedie' and name not in gameName.text:
+                continue
                 
-                elif bet == 'three-cards' and name not in gameName.text:
-                    continue
-                
-                elif bet == 'sedie' and name not in gameName.text:
-                    continue
-                    
-                elif bet == 'sicbo' and name not in gameName.text:
-                    continue
+            elif bet == 'sicbo' and name not in gameName.text:
+                continue
 
-                elif bet == 'roulette' and name not in gameName.text:
-                    continue
+            elif bet == 'roulette' and name not in gameName.text:
+                continue
 
-                elif bet == 'bull bull' and name not in gameName.text:
-                    continue
-                
-                elements = reset_coins(driver, bet)
-                table = elements[i]
-                customJS(driver, 'noFullScreen();')
-                driverJS(driver, 'window.scrollTo(0, 0);')
-                driverJS(driver, "arguments[0].scrollIntoView();", table)
-                getPlayerBalance = findElement(driver, 'lobby', 'balance')
-                userBalance = getPlayerBalance.text.strip()
-                table.click()
-                waitElement(driver, 'in-game', 'game')
+            elif bet == 'bull bull' and name not in gameName.text:
+                continue
+            
+            elements = reset_coins(driver, bet)
+            table = elements[i]
+            customJS(driver, 'noFullScreen();')
+            driverJS(driver, 'window.scrollTo(0, 0);')
+            driverJS(driver, "arguments[0].scrollIntoView();", table)
+            getPlayerBalance = findElement(driver, 'lobby', 'balance')
+            userBalance = getPlayerBalance.text.strip()
+            table.click()
+            waitElement(driver, 'in-game', 'game')
 
-                if betArea == 'All':
-                    for x in range(len(bet_areas)):
-                        betOn(driver, gsreport, bet, bet_areas[x])
-                else:
-                    betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
+            if betArea == 'All':
+                for x in range(len(bet_areas)):
+                    betOn(driver, gsreport, bet, bet_areas[x])
+            else:
+                betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
 
-                wait_If_Clickable(driver, 'in-game', 'back')
-                waitElement(driver, 'lobby', 'main')
-                elements = findElements(driver, 'lobby', 'table panel')
-                print('=' * 100)
-            except Exception as e:
-                i += 1
-                tableDealer = table_dealer(driver)
-                skipOnFail(driver, tableDealer, e)
+            wait_If_Clickable(driver, 'in-game', 'back')
+            waitElement(driver, 'lobby', 'main')
+            elements = findElements(driver, 'lobby', 'table panel')
+            print('=' * 100)
+        except Exception as e:
+            i += 1
+            tableDealer = table_dealer(driver)
+            skipOnFail(driver, tableDealer, e)
             
 # Main Test Case function for validation and assertions
 def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):

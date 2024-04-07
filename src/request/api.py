@@ -1,6 +1,6 @@
-from . import GS_REPORT
-from src.modules import *
-from src.helpers import *
+from .. import GS_REPORT
+from src.libs.modules import *
+from src.utilities.helpers import *
 
 def getToken():
     header = {}

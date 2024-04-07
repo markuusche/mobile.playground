@@ -1,4 +1,4 @@
-from src.functions import *
+from src.utilities.functions import *
 
 deleteImages('screenshots', logs=True)
-deleteImages('decoded')
+deleteImages('screenshots\\decoded')

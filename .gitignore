@@ -8,7 +8,5 @@ bashrc
 *.PNG
 *.json
 screenshots/
-decoded/
 ~/.bashrc
-logs.txt
-tracelogs.txt
+logs/

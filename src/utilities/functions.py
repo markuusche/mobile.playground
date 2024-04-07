@@ -1,7 +1,7 @@
-from src.modules import *
-from src.helpers import *
-from src.api import *
-from . import GS_REPORT
+from src.libs.modules import *
+from src.utilities.helpers import *
+from src.request.api import *
+from .. import GS_REPORT
 
 # for digital message screenshots
 def screenshot(driver, name, val, allin=False):
@@ -18,7 +18,8 @@ def deleteImages(folder, logs=False):
     files = os.listdir(path)
     for file in files:
         pathFile = os.path.join(path, file)
-        os.remove(pathFile)
+        if os.path.isfile(pathFile):
+            os.remove(pathFile)
 
     if logs:
         logpath = 'logs\\'
@@ -95,11 +96,6 @@ def LoseOrWin(driver):
     else:
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
-    
-def cancelAssert(driver, game, tableDealer, allin, texts):
-    wait_If_Clickable(driver, 'action', 'cancel')
-    screenshot(driver, texts, tableDealer[0], allin)
-    sumBetPlaced(driver, game, tableDealer, cancel=True, text=texts)
 
 def betting(driver, betArea, game, placeConfirm=False):
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
@@ -135,6 +131,12 @@ def getChipValue(driver):
 
 # cancel and then rebet test case
 def cancelRebet(driver, betArea, tableDealer, game, allin=False):
+    #cancel function
+    def cancelAssert(driver, game, tableDealer, allin, texts):
+        wait_If_Clickable(driver, 'action', 'cancel')
+        screenshot(driver, texts, tableDealer[0], allin)
+        sumBetPlaced(driver, game, tableDealer, cancel=True, text=texts)
+        
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
@@ -381,8 +383,8 @@ def decodeCropImage(decoded, status):
         getImage = Image.open(BytesIO(base))
         size = (10, 0, 80, 65)
         resizeImage = getImage.crop(size)
-        resizeImage.save(f'decoded\\card {i}.png')
-        value = tess.image_to_string(Image.open(f'decoded\\card {i}.png'), config='--psm 10')
+        resizeImage.save(f'screenshots\\decoded\\card {i}.png')
+        value = tess.image_to_string(Image.open(f'screenshots\\decoded\\card {i}.png'), config='--psm 10')
         if str(value.replace('\n','')) in str(data('cards')):
             status.append(True)
             card.append(str(value.replace('\n','')))
@@ -428,7 +430,7 @@ def betHistory(driver, game, status, cardResults, extracted):
         
         card = decodeCropImage(newDecode, status)
         cardData = extracted + len(newItems + newItems2)
-        deleteImages('decoded')
+        deleteImages('screenshots\\decoded')
 
         return card, flippedCards, cardData
     

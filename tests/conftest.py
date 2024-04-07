@@ -1,5 +1,5 @@
-from src.modules import *
-from src.functions import *
+from src.libs.modules import *
+from src.utilities.functions import *
 
 def pytest_addoption(parser):
     parser.addoption("--headless", action="store_true", default=False)
@@ -43,8 +43,8 @@ def driver(headless):
     driver.close()
     driver.quit()
 
-@pytest.fixture
-def lobby(request, driver):
-  yield
-  if request.session.testsfailed:
-    driver.refresh()
+#disable logging
+def traceLog_Handler(call, report):
+    if call.excinfo is not None:
+        if report.failed:
+            report.longrepr = None
