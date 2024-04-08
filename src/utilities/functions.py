@@ -97,6 +97,21 @@ def LoseOrWin(driver):
         getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
         return f'Win: {getText:.2f}'
 
+def dtSidebet(driver, game, betArea=None):
+    shoe = findElement(driver, 'in-game', 'shoe')
+    tableRound = int(shoe.text.split('-')[1])
+    
+    #side bet betting
+    if game == 'dragontiger' and tableRound <= 30:
+        sidebet = data(game)
+        sidebet.update(data('sidebet', 'dragontiger'))
+        bet_areas = list(sidebet)
+        index = random.choice(range(len(bet_areas)))
+        return sidebet[bet_areas[index]]
+    else:
+        index = random.choice(range(len(betArea)))
+        return data(game, betArea[index])
+
 def betting(driver, betArea, game, placeConfirm=False):
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
     loopRange = 10 if game in ['sicbo', 'roulette'] else len(betArea)
@@ -109,9 +124,9 @@ def betting(driver, betArea, game, placeConfirm=False):
 
     i = 0
     while i < loopRange:
-        index = random.choice(range(len(betArea)))
+        bets = dtSidebet(driver, game, betArea=betArea)
         try:
-            customJS(driver, f'click("{data(game, betArea[index])}");')
+            customJS(driver, f'click("{bets}");')
             if placeConfirm:
                 wait_If_Clickable(driver, 'action', 'confirm')
 
@@ -182,12 +197,12 @@ def coins_allin(driver, game, allin=False):
 
     while True:
         coins = findElement(driver, 'in-game','balance')
-        index = random.choice(range(len(bet_areas)))
+        bets = dtSidebet(driver, game, betArea=bet_areas)
         try:
-            customJS(driver, f'click("{data(game, bet_areas[index])}");')
+            customJS(driver, f'click("{bets}");')
         except ElementClickInterceptedException:
             waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
-            customJS(driver, f'click("{data(game, bet_areas[index])}");')
+            customJS(driver, f'click("{bets}");')
 
         insufficient = customJS(driver, 'toast_check("Insufficient Balance");')
 

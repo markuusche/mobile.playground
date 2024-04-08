@@ -11,7 +11,7 @@ def getToken():
 
 def gameKey():
     fetch = getToken()
-    username = {'username': env('username'), f'{env("bl")}': 269}
+    username = {'username': env('username'), f'{env("bl")}': 124}
     token = fetch['data']['token']
     header = {'X-token': token}
     response = requests.get(env('base') + env('key'), \

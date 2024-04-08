@@ -502,6 +502,13 @@ sicbo:
   dice5:                              'div.single .dice5'
   dice6:                              'div.single .dice6'
 
+sidebet:
+  dragontiger:
+    DRAGON RED:                       'div.bet-table.dr .layout'
+    DRAGON BLACK:                     'div.bet-table.db .layout'
+    TIGER BLACK:                      'div.bet-table.tb .layout'
+    TIGER RED:                        'div.bet-table.tr .layout'
+
 super6:
   r-area:                             'div.right-area img.super6'
   s6:                                 'div.bet-table.s'
