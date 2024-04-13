@@ -74,8 +74,8 @@ def sendReport(sample, bet, tableDealer):
     sendReport.update(range_name=f"{data('gsheet', bet)}", values=sample)
     
     getRange = re.findall(r'\d+', data('gsheet', bet))
-    for i in getRange:
-        rangeValue.append(i)
+    for cell in getRange:
+        rangeValue.append(cell)
     
     for row in range(int(rangeValue[0]), int(rangeValue[1]) + 1):
         getValue = sendReport.cell(row, 4).value

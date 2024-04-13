@@ -6,7 +6,7 @@ from . import GS_REPORT
 count = 0
 
 # this is where the table looping happens
-def play(driver, gsreport, bet, betArea, allin=False, name=""):
+def play(driver, gsreport, bet, betArea=None, allin=False, name=""):
     global count
     print('\n')
     waitElement(driver, 'lobby', 'main')
@@ -18,13 +18,13 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
     wait_If_Clickable(driver, 'category', bet)
     bet_areas = list(data(bet))
     elements = findElements(driver, 'lobby', 'table panel')
-    for i in range(len(elements)):
+    for element in range(len(elements)):
         try:
-            gameName = elements[i]
+            gameName = elements[element]
             if bet == 'dragontiger' and name not in gameName.text:
                 continue
 
-            elif bet == 'baccarat' and i == 0:
+            elif bet == 'baccarat' and element == 0:
                 continue
             
             elif bet == 'three-cards' and name not in gameName.text:
@@ -42,8 +42,8 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
             elif bet == 'bull bull' and name not in gameName.text:
                 continue
             
-            elements = reset_coins(driver, bet)
-            table = elements[i]
+            elements = updateBalance(driver, bet)
+            table = elements[element]
             customJS(driver, 'noFullScreen();')
             driverJS(driver, 'window.scrollTo(0, 0);')
             driverJS(driver, "arguments[0].scrollIntoView();", table)
@@ -53,31 +53,33 @@ def play(driver, gsreport, bet, betArea, allin=False, name=""):
             waitElement(driver, 'in-game', 'game')
 
             if betArea == 'All':
-                for x in range(len(bet_areas)):
-                    betOn(driver, gsreport, bet, bet_areas[x])
+                for area in range(len(bet_areas)):
+                    betOn(driver, gsreport, bet, bet_areas[area])
             else:
-                betOn(driver, gsreport, bet, betArea, allin, lobBalance=userBalance)
+                betOn(driver, gsreport, bet, betArea, allin, currentBalance=userBalance)
 
             wait_If_Clickable(driver, 'in-game', 'back')
             waitElement(driver, 'lobby', 'main')
             elements = findElements(driver, 'lobby', 'table panel')
             print('=' * 100)
         except Exception as e:
-            i += 1
+            element += 1
             tableDealer = table_dealer(driver)
             skipOnFail(driver, tableDealer, e)
             
 # Main Test Case function for validation and assertions
-def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
+def betOn(driver, gsreport, bet, betArea, allin=False, currentBalance=""):
     global count
     balance = []
     stream = False
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
     disableStream(driver, stream)
-    checkPlayerBalance(driver, bet, value=lobBalance, allin=allin, lobbyBal=True)
-    currHistoryRow = openBetHistory(driver, bet, tableDealer)
-    editChips(driver, 20)
+    
+    if allin:
+        checkPlayerBalance(driver, bet, value=currentBalance, lobbyBalance=True)
+        currHistoryRow = openBetHistory(driver, bet, tableDealer)
+        editChips(driver, 20)
 
     while True:
         money = findElement(driver, 'in-game', 'balance')
@@ -120,8 +122,8 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
                     lucky_odds = dict(data('lucky'))
                     lucky_result = 0.00
                     odds = []
-                    for i in board:
-                        board_result = i.text.split(' – ')[0]
+                    for results in board:
+                        board_result = results.text.split(' – ')[0]
 
                         if board_result in lucky_odds:
                             value = lucky_odds[board_result]
@@ -217,18 +219,18 @@ def betOn(driver, gsreport, bet, betArea, allin=False, lobBalance=""):
                         waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
                         if timer.text == 'CLOSED':
                             bet_areas = list(data(bet))
-                            setRange = 10 if bet in ['sicbo', 'roulette'] else len(bet_areas)
+                            betRange = 10 if bet in ['sicbo', 'roulette'] else len(bet_areas)
                             ExceptionMessage = []
-                            for i in range(setRange):
+                            for rangeLength in range(betRange):
                                 try:
-                                    wait_If_Clickable(driver, bet, bet_areas[i])
+                                    wait_If_Clickable(driver, bet, bet_areas[rangeLength])
                                 except Exception as e:
                                     ExceptionMessage.append(str(e))
 
                             screenshot(driver, 'Bet on CLOSED', tableDealer[0], allin)
                             message = debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
-                            f'Bet area length {setRange} - Expected: EQUAL')
-                            assertion(message, len(ExceptionMessage), '==', setRange)
+                            f'Bet area length {betRange} - Expected: EQUAL')
+                            assertion(message, len(ExceptionMessage), '==', betRange)
                             
                         payrates_odds(driver, bet, tableDealer, allin) # check if bet limit payrate are equal
                         chat(driver, bet, tableDealer)

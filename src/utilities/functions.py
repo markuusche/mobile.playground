@@ -39,8 +39,22 @@ def disableStream(driver, stream):
             stream = True
             break
 
-#skip a failed table, get logs and proceed to next iteration
 def skipOnFail(driver, tableDealer, exception):
+    """
+    Skip the current test case upon encountering an exception, refresh the driver, and clear the GS_REPORT.
+    
+    params:
+    `driver` (webdriver): The Selenium WebDriver instance.
+    `tableDealer` (string): A string containing information about the table and dealer.
+    `exception` (exception: The exception raised during the test execution.
+
+    : This function is designed to handle test case failures gracefully by logging the exception details and 
+    : traceback information to a file. It then refreshes the WebDriver instance, clears any existing report data, 
+    : and waits for the 'lobby' and 'main' elements to be available before proceeding.  
+    : It extracts the exception message and traceback, appends them to a log file named 'tracelogs.txt' with 
+    : information about the table and dealer, and separates each log entry with a newline for clarity.
+    """
+    
     message = debuggerMsg(tableDealer, f'---- SKIPPED ----')
     assertion(message, notice=True)
     driver.refresh()
@@ -55,9 +69,23 @@ def skipOnFail(driver, tableDealer, exception):
         logs.write(f'Table: {tableDealer[0]} Dealer: {tableDealer[1]} \n {exc} \n'\
         f'\nTraceback: {tb} \n\n')
 
-# reset coins to default amount when betting all-in. 
-# for every table loop
-def reset_coins(driver, game):
+def updateBalance(driver, game):
+    """
+    Update the user's balance, perform necessary balance adjustments, and navigate to the specified game lobby.
+    
+    params:
+    `driver` (WebDriver): The Selenium WebDriver instance.
+    `game` (str): The name or category of the game lobby to navigate to.
+
+    : This function generates a random amount between $2000.00 and $10000.00 and converts it to a string 
+    : with two decimal places. It then adds this amount to the user's balance using the addBalance function 
+    : with the appropriate environment configurations for adding and deducting balance.
+    : After updating the balance, the function navigates the WebDriver instance to the URL obtained from 
+    : getURL() and waits for the 'lobby' and 'main' elements to be available before proceeding.
+    : It then waits for the specified game category to become clickable and retrieves a list of WebElement 
+    : objects representing the game tables available in the lobby.
+    """
+    
     amount = round(random.uniform(2000.00, 10000.00), 2)
     amount_str = f'{amount:.2f}'
     getBalance = addBalance(env('add'), amount_str)
@@ -69,15 +97,28 @@ def reset_coins(driver, game):
     elements = findElements(driver, 'lobby', 'table panel')
     return elements
 
-# check if the player balance from top left panel icon
-# and in the middle panel matches.
-def checkPlayerBalance(driver, game, value="", allin=False, lobbyBal=False):
+def checkPlayerBalance(driver, game, value="", lobbyBalance=False):
+    """
+    check the player's balance in the specified game lobby or during gameplay.
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `game` (str): the name of the game or game category.
+    `value` (str, optional): the expected balance value. default is an empty string.
+    `lobbybal` (bool, optional): whether to check the balance in the lobby. default is false.
+    
+    : if the game is not 'roulette', it extracts the table and dealer information using the `table_dealer` function, 
+    : and locates the player's balance and game balance elements using the `findelement` function.
+    : if `lobbybal` is true, it compares the lobby balance (`coins.text`) with the expected value. 
+    : otherwise, it compares the top balance (`coins.text`) with the bottom balance (`playerbalance.text`).
+    """
+    
     if game != 'roulette':
         tableDealer = table_dealer(driver)
         coins = findElement(driver, 'in-game', 'balance')
         playerBalance = findElement(driver, 'in-game', 'playerBalance')
         
-        if lobbyBal:
+        if lobbyBalance:
             message = debuggerMsg(tableDealer, f'Lobby Balance {value} & '\
             f'In-game Balance {coins.text} - Expected: EQUAL')
             assertion(message, value, '==', coins.text.strip())
@@ -86,8 +127,23 @@ def checkPlayerBalance(driver, game, value="", allin=False, lobbyBal=False):
         f'Bottom balance {playerBalance.text} - Expected: EQUAL')
         assertion(message, coins.text, '==', playerBalance.text)
 
-# gets Lose or Win message with the values
 def LoseOrWin(driver):
+    """
+    check the outcome of the game, whether it's a win or a loss.
+
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    
+    : wait for the result toast element to appear in the in-game view using `waitelement`.
+    : find and extract the win/loss result from the game using `findelement`.
+    : if '-' is present in the result text, it indicates a loss. 
+    : in this case, extract the amount lost from the result text, convert it to a float, and format it 
+    : to display 'Lose: {amount}' with two decimal places.
+    : otherwise, if '+' is present in the result text, it indicates a win. 
+    : in this case, extract the amount won from the result text, convert it to a float, and format it 
+    : to display 'Win: {amount}' with two decimal places.
+    """
+    
     waitElement(driver, 'in-game', 'resultToast')
     result = findElement(driver, 'in-game', 'winloss')
     if '-' in result.text:
@@ -98,10 +154,23 @@ def LoseOrWin(driver):
         return f'Win: {getText:.2f}'
 
 def dtSidebet(driver, game, betArea=None):
+    """
+    generate a side bet for dragontiger game
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `game` (str): the name of the game.
+    `betarea` (list, optional): a list of bet areas. default is None.
+    
+    : extract the table round number from the game's shoe element using `findelement` and
+    : convert it to an integer. if the game is 'dragontiger', update the dragontiger dictionary
+    : with side bet data. use the updated dictionary if the table round number is less than or equal to 30, 
+    : otherwise, return the default betting area.
+    """
+    
     shoe = findElement(driver, 'in-game', 'shoe')
     tableRound = int(shoe.text.split('-')[1])
     
-    #side bet betting
     if game == 'dragontiger' and tableRound <= 30:
         sidebet = data(game)
         sidebet.update(data('sidebet', 'dragontiger'))
@@ -113,6 +182,23 @@ def dtSidebet(driver, game, betArea=None):
         return data(game, betArea[index])
 
 def betting(driver, betArea, game, placeConfirm=False):
+    """
+    place bets in the specified game's betting area(s).
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `betarea` (list): a list of bet areas.
+    `game` (str): the name of the game.
+    `placeconfirm` (bool, optional): whether to confirm the bet placement. default is false.
+    
+    : wait for the 'please place your bet!' toast message to appear in the in-game view using `waitpresence`.
+    : set the loop range based on the game type: 10 for 'sicbo' and 'roulette', or the length of `betarea` for other games.
+    : randomly choose whether to place a super 6 bet for baccarat if `placeconfirm` is true.
+    : loop through the specified number of rounds (loopRange) to place bets in the game's betting areas.
+    : use the `dtsidebet` function to generate the bet for each round and attempt to click on the corresponding betting area. 
+    : if `placeconfirm` is true, wait for the 'confirm' button to become clickable after placing each bet.
+    """
+    
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
     loopRange = 10 if game in ['sicbo', 'roulette'] else len(betArea)
     s6 = random.choice(range(2))
@@ -135,18 +221,45 @@ def betting(driver, betArea, game, placeConfirm=False):
             break
 
 def getChipValue(driver):
+    """
+    calculate the total amount of chips placed on the game table.
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    
+    : find all elements representing the total amount of money placed on the game table using `findelements`.
+    : loop through each element to extract the chip amount, remove any comma separators, 
+    : and convert it to a float. add up all the chip amounts to get the total.
+    
+    returns:
+    :`float` the total amount of chips placed on the game table.
+    """
+    
     chips = 0.00
     placed_chips = findElements(driver, 'in-game', 'totalMoney')
 
-    for i in placed_chips:
-        if i.text != '':
-            chips += float(i.text.replace(',',''))
+    for chip in placed_chips:
+        if chip.text != '':
+            chips += float(chip.text.replace(',',''))
     
     return chips
 
-# cancel and then rebet test case
 def cancelRebet(driver, betArea, tableDealer, game, allin=False):
-    #cancel function
+    """
+    cancel the bet placement action and perform necessary assertions.
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `game` (str): the name of the game.
+    `tabledealer` (string): a string containing information about the table and dealer.
+    `allin` (bool): whether the player is in an 'all-in' situation.
+    `texts` (str): text description for debugging.
+    
+    : wait for the 'cancel' button to become clickable in the action panel using `wait_if_clickable`.
+    : take a screenshot of the game table with the specified text description using `screenshot`.
+    : calculate the sum of all bets placed on the game table using `sumbetplaced`, indicating a cancellation action.
+    """
+    
     def cancelAssert(driver, game, tableDealer, allin, texts):
         wait_If_Clickable(driver, 'action', 'cancel')
         screenshot(driver, texts, tableDealer[0], allin)
@@ -172,8 +285,32 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         wait_If_Clickable(driver, 'action', 'confirm')
         screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
 
-# edit chips from in-game
 def editChips(driver, divideBy=10):
+    """
+    edit the chip amount in the game interface and return the updated chip value.
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `divideby` (int, optional): the divisor used to calculate the new chip amount. default is 10.
+    
+    : find the current balance of chips on the game table using `findelement`.
+    : extract the numerical value from the balance text, remove any comma separators, 
+    : and convert it to a float.
+    : calculate the new chip amount by dividing the balance value by the specified divisor.
+    : wait for the 'edit' button to become clickable in the in-game view using `wait_if_clickable`.
+    : wait for the chip amount element to appear using `waitelement`.
+    : wait for the 'edit' button to become clickable in the chip amount interface.
+    : wait for the 'clear' button to become clickable in the chip amount interface.
+    : locate the input field for entering the new chip amount using `findelement`.
+    : enter the calculated chip amount into the input field.
+    : wait for the 'save amount' button to become clickable.
+    : wait for the 'payrate-close' button to become clickable.
+    : wait for the chip modal to disappear from the interface.
+    
+    returns:
+    `int`: the updated chip amount after editing.
+    """
+    
     bets = findElement(driver, 'in-game', 'balance')
     value = float(bets.text.replace(',',''))
     chips = int(value) / divideBy
@@ -188,8 +325,27 @@ def editChips(driver, divideBy=10):
     waitElementInvis(driver, 'in-game', 'chip amount')
     return chips
 
-# Bet all coins until Insufficient funds message appear
 def coins_allin(driver, game, allin=False):
+    """
+    handle the scenario where the player bets all their coins in the game.
+    
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `game` (str): the name of the game.
+    `allin` (bool, optional): whether the player is going all-in. default is false.
+        
+    : generate a list of betting areas for the specified game using the `data` function.
+    : retrieve information about the table and dealer using the `table_dealer` function.
+    : cancel any rebets, if present, using the `cancelrebet` function.
+    : edit the chip amount using the `editchips` function.
+    : enter a loop to place bets until the player has bet all their coins.
+    : check if there are sufficient funds to place a bet. if not, take necessary actions,
+    : such as taking a screenshot, confirming, or handling specific game cases.
+    : if the game is 'bull bull', handle a special case where an 'equal' bet is placed
+    : if there are insufficient funds. verify that the player's balance is now 0.00 after going all-in.
+    : check if there are leftover chips the table betting area using the `sumbetplaced` function.
+    """
+    
     bet_areas = list(data(game))
     tableDealer = table_dealer(driver)
     cancelRebet(driver, bet_areas, tableDealer, game, allin)
@@ -232,53 +388,71 @@ def coins_allin(driver, game, allin=False):
     assertion(message, coins.text, '==', '0.00')
     sumBetPlaced(driver, game, tableDealer)
 
-# verifies payrates matches with the payrate
-# from yaml file
 def payrates_odds(driver, game, tableDealer, allin=False):
+    """
+    verify pay rates and odds
+
+    params:
+    `driver` (webdriver): the selenium WebDriver instance.
+    `game` (str): the name of the game.
+    `tabledealer` (str): A string containing information about the table and dealer.
+    `allin` (bool, optional): flag indicating if the player is going all-in. Default is False.
+
+    : retrieve the bet limit for the specified game using the `data` function.
+    : wait for the payrate modal to be clickable and the modal-bet element to be present.
+    : take a screenshot of the bet limit and pay rate.
+    : extract the pay rates for the game from the web page.
+    : if the game is 'baccarat' and super6 side bet is present, adjust the odds accordingly.
+    : if the game is 'sedie', extract the pay rates for sedie games.
+    : if the game is 'dragontiger' and the table number matches, adjust the odds accordingly.
+    : verify that the bet limit rate and local bet limit rate are equal.
+    : if the game is 'bull bull', take a screenshot of the bet limit with min-max values.
+    : extract min-max limit elements and verify that they are all displayed.
+    : close the payrate modal.
+    """
+
     if game != 'bull bull':
-        defaultPay = []
-        list_pays = []
+        odds = []
+        game_odds = []
         betLimit = data('bet-limit').get(game)
-        for _, x in betLimit.items():
-            defaultPay.append(x)
+        for _, item in betLimit.items():
+            odds.append(item)
 
         wait_If_Clickable(driver, 'in-game', 'payrate-modal')
         waitElement(driver, 'in-game', 'modal-bet')
         screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
         payrates = findElements(driver, 'in-game', 'payrates')
         sedie_payrates = findElements(driver, 'in-game', 'sedie-payrate')
-        s6 = findElements(driver, 'super6', 's6')
+        super6 = findElements(driver, 'super6', 's6')
 
         for payrate in payrates:
-            list_pays.append(payrate.text)
+            game_odds.append(payrate.text)
 
-        if game == 'baccarat' and len(s6) == 1:
-            defaultPay.append('(1:12)')
-            defaultPay[1] = '(1:1)'
+        if game == 'baccarat' and len(super6) == 1:
+            odds.append('(1:12)')
+            odds[1] = '(1:1)'
 
-        if game == 'sedie':
+        elif game == 'sedie':
             for payrate in sedie_payrates:
-                list_pays.append(payrate.text)
+                game_odds.append(payrate.text)
 
-        if game == 'dragontiger':
-            getDT = env('newDT')
-            listDT = getDT.split(':')
-
-            if tableDealer[0] in listDT:
-                defaultPay[2] = '(1:8)'
+        elif game == 'dragontiger':
+            tableNumbers = env('newDT').split(':')
+            if tableDealer[0] in tableNumbers:
+                odds[2] = '(1:8)'
 
         message = debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
-        assertion(message, defaultPay, '==', list_pays)
+        assertion(message, odds, '==', game_odds)
 
     else:
         wait_If_Clickable(driver, 'in-game', 'payrate-modal')
         waitElement(driver, 'in-game', 'modal-bet')
         screenshot(driver, 'BET Limit - MinMax', tableDealer[0], allin)
 
-    minMax = findElements(driver, 'in-game', 'min-max')
+    minMaxLimit = findElements(driver, 'in-game', 'min-max')
     value = []
-    for i in minMax:
-        if len(i.text) != 0 or i.text is not None or i.text != '':
+    for limit in minMaxLimit:
+        if len(limit.text) != 0 or limit.text is not None or limit.text != '':
             value.append(True)
         else:
             value.append(False)
@@ -287,31 +461,64 @@ def payrates_odds(driver, game, tableDealer, allin=False):
     assertion(message, all(value), '==', True)
     wait_If_Clickable(driver, 'in-game', 'payrate-close')
 
-# get the total placed chip value
-# and compare it to Bets from betting area
 def sumBetPlaced(driver, game, tableDealer, cancel=False, text=None):
-        chips = getChipValue(driver)
-        total = 0.00
+    """
+    check the status of placed bets
 
-        # check if bet area has 0 chips
-        if cancel:
-            message = debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
-            assertion(message, chips, '==', 0)
-        else:
-            if game != 'bull bull':
-                bets = findElement(driver, 'in-game', 'bets')
-                if bets != None:
-                    total = float(bets.text.replace(',',''))
-                    message = debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
-                    f'& Bets {total} - Expected: EQUAL')
-                    assertion(message, round(chips, 2), '==', total)
-                else:
-                    message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty, cannot confirm and '\
-                    f'compare chips value with the placed chips\033[0m')
-                    assertion(message, skip=True)
+    params:
+    `driver` (webdriver): the selenium WebDriver instance.
+    `game` (str): the name of the game.
+    `tabledealer` (str): A string containing information about the table and dealer.
+    `cancel` (bool, optional): flag to determine if bets should be canceled. Default is False.
+    `text` (str, optional): additional text for debugging. Default is None.
 
-# new round verification test case
+    : check the current chip value using the `getChipValue` function.
+    : if `cancel` is True, verify that no chips are placed.
+    : if `cancel` is False, compare the total placed chips with the expected value.
+    : if the game is not 'bull bull', retrieve the total placed bets and compare them with the expected value.
+    """
+
+    chips = getChipValue(driver)
+    total = 0.00
+
+    if cancel:
+        message = debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
+        assertion(message, chips, '==', 0)
+    else:
+        if game != 'bull bull':
+            bets = findElement(driver, 'in-game', 'bets')
+            if bets != None:
+                total = float(bets.text.replace(',',''))
+                message = debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
+                f'& Bets {total} - Expected: EQUAL')
+                assertion(message, round(chips, 2), '==', total)
+            else:
+                message = debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty, cannot confirm and '\
+                f'compare chips value with the placed chips\033[0m')
+                assertion(message, skip=True)
+
 def verifiy_newRound(driver, bet, tableDealer):
+    """
+    verify the absence of new round digital results and the status of placed chips
+
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `bet` (str): the name of the game.
+    `tableDealer` (str): A string containing information about the table and dealer.
+
+    : defines a nested function `verify_digitalresult` to check if digital results are displayed for a new round.
+    : determines the game type and verifies digital results accordingly.
+    : if the game type is 'baccarat', 'three-cards', 'dragontiger', or 'bull bull', checks for the absence of digital results.
+    : for 'sicbo' and 'roulette' games, verifies the absence of digital results.
+    : checks the status of placed chips after the new round and ensures that no chips are placed.
+
+    """
+    
+    def verify_digitalResult(driver, game, tableDealer):
+        digital = findElement(driver, 'digital results', game)
+        message = debuggerMsg(tableDealer, 'New Round Digital Result is displayed!')
+        assertion(message, digital.is_displayed(), '==', False)
+    
     if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
         verify_digitalResult(driver, 'bdt', tableDealer)
     elif bet == 'sicbo':
@@ -323,14 +530,21 @@ def verifiy_newRound(driver, bet, tableDealer):
         setTimeout=3, isDigital=True, tableDealer=tableDealer)
     
     sumBetPlaced(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
-
-def verify_digitalResult(driver, game, tableDealer):
-    digital = findElement(driver, 'digital results', game)
-    message = debuggerMsg(tableDealer, 'New Round Digital Result is displayed!')
-    assertion(message, digital.is_displayed(), '==', False)
  
-# verifies in-game roadmap summary visibility and assertion    
 def summary(driver, game, tableDealer):
+    """
+    Retrieve and verify the summary information for the specified game.
+
+    params:
+    `driver` (webdriver): The Selenium WebDriver instance.
+    `game` (str): The name of the game for which the summary information is to be retrieved and verified.
+    `tabledealer` (string): A string containing information about the table and dealer.
+
+    : This function calculates the total summary value based on the numeric values extracted from summary elements on the page.
+    : For certain games like 'sedie', it clicks on side buttons to reveal additional summaries.
+    : Finally, it verifies that the total summary matches the round number displayed in the shoe element minus one.
+    """
+    
     if game != 'bull bull':
         total = 0
         if game not in ['sicbo', 'roulette']:
@@ -343,13 +557,13 @@ def summary(driver, game, tableDealer):
                 for buttons in sideBtn[::-1]:
                     buttons.click()
             
-            for j, i in enumerate(summaries):
-                if game == 'three-cards' and j == 3:
+            for index, element in enumerate(summaries):
+                if game == 'three-cards' and index == 3:
                     continue
-                if game == 'sedie' and j != 2 and j != 3:
+                if game == 'sedie' and index != 2 and index != 3:
                     continue
                 
-                match = re.search(r'\d+', i.text)
+                match = re.search(r'\d+', element.text)
                 if match:
                     number = int(match.group())
                     total += number
@@ -364,8 +578,21 @@ def summary(driver, game, tableDealer):
             f'Shoe round {value} - Expected: round > total')
             assertion(message, total, '==', value -1)
 
-# check race tracker visibility
 def check_raceTracker(driver, tableDealer):
+    """
+    check if the race tracker is displayed.
+
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `tabledealer` (string): a string containing information about the table and dealer.
+
+    : click on the switch button to toggle to the race tracker view.
+    : wait for the race tracker element to be visible.
+    : verify that the race tracker is displayed.
+    : click on the switch button again to switch back to the main view.
+    : assert if the racetracker is displayed
+    """
+
     findElement(driver, 'in-game', 'switch', click=True)
     waitElement(driver, 'in-game', 'race-tracker', setTimeout=3)
     raceTracker = findElement(driver, 'in-game', 'race-tracker')
@@ -373,14 +600,34 @@ def check_raceTracker(driver, tableDealer):
     assertion(message, raceTracker.is_displayed(), '==', True)
     findElement(driver, 'in-game', 'switch', click=True)
 
-# gets table number and dealer name
 def table_dealer(driver):
+    """
+    retrieve the table number and dealer information.
+
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+
+    find and return the table number and dealer's name.
+    """
     tableNumber = findElement(driver, 'in-game', 'tableNumber')
     dealer = findElement(driver, 'in-game', 'dealer')
     return tableNumber.text, dealer.text
 
-#a regex for extracting base64 data
 def getBaseImage(cards, attribute, cardList):
+    """
+    Extract base64 encoded images from the given list of cards.
+
+    params:
+    `cards` (list): A list of card elements.
+    `attribute` (str): The attribute to retrieve from the card elements.
+    `cardlist` (list): An empty list to store the extracted base64 encoded images.
+
+    : Iterate through the list of card elements.
+    : Extract the specified attribute value from each card element.
+    : If the attribute value indicates that the card is not hidden and contains a base64 encoded image,
+    : extract the base64 encoded image and append it to the provided cardlist.
+    """
+    
     for card in cards:
         attValue = card.get_attribute(f'{attribute}')
 
@@ -390,16 +637,32 @@ def getBaseImage(cards, attribute, cardList):
             baseString = getBase.replace('background-position: center center;','')
             cardList.append(baseString)
 
-#decode image and crop
 def decodeCropImage(decoded, status):
+    """
+    Decode and crop images from base64 encoded strings.
+
+    params:
+    `decoded` (list): A list of base64 encoded image strings.
+    `status` (list): An empty list to store the status of each decoded image.
+
+    : Iterate through the list of decoded base64 encoded image strings.
+    : Decode each base64 encoded string and open it as an image.
+    : Crop the image to a specific size.
+    : Save the cropped image to a file.
+    : Use Tesseract OCR to extract the text value from the cropped image.
+    : Check if the extracted text value is present in the predefined list of cards.
+    : Append the status of each card extraction to the status list.
+    : Return a list of extracted card values.
+    """
+    
     card = []
-    for i, baseString in enumerate(decoded):
+    for index, baseString in enumerate(decoded):
         base = base64.b64decode(baseString)
         getImage = Image.open(BytesIO(base))
         size = (10, 0, 80, 65)
         resizeImage = getImage.crop(size)
-        resizeImage.save(f'screenshots\\decoded\\card {i}.png')
-        value = tess.image_to_string(Image.open(f'screenshots\\decoded\\card {i}.png'), config='--psm 10')
+        resizeImage.save(f'screenshots\\decoded\\card {index}.png')
+        value = tess.image_to_string(Image.open(f'screenshots\\decoded\\card {index}.png'), config='--psm 10')
         if str(value.replace('\n','')) in str(data('cards')):
             status.append(True)
             card.append(str(value.replace('\n','')))
@@ -409,8 +672,29 @@ def decodeCropImage(decoded, status):
 
     return card
 
-#extract cards data from history results
 def betHistory(driver, game, status, cardResults, extracted):
+    """
+    retrieve and process the bet history data for the specified game.
+
+    params:
+    `driver` (webdriver): the selenium webdriver instance.
+    `game` (str): the name of the game.
+    `status` (list): an empty list to store the status of each decoded image.
+    `card_results` (int): the number of card results obtained previously.
+    `extracted` (int): the number of card images extracted previously.
+
+    : if the game is not one of ['sedie', 'sicbo', 'roulette']:
+    : find and extract base64 encoded images for blue and red cards from the bet history.
+    : determine the selector and attribute based on the game.
+    : update the card results count with the number of blue and red cards found.
+    : remove empty strings from the extracted blue and red card base64 sequences.
+    : decode and crop the images to extract card values.
+    : update the total number of extracted card values.
+    : delete the temporary images.
+    
+    returns: the extracted card values, updated flipped card count, and total extracted card count.
+    """
+    
     if game not in ['sedie', 'sicbo', 'roulette']:
         blueValue = []
         redValue = []
@@ -449,8 +733,27 @@ def betHistory(driver, game, status, cardResults, extracted):
 
         return card, flippedCards, cardData
     
-#load and opens bet history records
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
+    """
+    open the bet history modal in the game interface and retrieves the transaction data
+
+    params:
+    `driver` (webdriver): The Selenium WebDriver instance.
+    `game` (str): The name of the game.
+    `tableDealer` (str): a string containing information about the table and dealer.
+    `oldRow` (int, optional): The number of rows in the bet history before updates. Default is 0.
+    `updates` (bool, optional): Flag indicating if updates are expected. Default is False.
+
+    : Clicks on the bet history button to open the modal and waits for it to appear.
+    : Filters the bet history by the specified game if it's not in ['sedie', 'sicbo', 'roulette'].
+    : Scrolls to the top of the transaction data table after scrolling to last transaction.
+    : If updates are expected, checks for new rows in the bet history, retrieves and processes the details.
+    : Logs details of each row for debugging purposes.
+    : Verifies the decoded base64 image and extracted card values, if available.
+    : Closes the bet history modal after processing.
+    : Returns the total number of rows in the bet history.
+    """
+    
     if game not in ['sedie', 'sicbo', 'roulette']:
         wait_If_Clickable(driver, 'history', 'button')
         waitElement(driver, 'history', 'modal')
@@ -482,9 +785,9 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                 tableStage = findElements(driver, 'history', 'table')
                 driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
 
-                for i in range(rowsAdded):
-                    detail[i].click()
-                    getTable = tableStage[i].text
+                for rows in range(rowsAdded):
+                    detail[rows].click()
+                    getTable = tableStage[rows].text
                     waitElement(driver, 'history', 'result')
                     try:
                         baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
@@ -493,7 +796,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     #creates log history for debugging in case of failure
                     with open('logs\\logs.txt', 'a') as logs:
                         newLine = '\n'
-                        logs.write(f'Index {i} {getTable.replace(f"{newLine}"," ")} -'\
+                        logs.write(f'Index {rows} {getTable.replace(f"{newLine}"," ")} -'\
                         f'Cards {baseList} {newLine} ')
 
                     wait_If_Clickable(driver, 'history', 'close card')
@@ -517,8 +820,22 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
 
         return parseRow
 
-#function to test chatbox
 def chat(driver, game, tableDealer):
+    """
+    send chat messages within the game interface and verify their display
+
+    params:
+    `driver` (webdriver): The Selenium WebDriver instance.
+    `game` (str): The name of the game.
+    `tableDealer` (str): a string containing information about the table and dealer.
+
+    : Clicks on the chat button to open the chat interface.
+    : Waits for the send button to appear in the chat interface.
+    : Generates and sends chat messages using random text and emojis.
+    : Verifies if the chat messages are displayed and not empty.
+    : Checks if the length of each chat message does not exceed 22 characters.
+    """
+    
     if game not in ['sicbo', 'roulette']:
         wait_If_Clickable(driver, 'chat', 'button')
         waitPresence(driver, 'chat', 'send', text='Send', setTimeout=3)
