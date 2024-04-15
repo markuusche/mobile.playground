@@ -4,13 +4,13 @@ action:
   rebet:                              'div.flex.Repeat'
 
 baccarat:
-  Player:                             'div.bet-table.p .container'
-  Tie:                                'div.bet-table.tie .container'
-  Banker:                             'div.bet-table.b .container'
-  PPair:                              'div.bet-table.pp .container'
-  Any-Pair:                           'div.bet-table.etp .container'
-  Perfect-Pair:                       'div.bet-table.pfp .container'
-  BPair:                              'div.bet-table.bp .container'
+  PLAYER:                             'div.bet-table.p .container'
+  BANKER:                             'div.bet-table.b .container'
+  TIE:                                'div.bet-table.tie .container'
+  P PAIR:                             'div.bet-table.pp .container'
+  B PAIR:                             'div.bet-table.bp .container'
+  ANY PAIR:                           'div.bet-table.etp .container'
+  PERFECT PAIR:                       'div.bet-table.pfp .container'
 
 bet-limit:
   baccarat:
@@ -88,29 +88,29 @@ bet-limit:
     BIG SMALL:                        '(1:1)'
 
 bull bull:
-  Z1 Double:                          'div.bet-area div:nth-child(1) .layout'
-  Z1 Equal:                           'div.bet-area div:nth-child(2) .layout'
-  Z1 Many:                            'div.bet-area div:nth-child(3) .layout'
+  BANKER DOUBLE:                      'div.bet-area div:nth-child(1) .layout'
+  BANKER EQUAL:                       'div.bet-area div:nth-child(2) .layout'
+  BANKER MANY:                        'div.bet-area div:nth-child(3) .layout'
 
-  Z2 Double:                          'div.bet-area div:nth-child(4) .layout'
-  Z2 Equal:                           'div.bet-area div:nth-child(5) .layout'
-  Z2 Many:                            'div.bet-area div:nth-child(6) .layout'
+  BANKER DOUBLE 2:                    'div.bet-area div:nth-child(4) .layout'
+  BANKER EQUAL 2:                     'div.bet-area div:nth-child(5) .layout'
+  BANKER MANY 2:                      'div.bet-area div:nth-child(6) .layout'
 
-  Z3 Double:                          'div.bet-area div:nth-child(7) .layout'
-  Z3 Equal:                           'div.bet-area div:nth-child(8) .layout'
-  Z3 Many:                            'div.bet-area div:nth-child(9) .layout'
+  BANKER DOUBLE 3:                    'div.bet-area div:nth-child(7) .layout'
+  BANKER EQUAL 3:                     'div.bet-area div:nth-child(8) .layout'
+  BANKER MANY 3:                      'div.bet-area div:nth-child(9) .layout'
 
-  X1 Double:                          'div.bet-area div:nth-child(10) .layout'
-  X1 Equal:                           'div.bet-area div:nth-child(11) .layout'
-  X1 Many:                            'div.bet-area div:nth-child(12) .layout'
+  PLAYER DOUBLE:                      'div.bet-area div:nth-child(10) .layout'
+  PLAYER EQUAL:                       'div.bet-area div:nth-child(11) .layout'
+  PLAYER MANY:                        'div.bet-area div:nth-child(12) .layout'
 
-  X2 Double:                          'div.bet-area div:nth-child(13) .layout'
-  X2 Equal:                           'div.bet-area div:nth-child(14) .layout'
-  X2 Many:                            'div.bet-area div:nth-child(15) .layout'
+  PLAYER DOUBLE 2:                    'div.bet-area div:nth-child(13) .layout'
+  PLAYER EQUAL 2:                     'div.bet-area div:nth-child(14) .layout'
+  PLAYER MANY 2:                      'div.bet-area div:nth-child(15) .layout'
 
-  X3 Double:                          'div.bet-area div:nth-child(16) .layout'
-  X3 Equal:                           'div.bet-area div:nth-child(17) .layout'
-  X3 Many:                            'div.bet-area div:nth-child(18) .layout'
+  PLAYER DOUBLE 3:                    'div.bet-area div:nth-child(16) .layout'
+  PLAYER EQUAL 3:                     'div.bet-area div:nth-child(17) .layout'
+  PLAYER MANY 3:                      'div.bet-area div:nth-child(18) .layout'
 
 cards:
   -                                   A
@@ -151,9 +151,9 @@ digital results:
   roulette:                           'div#roulette-result'
 
 dragontiger:
-  Dragon:                             'div.bet-table.d .container'
-  Tie:                                'div.bet-table.tie .container'
-  Tiger:                              'div.bet-table.t .container'
+  DRAGON:                             'div.bet-table.d .container'
+  TIGER:                              'div.bet-table.t .container'
+  TIE:                                'div.bet-table.tie .container'
 
 game list:
   baccarat:                           1
@@ -425,11 +425,11 @@ roulette:
   four:                             'div.bet-area.f.f'
 
 sedie:
-  big:                                'div.bet-table.bg .container'
-  even:                               'div.bet-table.ev .container'
-  odd:                                'div.bet-table.od .container'
+  BIG:                                'div.bet-table.bg .container'
+  SMALL:                              'div.bet-table.sm .container'
+  EVEN:                               'div.bet-table.ev .container'
+  ODD:                                'div.bet-table.od .container'
   red:                                'div.bet-table.r4 .beads'
-  small:                              'div.bet-table.sm .container'
   threered:                           'div.bet-table.r3 .beads'
   threewhite:                         'div.bet-table.r1 .beads'
   white:                              'div.bet-table.r0 .beads'
@@ -506,14 +506,14 @@ sidebet:
   dragontiger:
     DRAGON RED:                       'div.bet-table.dr .layout'
     DRAGON BLACK:                     'div.bet-table.db .layout'
-    TIGER BLACK:                      'div.bet-table.tb .layout'
     TIGER RED:                        'div.bet-table.tr .layout'
+    TIGER BLACK:                      'div.bet-table.tb .layout'
 
 super6:
   r-area:                             'div.right-area img.super6'
-  s6:                                 'div.bet-table.s'
+  s6:                                 'div.bet-table.s .container'
 
 three-cards:
-  Dragon:                             'div.bet-table-dragon .container'
-  Phoenix:                            'div.bet-table-phoenix .container'
-  Lucky:                              'div.bet-table-lucky .container'
+  DRAGON:                             'div.bet-table-dragon .container'
+  PHOENIX:                            'div.bet-table-phoenix .container'
+  LUCK:                               'div.bet-table-lucky .container'

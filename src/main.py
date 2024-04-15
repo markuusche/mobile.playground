@@ -56,7 +56,7 @@ def play(driver, gsreport, bet, betArea=None, allin=False, name=""):
                 for area in range(len(bet_areas)):
                     betOn(driver, gsreport, bet, bet_areas[area])
             else:
-                betOn(driver, gsreport, bet, betArea, allin, currentBalance=userBalance)
+                betOn(driver, gsreport, bet, betArea, allin, getBalance=userBalance)
 
             wait_If_Clickable(driver, 'in-game', 'back')
             waitElement(driver, 'lobby', 'main')
@@ -68,16 +68,15 @@ def play(driver, gsreport, bet, betArea=None, allin=False, name=""):
             skipOnFail(driver, tableDealer, e)
             
 # Main Test Case function for validation and assertions
-def betOn(driver, gsreport, bet, betArea, allin=False, currentBalance=""):
+def betOn(driver, gsreport, bet, betArea, allin=False, getBalance=None):
     global count
     balance = []
     stream = False
     tableDealer = table_dealer(driver)
     waitElement(driver, 'in-game', 'timer')
     disableStream(driver, stream)
-    
     if allin:
-        checkPlayerBalance(driver, bet, value=currentBalance, lobbyBalance=True)
+        checkPlayerBalance(driver, bet, value=getBalance, lobbyBalance=True)
         currHistoryRow = openBetHistory(driver, bet, tableDealer)
         editChips(driver, 20)
 
@@ -100,7 +99,7 @@ def betOn(driver, gsreport, bet, betArea, allin=False, currentBalance=""):
             else:
                 if timerInt >= 10:
                     if allin:
-                        coins_allin(driver, bet, allin)
+                        gameplay(driver, bet, allin)
                     else:
                         wait_If_Clickable(driver, bet, betArea)
                         waitElementInvis(driver, 'in-game', 'toast')
@@ -170,13 +169,12 @@ def betOn(driver, gsreport, bet, betArea, allin=False, currentBalance=""):
 
                         # ====================================================
                         # calculate the odds player will receive after winning 
-                        getOdds = findElement(driver, bet, betArea)
-                        match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
-
                         # special case for Three-cards odds
                         if not allin:
+                            getOdds = findElement(driver, bet, betArea)
+                            match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
                             if bet != 'sicbo' and bet != 'roulette':
-                                if bet == 'three-cards' and betArea == 'Lucky':
+                                if bet == 'three-cards' and betArea == 'LUCK':
                                     count += 1
                                     calc_odds = lucky_result * cFloat
                                     message = debuggerMsg(tableDealer, f'Odds won: {calc_odds} & '\
@@ -209,7 +207,7 @@ def betOn(driver, gsreport, bet, betArea, allin=False, currentBalance=""):
                     if allin:
                         waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                         waitElementInvis(driver, 'in-game','toast')
-                        verifiy_newRound(driver, bet, tableDealer)
+                        verifiy_newRound(driver, bet, tableDealer, allin)
                         
                         if bet == 'roulette':
                             check_raceTracker(driver, tableDealer)
