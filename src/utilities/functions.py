@@ -167,7 +167,7 @@ def dtSidebet(driver, game, getIndex, bettingArea=None, minBet=False):
     : with side bet data. use the updated dictionary if the table round number is less than or equal to 30, 
     : otherwise, return the default betting area.
     """
-    
+
     if game == 'dragontiger':
         shoe = findElement(driver, 'in-game', 'shoe')
         tableRound = int(shoe.text.split('-')[1])
@@ -175,68 +175,93 @@ def dtSidebet(driver, game, getIndex, bettingArea=None, minBet=False):
             sidebet = data(game)
             sidebet.update(data('sidebet', 'dragontiger'))
             bet_areas = list(sidebet)
-            if not minBet:
-                index = random.choice(range(len(bet_areas)))
-                return sidebet[bet_areas[index]]
-            else:
-                return sidebet[bet_areas[getIndex]]
+            index = random.choice(range(len(bet_areas)))
+            return sidebet[bet_areas[index]]
+        else:
+            return data(game, bettingArea[getIndex])
     else:
-        return data(game, bettingArea[getIndex])
+        index = random.choice(range(len(bettingArea)))
+        return data(game, bettingArea[index])
 
-def minBet(driver, game, tableDealer):
+def minBet(driver, game, tableDealer, allin=False):
+    """bets the minimum amount allowed for each betting area in the specified game
+    
+    params:
+    `driver`: the selenium webdriver instance.
+    `game` (str): the name of the game
+    `tableDealer`: A string containing information about the table and dealer.
+    `allin` (bool, optional): flag indicating whether to go all-in, defaults to False
+    
+    : basically what this do is get the minimum bet of the bet area as well as
+    : get the label of that minimum bet.
+    : edits the chips according the extracted minumum bet of the table
+    : then places a chip and confirms and verifies if it shows 'Below minimum bet' else
+    : assertion will fail
+    """
+    
     if game != 'roulette' or game != 'sicbo':
-        wait_If_Clickable(driver, 'in-game', 'payrate-modal')
-        waitElement(driver, 'in-game', 'modal-bet')
-        minmax = findElements(driver, 'in-game', 'min-max')
-        betLabel = findElements(driver, 'in-game', 'limit label')
-
         def getElementText(selector):
             return selector.text
         
         def popItem(listItem: list[int]):
             index = listItem
             index.reverse()
-            for i in index:
-                listMinbet.pop(i)
-                listLabel.pop(i)
+            for item in index:
+                minimumBets.pop(item)
+                betNames.pop(item)
 
-        listMinbet = []
-        listLabel = []
-        for m, b in zip(minmax, betLabel):
+        wait_If_Clickable(driver, 'in-game', 'payrate-modal')
+        waitElement(driver, 'in-game', 'modal-bet')
+        
+        if game == 'sedie':
+            customJS(driver , 'sedieBeads();')
+            
+        minmax = findElements(driver, 'in-game', 'min-max')
+        betLabel = findElements(driver, 'in-game', 'limit label')
+
+        minimumBets = []
+        betNames = []
+        for minimum, textLabel in zip(minmax, betLabel):
             #get element texts
-            mmax = getElementText(m)
-            bLabel = getElementText(b)
+            mmax = getElementText(minimum)
+            bLabel = getElementText(textLabel)
             
             #filter the text
             getMinBet = mmax.split(' -')[0].strip()
             if game == 'bull bull':
                 for _ in range(3):
-                    listMinbet.append(getMinBet)
+                    minimumBets.append(getMinBet)
             else:
-                listMinbet.append(getMinBet)
+                minimumBets.append(getMinBet)
             
-            if game in ['baccarat','dragontiger', 'three-cards','sedie']:
+            if game == 'bull bull':
+                label = bLabel.replace('-','').replace(' ','', 1)
+                betNames.append(label)
+                betNames.append(f'{label} 2')
+                betNames.append(f'{label} 3')
+            else:
                 label = bLabel.find('(')
                 getLabel = bLabel[:label]
-                listLabel.append(getLabel)
-            else:
-                label = bLabel.replace('-','').replace(' ','', 1)
-                listLabel.append(label)
-                listLabel.append(f'{label} 2')
-                listLabel.append(f'{label} 3')
-            
+                betNames.append(getLabel)
+        
         #remove not needed bets
         if game == 'baccarat':
             index = [5,6,9,10]
             popItem(index)
             
         elif game == 'dragontiger':
-            index = [3,4,7,8]
+            shoe = findElement(driver, 'in-game', 'shoe')
+            tableRound = int(shoe.text.split('-')[1])
+            if tableRound <= 30:
+                index = [3,4,7,8]
+            else:
+                index = [3,4,5,6,7,8,9,10]
+                
             popItem(index)
         
         newData = {}
-        for x, i in zip(listMinbet, listLabel):
-            newData[i] = x
+        for key, value in zip(minimumBets, betNames):
+            newData[value] = key
         
         wait_If_Clickable(driver, 'in-game', 'payrate-close')
         waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
@@ -244,8 +269,9 @@ def minBet(driver, game, tableDealer):
         #start betting minimum bets
         assertMin = []
         bets = list(newData)
-        for i in range(len(bets)):
-            amount = int(newData[bets[i]]) - 1
+        for bet in range(len(bets)):
+            sidebet = data(game)
+            amount = int(newData[bets[bet]]) - 1
             editChips(driver, add=True, amount=amount)
             timer = findElement(driver, 'in-game', 'timer')
             try:
@@ -255,27 +281,33 @@ def minBet(driver, game, tableDealer):
                 waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
             if game == 'baccarat' and 'S6' in bets:
-                s6 = data(game)
-                s6['S6'] = data('super6', 's6')
-                betS6 = list(s6)
-                betAction = s6[f'{betS6[i]}']
+                sidebet['S6'] = data('super6', 's6')
+                betS6 = list(sidebet)
+                betAction = sidebet[f'{betS6[bet]}']
             elif game == 'dragontiger':
-                betAction = dtSidebet(driver, game, i, minBet=True)
+                if len(bets) > 3:
+                    sidebet.update(data('sidebet', 'dragontiger'))
+                    newBetArea = list(sidebet)
+                    betAction = sidebet[f'{newBetArea[bet]}']
+                else:
+                    betAction = data(game, bets[bet])
             else:
-                betAction = data(game, bets[i])
+                betAction = data(game, bets[bet])
             
             customJS(driver, f'click("{betAction}");')
             customJS(driver, f'click("{data('action', 'confirm')}");')
-            # waitPresence(driver, 'in-game', 'toast', text='Below Minimum Limit', setTimeout=2)
-            toast = findElement(driver, 'in-game', 'toast')
-            if toast.text == 'Below Minimum Limit':
+            status = waitPresence(driver, 'in-game', 'toast', text='Below Minimum Limit', setTimeout=1.2)
+            if status:
                 assertMin.append(True)
             else:
-                print(f'locator: {betAction}')
+                screenshot(driver, 'Minimum bet failed', tableDealer[0], allin)
+                print(f'[{tableDealer[0]}] Locator: {betAction}')
                 assertMin.append(False)
         
         message = debuggerMsg(tableDealer, 'Minimum Bet Betting')
         assertion(message, all(assertMin))
+        if game == 'bull bull':
+            waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
 def betting(driver, betArea, game, placeConfirm=False):
     """
@@ -361,7 +393,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         wait_If_Clickable(driver, 'action', 'cancel')
         screenshot(driver, texts, tableDealer[0], allin)
         sumBetPlaced(driver, game, tableDealer, cancel=True, text=texts)
-        
+    
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
@@ -447,8 +479,8 @@ def gameplay(driver, game, allin=False):
     
     bet_areas = list(data(game))
     tableDealer = table_dealer(driver)
-    minBet(driver, game, tableDealer)
     cancelRebet(driver, bet_areas, tableDealer, game, allin)
+    minBet(driver, game, tableDealer, allin)
     editChips(driver)
 
     while True:
@@ -472,7 +504,7 @@ def gameplay(driver, game, allin=False):
                 equalBet = []
                 coins = findElement(driver, 'in-game','balance')
                 for bet in bet_areas:
-                    if 'Equal' in bet:
+                    if 'EQUAL' in bet:
                         equalBet.append(bet)
                         
                 randomSelect = random.choice(range(len(equalBet)))

@@ -207,7 +207,7 @@ def betOn(driver, gsreport, bet, betArea, allin=False, getBalance=None):
                     if allin:
                         waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                         waitElementInvis(driver, 'in-game','toast')
-                        verifiy_newRound(driver, bet, tableDealer, allin)
+                        verifiy_newRound(driver, bet, tableDealer)
                         
                         if bet == 'roulette':
                             check_raceTracker(driver, tableDealer)

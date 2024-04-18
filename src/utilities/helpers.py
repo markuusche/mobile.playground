@@ -63,11 +63,14 @@ def wait_If_Clickable(driver, *keys, setTimeout=15):
 
 # waits the presence of the element from the <locator> source
 # from locator.yaml to appear
-def waitPresence(driver, *keys, text, setTimeout=350):
+def waitPresence(driver, *keys, text, setTimeout=350, status=False):
     try:
         locator = (By.CSS_SELECTOR, data(*keys))
         element = WebDriverWait(driver, setTimeout)
         element.until(EC.text_to_be_present_in_element(locator, text_=text))
         return element
     except Exception:
-        print(f'\033[91mFAILED "{text}" was not captured by selenium.')
+        if status:
+            return False
+        else:
+            print(f'\033[91mFAILED "{text}" was not captured by selenium.')

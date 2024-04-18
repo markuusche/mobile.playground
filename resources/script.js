@@ -53,3 +53,23 @@ function selectGameList(selector, index){
     let game = document.querySelectorAll(`${selector}`);
         game[index].click();
     }
+
+function sedieBeads(){
+    var textStrings = ["ALL WHITE", "ONE RED", "ONE WHITE", "FOUR RED"];
+    var locator = 'div.flex.beads-icon.xs8'
+    document.querySelectorAll(`${locator}`).forEach(function(element, index) {
+    Array.from(element.childNodes).forEach(function(childNode) {
+        if (childNode.nodeName === 'DIV') {
+            element.removeChild(childNode);
+        }
+    });
+
+    var textNode = document.createTextNode(textStrings[index]);
+    element.insertBefore(textNode, element.querySelector('span'));
+});
+
+    var elements = document.querySelectorAll(`div.setting-slot ${locator}`);
+    elements.forEach(function(element) {
+        element.className = element.className.replace('beads-icon', 'bet-label');
+    });
+}
