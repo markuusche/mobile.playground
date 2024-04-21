@@ -211,6 +211,7 @@ def minBet(driver, game, tableDealer, allin=False):
                 betNames.pop(item)
 
         wait_If_Clickable(driver, 'in-game', 'payrate-modal')
+        screenshot(driver, 'Minimum Bets', tableDealer[0], allin)
         waitElement(driver, 'in-game', 'modal-bet')
         
         if game == 'sedie':
@@ -295,7 +296,7 @@ def minBet(driver, game, tableDealer, allin=False):
                 betAction = data(game, bets[bet])
             
             customJS(driver, f'click("{betAction}");')
-            customJS(driver, f'click("{data('action', 'confirm')}");')
+            customJS(driver, f'click("{data("action", "confirm")}");')
             status = waitPresence(driver, 'in-game', 'toast', text='Below Minimum Limit', setTimeout=1.2)
             if status:
                 assertMin.append(True)
@@ -394,6 +395,13 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         screenshot(driver, texts, tableDealer[0], allin)
         sumBetPlaced(driver, game, tableDealer, cancel=True, text=texts)
     
+    def card_flipped(driver, game, tableDealer):
+        if game in ['baccarat', 'dragontiger', 'three-cards', 'bull bull']:
+            waitPresence(driver, 'in-game','toast', text='No More Bets!')
+            waitElementInvis(driver, 'in-game', 'toast')
+            waitElement(driver, 'in-game', 'toast')
+            cardFlips(driver, tableDealer)
+    
     betting(driver, betArea, game)
     chips = getChipValue(driver)
     message = debuggerMsg(tableDealer, '\033[93mChips are being placed.') 
@@ -401,6 +409,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
 
     cancelAssert(driver, game, tableDealer, allin, 'Chip placed & cancelled!')
     betting(driver, betArea, game, placeConfirm=True)
+    card_flipped(driver, game, tableDealer)
     waitPresence(driver, 'in-game', 'toast', text='Please Place Your Bet!')
     wait_If_Clickable(driver, 'action', 'rebet')
 
@@ -413,6 +422,7 @@ def cancelRebet(driver, betArea, tableDealer, game, allin=False):
         wait_If_Clickable(driver, 'action', 'rebet')
         wait_If_Clickable(driver, 'action', 'confirm')
         screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
+        card_flipped(driver, game, tableDealer)
 
 def editChips(driver, divideBy=10, add=False, amount=0):
     """
@@ -649,7 +659,7 @@ def verifiy_newRound(driver, bet, tableDealer):
     
     def verify_digitalResult(driver, game, tableDealer):
         digital = findElement(driver, 'digital results', game)
-        message = debuggerMsg(tableDealer, 'New Round Digital Result is displayed!')
+        message = debuggerMsg(tableDealer, 'New Round Digital Result not displayed!')
         assertion(message, digital.is_displayed(), '==', False)
     
     if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
@@ -765,10 +775,11 @@ def getBaseImage(cards, attribute, cardList):
         attValue = card.get_attribute(f'{attribute}')
 
         if 'card-hidden' not in attValue and 'base64' in attValue:
-            pattern = r'.*?(?=iVBOR)|\); background-position: center center;$'
-            getBase = re.sub(pattern, '', attValue)
-            baseString = getBase.replace('background-position: center center;','')
-            cardList.append(baseString)
+            pattern = r'iVBOR[^"]+'
+            matches = re.findall(pattern, attValue)
+            if matches:
+                base64 = matches[0]
+                cardList.append(base64)
 
 def decodeCropImage(decoded, status):
     """
@@ -829,25 +840,25 @@ def betHistory(driver, game, status, cardResults, extracted):
     """
     
     if game not in ['sedie', 'sicbo', 'roulette']:
-        blueValue = []
-        redValue = []
+        blue_card_value = []
+        red_card_value = []
         selector = 'result-blue' if game != 'bull bull' else 'result-blue-bull'
         blueCards = findElements(driver, 'history', selector)
         redCards = findElements(driver, 'history', 'result-red')
         atrribute = 'class' if game != 'bull bull' else 'style'
-        getBaseImage(blueCards, atrribute, blueValue)
-        getBaseImage(redCards, 'class', redValue)
-        flippedCards = cardResults + len(blueValue + redValue)
+        getBaseImage(blueCards, atrribute, blue_card_value)
+        getBaseImage(redCards, 'class', red_card_value)
+        flippedCards = cardResults + len(blue_card_value + red_card_value)
         #remove empty strings
         newItems = []
         newItems2 = []
         
         #repeated loop to get cards base64 sequence same as the results
-        for blue in blueValue:
+        for blue in blue_card_value:
             if blue.strip():
                 newItems.append(blue)
 
-        for red in redValue:
+        for red in red_card_value:
             if red.strip():
                 newItems2.append(red)
         
@@ -865,6 +876,19 @@ def betHistory(driver, game, status, cardResults, extracted):
         deleteImages('screenshots\\decoded')
 
         return card, flippedCards, cardData
+
+def cardFlips(driver, tableDealer):
+    waitElementInvis(driver, 'in-game', 'toast')
+    newDecode = []
+    blue = findElements(driver, 'in-game', 'result-card-blue')
+    red = findElements(driver, 'in-game', 'result-card-red')
+    getBaseImage(blue, 'style', newDecode)
+    getBaseImage(red, 'style', newDecode)
+    
+    status = []
+    decodeCropImage(newDecode, status)
+    message = debuggerMsg(tableDealer, '\033[93mResult cards are flipped')
+    assertion(message, all(status), notice=True)
     
 def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
     """
@@ -920,10 +944,7 @@ def openBetHistory(driver, game, tableDealer, oldRow=0, updates=False):
                     detail[rows].click()
                     getTable = tableStage[rows].text
                     waitElement(driver, 'history', 'result')
-                    try:
-                        baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
-                    except:
-                        ...                    
+                    baseList, flippedCards, extracted = betHistory(driver, game, status, flippedCards, extracted)
                     #creates log history for debugging in case of failure
                     with open('logs\\logs.txt', 'a') as logs:
                         newLine = '\n'
