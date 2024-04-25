@@ -1,4 +1,5 @@
-from src.utilities.functions import *
+from src.utilities.utilities import Utilities
+util = Utilities()
 
-deleteImages('screenshots', logs=True)
-deleteImages('screenshots\\decoded')
+util.deleteImages('screenshots', logs=True)
+util.deleteImages('screenshots\\decoded')

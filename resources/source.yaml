@@ -221,6 +221,7 @@ in-game:
   result-board:                       'div.result-board.result-cards'
   result-card-blue:                   'div.result-blue .table-card:not(.card-hidden3rd) .v-image__image'
   result-card-red:                    'div.result-red .table-card:not(.card-hidden3rd) .v-image__image'
+  result-dealer:                      'div#dealer-poster .table-card .v-image__image'
   save amount:                        'button.edit-btn div'
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
   sedie-sidebtn:                      'div.side-button .flex'

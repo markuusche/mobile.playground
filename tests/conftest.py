@@ -1,5 +1,6 @@
 from src.libs.modules import *
-from src.utilities.functions import *
+from src.request.api import Requests
+req = Requests()
 
 def pytest_addoption(parser):
     parser.addoption("--headless", action="store_true", default=False)
@@ -33,7 +34,7 @@ def driver(headless):
     option.add_argument("window-position=910,0")
     option.add_argument("window-size=440,840")
     option.add_argument(f"--user-agent={userAgent.random}")
-    option.add_argument(f"--app={getURL()}")
+    option.add_argument(f"--app={req.getURL()}")
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
 
