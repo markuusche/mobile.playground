@@ -3,6 +3,10 @@ from src.libs.modules import Tools
 from src.utilities.helpers import *
 
 class Requests(Tools):
+    
+    def __init__(self) -> None:
+        super().__init__()
+
     def getToken(self):
         header = {}
         header[self.env('Ops')] = self.env('XOp')

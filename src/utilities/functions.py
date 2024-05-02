@@ -2,10 +2,10 @@ from src.libs.modules import *
 from src.utilities.utilities import Utilities
 from src.request.api import Requests
 
-class CommonBase(Utilities):
-    pass
-
-class Chips(CommonBase):
+class Chips(Utilities):
+    def __init__(self) -> None:
+        super().__init__()
+    
     def getChipValue(self, driver):
         """
         calculate the total amount of chips placed on the game table.
@@ -29,7 +29,6 @@ class Chips(CommonBase):
                 chips += float(chip.text.replace(',',''))
         
         return chips
-
 
     def editChips(self, driver, divideBy=10, add=False, amount=0):
         """
@@ -74,6 +73,9 @@ class Chips(CommonBase):
         self.waitElementInvis(driver, 'in-game', 'chip amount')  
 
 class Display(Chips):
+    def __init__(self) -> None:
+        super().__init__()
+    
     def verifiy_newRound(self, driver, bet, tableDealer):
         """
         verify the absence of new round digital results and the status of placed chips
@@ -213,7 +215,11 @@ class Display(Chips):
                     f'compare chips value with the placed chips\033[0m')
                     self.assertion(message, skip=True)
 
-class Decoder(CommonBase):
+class Decoder(Utilities):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        
     def getBaseImage(self, cards, attribute, cardList):
         """
         Extract base64 encoded images from the given list of cards.
@@ -275,6 +281,10 @@ class Decoder(CommonBase):
         return card
 
 class Results(Decoder):
+    
+    def __init__(self) -> None:
+        super().__init__()
+    
     def LoseOrWin(self, driver):
         """
         check the outcome of the game, whether it's a win or a loss.
@@ -322,7 +332,6 @@ class Results(Decoder):
             with open('logs\\logs.txt', 'a') as logs:
                 logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.env('table')} Card {dealer_cards} \n')
                 
-            print(dealer_cards)
             if len(dealer_cards) != 0:
                 message = self.debuggerMsg(tableDealer, f'\033[93mResult & {self.env('table')} Dealer Cards Count - Expected: EQUAL')
                 self.assertion(message, len(dealer_cards), '==', len(card), notice=True)
@@ -335,7 +344,13 @@ class Results(Decoder):
         else:
             return results.append(all(decode_and_status[1]))   
 
-class Betting(Display, Results):
+class Betting(Display):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.results = Results()
+        self.decoder = Decoder()
+
     def dtSidebet(self, driver, game, getIndex, bettingArea=None):
         """
         generate a side bet for dragontiger game
@@ -560,7 +575,7 @@ class Betting(Display, Results):
                 self.waitPresence(driver, 'in-game','toast', text='No More Bets!')
                 self.waitElementInvis(driver, 'in-game', 'toast')
                 self.waitElement(driver, 'in-game', 'toast')
-                self.cardFlips(driver, tableDealer, results)
+                self.results.cardFlips(driver, tableDealer, results)
         
         self.betting(driver, betArea, game)
         chips = self.getChipValue(driver)
@@ -584,7 +599,12 @@ class Betting(Display, Results):
             self.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
             card_flipped(driver, game, tableDealer, results)
 
-class PlayerUpdate(Requests, Utilities):
+class PlayerUpdate(Utilities):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        self.requests = Requests()
+        
     def updateBalance(self, driver, game):
         """
         Update the user's balance, perform necessary balance adjustments, and navigate to the specified game lobby.
@@ -604,10 +624,10 @@ class PlayerUpdate(Requests, Utilities):
         
         amount = round(random.uniform(2000.00, 10000.00), 2)
         amount_str = f'{amount:.2f}'
-        getBalance = self.addBalance(self.env('add'), amount_str)
-        self.addBalance(self.env('deduc'), amount=getBalance)
-        self.addBalance(self.env('add'), amount)
-        driver.get(self.getURL())    
+        getBalance = self.requests.addBalance(self.env('add'), amount_str)
+        self.requests.addBalance(self.env('deduc'), amount=getBalance)
+        self.requests.addBalance(self.env('add'), amount)
+        driver.get(self.requests.getURL())    
         self.waitElement(driver, 'lobby', 'main')
         self.wait_If_Clickable(driver, 'category', game)
         elements = self.findElements(driver, 'lobby', 'table panel')
@@ -644,6 +664,10 @@ class PlayerUpdate(Requests, Utilities):
             self.assertion(message, coins.text, '==', playerBalance.text)
 
 class BetAllin(Betting):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        
     def gameplay(self, driver, game, results, allin=False):
         """
         handle the scenario where the player bets all their coins in the game.
@@ -709,7 +733,11 @@ class BetAllin(Betting):
         self.assertion(message, coins.text, '==', '0.00')
         self.sumBetPlaced(driver, game, tableDealer)
     
-class BetPool(CommonBase):
+class BetPool(Utilities):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        
     def payrates_odds(self, driver, game, tableDealer, allin=False):
         """
         verify pay rates and odds
@@ -783,7 +811,12 @@ class BetPool(CommonBase):
         self.assertion(message, all(value))
         self.wait_If_Clickable(driver, 'in-game', 'payrate-close')
 
-class History(Decoder):
+class History(Utilities):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        self.decoder = Decoder()
+
     def betHistory(self, driver, game, status, cardResults, extracted):
         """
         retrieve and process the bet history data for the specified game.
@@ -814,8 +847,8 @@ class History(Decoder):
             blueCards = self.findElements(driver, 'history', selector)
             redCards = self.findElements(driver, 'history', 'result-red')
             atrribute = 'class' if game != 'bull bull' else 'style'
-            self.getBaseImage(blueCards, atrribute, blue_card_value)
-            self.getBaseImage(redCards, 'class', red_card_value)
+            self.decoder.getBaseImage(blueCards, atrribute, blue_card_value)
+            self.decoder.getBaseImage(redCards, 'class', red_card_value)
             flippedCards = cardResults + len(blue_card_value + red_card_value)
             #remove empty strings
             newItems = []
@@ -839,7 +872,7 @@ class History(Decoder):
                 if 'card-hidden' not in item2:
                     newDecode.append(item2)
             
-            card = self.decodeCropImage(newDecode, status)
+            card = self.decoder.decodeCropImage(newDecode, status)
             cardData = extracted + len(newItems + newItems2)
             self.deleteImages('screenshots\\decoded')
 
@@ -927,7 +960,11 @@ class History(Decoder):
 
             return parseRow
 
-class Chat(CommonBase):
+class Chat(Utilities):
+
+    def __init__(self) -> None:
+        super().__init__()
+
     def chat(self, driver, game, tableDealer):
         """
         send chat messages within the game interface and verify their display

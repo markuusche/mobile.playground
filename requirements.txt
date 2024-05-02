@@ -11,3 +11,4 @@ pytesseract
 pyperclip
 fake_useragent
 grapheme
+pylint

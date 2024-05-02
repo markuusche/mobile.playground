@@ -1,6 +1,10 @@
 from src.libs.modules import *
 
 class Helpers(Tools):
+    
+    def __init__(self) -> None:
+        super().__init__()
+        
     # find single element <locator> source from locators.yaml
     def findElement(self, driver, *keys, click=False, status=False):
         try:

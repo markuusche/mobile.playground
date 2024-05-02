@@ -1,7 +1,10 @@
 from src.libs.modules import *
 from src.utilities.helpers import Helpers
 
-class Utilities(Helpers, Tools):
+class Utilities(Helpers):
+    def __init__(self) -> None:
+        super().__init__()
+    
     def screenshot(self, driver, name, val, allin=False):
         if allin:
             driver.save_screenshot(f'screenshots/{name} {val}.png')

@@ -1,4 +1,5 @@
 import src.utilities.functions as clss
+from src.libs.modules import *
 from . import GS_REPORT
 
 class Main(
@@ -10,10 +11,8 @@ class Main(
     clss.BetPool
     ):
     
-    count = 0
     # Main Test Case function for validation and assertions
     def betOn(self, driver, gsreport, bet, betArea, allin=False, getBalance=None):
-        global count
         balance = []
         stream = False
         tableDealer = self.table_dealer(driver)
@@ -111,7 +110,7 @@ class Main(
                             self.assertion(message, f'{round(calcAmount, 2):.2f}', '==', f'{round(balance, 2):.2f}')
                             
                             if not allin:
-                                driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {count}.png')
+                                driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {uuid[:4]}.png')
 
                             self.checkPlayerBalance(driver, bet)
                         else:
@@ -129,7 +128,6 @@ class Main(
                                 match = re.search(r'\b(\d+:\d+(\.\d+)?)\b', getOdds.text)
                                 if bet != 'sicbo' and bet != 'roulette':
                                     if bet == 'three-cards' and betArea == 'LUCK':
-                                        count += 1
                                         calc_odds = lucky_result * cFloat
                                         message = self.debuggerMsg(tableDealer, f'Odds won: {calc_odds} & '\
                                         f'Balance Result: {resultBal} - Expected: EQUAL')
@@ -140,7 +138,6 @@ class Main(
                                             odds = float(val.split(':', 1)[1])
                                             winOdds = cFloat * odds
                                             if resultBal != 0.00:
-                                                count += 1
                                                 message = self.debuggerMsg(tableDealer, f'Odds won: {winOdds} & '\
                                                 f'Balance Result: {resultBal} - Expected: EQUAL')
                                                 self.assertion(message, winOdds, '==', resultBal)
@@ -150,7 +147,7 @@ class Main(
                             if allin:
                                 self.screenshot(driver, 'Win Balance', tableDealer[0], allin)
                         
-                            driver.save_screenshot(f'screenshots/{"Win Total"} {tableDealer[0]} {count}.png')
+                            driver.save_screenshot(f'screenshots/{"Win Total"} {tableDealer[0]} {self.uuid[:4]}.png')
                             # checks if the total winnings + the current balance is
                             # equal to the latest balance
                             message = self.debuggerMsg(tableDealer, f'Win balance {round(total, 2)} & '\
@@ -192,7 +189,6 @@ class Main(
                         break
 
     def play(self, driver, gsreport, bet, betArea=None, allin=False, name=""):
-        global count
         print('\n')
         self.waitElement(driver, 'lobby', 'main')
         self.waitElement(driver, 'in-game', 'botnav')
