@@ -45,7 +45,7 @@ function currVersion() {
 
 //selenium click too slow with slow internet, improvinsing with JS clicks ;0
 function click(game){
-    document.querySelector(`${game}`).click();
+    document.querySelector(game).click();
 }
 
 //clicks a single element from the list

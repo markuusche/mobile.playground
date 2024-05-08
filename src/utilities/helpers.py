@@ -1,10 +1,10 @@
 from src.libs.modules import *
 
 class Helpers(Tools):
-    
+
     def __init__(self) -> None:
         super().__init__()
-        
+
     # find single element <locator> source from locators.yaml
     def findElement(self, driver, *keys, click=False, status=False):
         try:
@@ -28,7 +28,7 @@ class Helpers(Tools):
             element.click()
         else:
             return element
-        
+
     # waits an element from the <locator> source
     # from locators.yaml to appear
     def waitElement(self, driver, *keys, setTimeout=60):
@@ -36,7 +36,7 @@ class Helpers(Tools):
             locator = (By.CSS_SELECTOR, self.data(*keys))
             element = WebDriverWait(driver, setTimeout)
             element.until(EC.visibility_of_element_located(locator))
-        except:            
+        except:
             print(f'Element did not appear {locator}')
 
         return element

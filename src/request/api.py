@@ -3,7 +3,7 @@ from src.libs.modules import Tools
 from src.utilities.helpers import *
 
 class Requests(Tools):
-    
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -77,11 +77,11 @@ class Requests(Tools):
         sheet, _, date = self.gsheet_api()
         sendReport = sheet.worksheet(f'Results of {date}')
         sendReport.update(range_name=f"{self.data('gsheet', bet)}", values=sample)
-        
+
         getRange = re.findall(r'\d+', self.data('gsheet', bet))
         for cell in getRange:
             rangeValue.append(cell)
-        
+
         for row in range(int(rangeValue[0]), int(rangeValue[1]) + 1):
             getValue = sendReport.cell(row, 4).value
             if getValue == 'FAILED':
@@ -90,9 +90,9 @@ class Requests(Tools):
                     updateCell = getValue + ", " + str(tableDealer[0])
                 else:
                     updateCell = str(tableDealer[0])
-                    
+
                 sendReport.update_cell(row, 5, updateCell)
-                
+
         GS_REPORT.clear()
 
     def gsheet_api(self):

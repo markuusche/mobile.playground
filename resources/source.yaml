@@ -1,6 +1,6 @@
 action:
   cancel:                             'div.flex.Cancel'
-  confirm:                            'div.flex.Confirm .label-btn'
+  confirm:                            'div.flex.Confirm div:nth-child(3)'
   rebet:                              'div.flex.Repeat'
 
 baccarat:

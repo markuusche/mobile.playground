@@ -10,7 +10,7 @@ class Main(
     clss.Chat,
     clss.BetPool
     ):
-    
+
     # Main Test Case function for validation and assertions
     def betOn(self, driver, gsreport, bet, betArea, allin=False, getBalance=None):
         balance = []
@@ -25,7 +25,7 @@ class Main(
 
         while True:
             money = self.findElement(driver, 'in-game', 'balance')
-            balance.append(money.text)  
+            balance.append(money.text)
             timer = self.findElement(driver, 'in-game', 'timer')
             results = []
 
@@ -47,7 +47,7 @@ class Main(
                         else:
                             self.wait_If_Clickable(driver, bet, betArea)
                             self.waitElementInvis(driver, 'in-game', 'toast')
-                            self.wait_If_Clickable(driver, 'action', 'confirm')
+                            self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
 
                         self.waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
                         remainingMoney = self.findElement(driver, 'in-game', 'balance')
@@ -57,16 +57,17 @@ class Main(
                         self.waitElementInvis(driver, 'in-game', 'toast')
                         self.waitElement(driver, 'in-game', 'toast')
                         
-                        if self.env('table') in tableDealer[0]:
-                            message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} Dealer Cards Matched in all round - Expected: EQUAL')
-                            self.assertion(message, all(results))
-                        else:
-                            message = self.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
-                            self.assertion(message, all(results))
-                            
+                        if bet not in ['sicbo', 'roulette']:
+                            if self.env('table') in tableDealer[0]:
+                                message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} Dealer Cards Matched in all round - Expected: EQUAL')
+                                self.assertion(message, all(results))
+                            else:
+                                message = self.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
+                                self.assertion(message, all(results))
+
                         winner = self.findElement(driver, 'in-game', 'toast')
                         self.screenshot(driver, winner.text, tableDealer[0], allin)
-                                                
+
                         # =================================================
                         # get game result text from digital message
                         board = self.findElements(driver, 'in-game', 'board-result')
@@ -104,11 +105,11 @@ class Main(
 
                             if allin:
                                 self.screenshot(driver, 'Lose Balance', tableDealer[0], allin)
-                            
+
                             message = self.debuggerMsg(tableDealer, f'Balance after losing {round(calcAmount, 2)} '\
                             f'Latest Balance {round(balance, 2)} - Expected: EQUAL')
                             self.assertion(message, f'{round(calcAmount, 2):.2f}', '==', f'{round(balance, 2):.2f}')
-                            
+
                             if not allin:
                                 driver.save_screenshot(f'screenshots/{"Lose Total"} {tableDealer[0]} {uuid[:4]}.png')
 
@@ -120,7 +121,7 @@ class Main(
                             cFloat = float(placeBets.text.replace(',',''))
 
                             # ====================================================
-                            # calculate the odds player will receive after winning 
+                            # calculate the odds player will receive after winning
                             # special case for Three-cards odds
                             if not allin:
                                 import re
@@ -143,10 +144,10 @@ class Main(
                                                 self.assertion(message, winOdds, '==', resultBal)
                                         else:
                                             print("Odds not found")
-                                    
+
                             if allin:
                                 self.screenshot(driver, 'Win Balance', tableDealer[0], allin)
-                        
+
                             driver.save_screenshot(f'screenshots/{"Win Total"} {tableDealer[0]} {self.uuid[:4]}.png')
                             # checks if the total winnings + the current balance is
                             # equal to the latest balance
@@ -159,10 +160,10 @@ class Main(
                             self.waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                             self.waitElementInvis(driver, 'in-game','toast')
                             self.verifiy_newRound(driver, bet, tableDealer)
-                            
+
                             if bet == 'roulette':
                                 self.check_raceTracker(driver, tableDealer)
-                                
+
                             # Place a bet when the timer is CLOSED verification
                             self.summary(driver, bet, tableDealer)
                             self.waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
@@ -180,7 +181,7 @@ class Main(
                                 message = self.debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
                                 f'Bet area length {betRange} - Expected: EQUAL')
                                 self.assertion(message, len(ExceptionMessage), '==', betRange)
-                                
+
                             self.payrates_odds(driver, bet, tableDealer, allin) # check if bet limit payrate are equal
                             self.chat(driver, bet, tableDealer)
                             self.openBetHistory(driver, bet, tableDealer, currHistoryRow, updates=True)
@@ -207,13 +208,13 @@ class Main(
 
                 elif bet == 'baccarat' and element <= 3:
                     continue
-                
+
                 elif bet == 'three-cards' and name not in gameName.text:
                     continue
-                
+
                 elif bet == 'sedie' and name not in gameName.text:
                     continue
-                    
+
                 elif bet == 'sicbo' and name not in gameName.text:
                     continue
 
@@ -222,7 +223,7 @@ class Main(
 
                 elif bet == 'bull bull' and name not in gameName.text:
                     continue
-                
+
                 elements = self.updateBalance(driver, bet)
                 table = elements[element]
                 self.customJS(driver, 'noFullScreen();')

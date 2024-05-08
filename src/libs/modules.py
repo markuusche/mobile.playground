@@ -5,6 +5,7 @@ import requests
 import pytest
 import yaml
 import os
+import platform
 import re
 import math
 import cv2
@@ -37,8 +38,13 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
 
-deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
-path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+os_type = platform.system()
+if os_type == 'Windows':
+    deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+    path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+elif os_type == 'Linux':
+    path = '/usr/bin/tesseract'
+
 tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()

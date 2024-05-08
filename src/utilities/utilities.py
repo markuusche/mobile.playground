@@ -4,7 +4,7 @@ from src.utilities.helpers import Helpers
 class Utilities(Helpers):
     def __init__(self) -> None:
         super().__init__()
-    
+
     def screenshot(self, driver, name, val, allin=False):
         if allin:
             driver.save_screenshot(f'screenshots/{name} {val}.png')
@@ -14,7 +14,7 @@ class Utilities(Helpers):
             f'{str} {str2}'
 
     def deleteImages(self, folder, logs=False):
-        path = f'{folder}\\'
+        path = folder
         files = os.listdir(path)
         for file in files:
             pathFile = os.path.join(path, file)
@@ -22,7 +22,7 @@ class Utilities(Helpers):
                 os.remove(pathFile)
 
         if logs:
-            logpath = 'logs\\'
+            logpath = 'logs'
             txt = os.listdir(logpath)
             for log in txt:
                 truePath = os.path.join(logpath, log)
@@ -37,7 +37,7 @@ class Utilities(Helpers):
                 self.customJS(driver, f'click("{self.data("in-game", "close-video")}");')
                 stream = True
                 break
-            
+
     def table_dealer(self, driver):
         """
         retrieve the table number and dealer information.
@@ -54,26 +54,26 @@ class Utilities(Helpers):
     def skipOnFail(self, driver, tableDealer, exception):
         """
         Skip the current test case upon encountering an exception, refresh the driver, and clear the GS_REPORT.
-        
+
         params:
         `driver` (webdriver): The Selenium WebDriver instance.
         `tableDealer` (string): A string containing information about the table and dealer.
         `exception` (exception: The exception raised during the test execution.
 
-        : This function is designed to handle test case failures gracefully by logging the exception details and 
-        : traceback information to a file. It then refreshes the WebDriver instance, clears any existing report data, 
-        : and waits for the 'lobby' and 'main' elements to be available before proceeding.  
-        : It extracts the exception message and traceback, appends them to a log file named 'tracelogs.txt' with 
+        : This function is designed to handle test case failures gracefully by logging the exception details and
+        : traceback information to a file. It then refreshes the WebDriver instance, clears any existing report data,
+        : and waits for the 'lobby' and 'main' elements to be available before proceeding.
+        : It extracts the exception message and traceback, appends them to a log file named 'tracelogs.txt' with
         : information about the table and dealer, and separates each log entry with a newline for clarity.
         """
-        
+
         message = self.debuggerMsg(tableDealer, f'---- SKIPPED ----')
         self.assertion(message, notice=True)
         driver.refresh()
         self.waitElement(driver, 'lobby', 'main')
         print('=' * 100)
         GS_REPORT.clear()
-        
+
         exc = str(exception).split('Stacktrace:')[0].strip()
         tb = traceback.format_exc().split('Stacktrace:')[0].strip()
 
