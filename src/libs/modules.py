@@ -2,7 +2,6 @@ import pytest
 import yaml
 import random
 import requests
-import pytest
 import yaml
 import os
 import platform
@@ -14,7 +13,6 @@ from time import sleep
 from faker import Faker
 from selenium import webdriver
 import gspread
-import cv2
 import uuid
 import pytesseract as tess
 import base64
@@ -31,20 +29,15 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementClickInterceptedException
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
 
-os_type = platform.system()
-if os_type == 'Windows':
-    deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
-    path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
-elif os_type == 'Linux':
-    path = '/usr/bin/tesseract'
 
+deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()

@@ -1,6 +1,6 @@
 import src.utilities.functions as clss
 from src.libs.modules import *
-from . import GS_REPORT
+from . import GS_REPORT, BET_LIMIT
 
 class Main(
     clss.BetAllin,
@@ -21,7 +21,7 @@ class Main(
         if allin:
             self.checkPlayerBalance(driver, bet, value=getBalance, lobbyBalance=True)
             currHistoryRow = self.openBetHistory(driver, bet, tableDealer)
-            self.editChips(driver, 20)
+            self.editChips(driver, 20, BET_LIMIT=BET_LIMIT)
 
         while True:
             money = self.findElement(driver, 'in-game', 'balance')
@@ -193,6 +193,14 @@ class Main(
         print('\n')
         self.waitElement(driver, 'lobby', 'main')
         self.waitElement(driver, 'in-game', 'botnav')
+        self.wait_If_Clickable(driver, 'lobby', 'user', 'info')
+        self.waitElement(driver, 'lobby', 'user', 'user-modal')
+        bet_limit = self.findElement(driver, 'lobby', 'user', 'bet-limit')
+        user_limit = int(bet_limit.text.split()[0])
+        global BET_LIMIT
+        BET_LIMIT = user_limit
+        self.wait_If_Clickable(driver, 'lobby', 'user', 'close-modal')
+        self.waitElementInvis(driver, 'lobby', 'user', 'user-modal')
 
         if gsreport:
             self.createNew_sheet(driver)

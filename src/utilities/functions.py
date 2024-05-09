@@ -1,7 +1,7 @@
 from src.libs.modules import *
 from src.utilities.utilities import Utilities
 from src.request.api import Requests
-
+from src import BET_LIMIT
 class Chips(Utilities):
     def __init__(self) -> None:
         super().__init__()
@@ -31,7 +31,7 @@ class Chips(Utilities):
 
         return chips
 
-    def editChips(self, driver, divideBy=10, add=False, amount=0):
+    def editChips(self, driver, divideBy=10, add=False, amount=0, BET_LIMIT=0):
         """
         edit the chip amount in the game interface and return the updated chip value.
 
@@ -63,7 +63,11 @@ class Chips(Utilities):
         if add:
             chips = amount
         else:
-            chips = int(value) / divideBy
+            chips = int(value) / divideBy - 1
+            if chips < BET_LIMIT:
+                random_chip = random.randint(BET_LIMIT, BET_LIMIT+99)
+                chips = random_chip
+
         self.wait_If_Clickable(driver, 'in-game', 'edit')
         self.waitElement(driver, 'in-game', 'chip amount')
         self.wait_If_Clickable(driver, 'in-game', 'edit button')

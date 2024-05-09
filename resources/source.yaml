@@ -250,6 +250,12 @@ lobby:
   main:                               'div#tables-panel'
   table panel:                        'div[tableinfo="[object Object]"]'
 
+  user:
+    info:                             'div.user-info .user-avatar'
+    bet-limit:                        'div.member-info > div:first-child .label-data'
+    user-modal:                       'div#user-setting'
+    close-modal:                      'div.profile-slot .close-wrap'
+
 roulette:
   # single bets
   '1':                                'div.bet-area.s.s0'

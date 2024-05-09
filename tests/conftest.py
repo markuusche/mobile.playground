@@ -31,7 +31,7 @@ def driver(headless):
     option.add_argument("--disable-dev-shm-usage")
     option.add_argument("--disable-infobars")
     option.add_argument("--disable-extensions")
-    option.add_argument("window-position=910,0")
+    option.add_argument("window-position=1490,0")
     option.add_argument("window-size=440,840")
     option.add_argument(f"--user-agent={userAgent.random}")
     option.add_argument(f"--app={req.getURL()}")
