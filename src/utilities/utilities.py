@@ -67,7 +67,7 @@ class Utilities(Helpers):
         : information about the table and dealer, and separates each log entry with a newline for clarity.
         """
 
-        message = self.debuggerMsg(tableDealer, f'---- SKIPPED ----')
+        message = self.debuggerMsg(tableDealer, f'---- SKIPPING TABLE ----')
         self.assertion(message, notice=True)
         driver.refresh()
         self.waitElement(driver, 'lobby', 'main')

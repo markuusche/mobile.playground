@@ -165,17 +165,17 @@ game list:
   bull bull:                          6
 
 gsheet:
-  three-cards:                        'D7:D24'
-  sedie:                              'D25:D40'
-  sicbo:                              'D41:D54'
-  roulette:                           'D55:D66'
-  bull bull:                          'D67:D82'
-  dragontiger:                        'D83:D100'
-  baccarat:                           'D101:D118'
+  three-cards:                        'D7:D25'
+  sedie:                              'D26:D41'
+  sicbo:                              'D42:D55'
+  roulette:                           'D56:D67'
+  bull bull:                          'D68:D84'
+  dragontiger:                        'D85:D103'
+  baccarat:                           'D104:D122'
 
 history:
   button:                             'div#btn-history'
-  close card:                         'div.close-result-card'
+  close card:                         'div.close-result-card .v-responsive__content'
   data table:                         'div.xs12.mt-2 .v-table__overflow'
   detail:                             'div.data-table tbody .bet-code'
   expand:                             'div.history-more .v-responsive__content'
@@ -188,9 +188,9 @@ history:
   result-blue-bull:                   'div.result-blue-history .table-card-history .v-image__image'
   beads:                              'div.beads-img .v-image__image'
   result-red:                         'div.result-red-history .table-card-history'
+  row:                                'div.data-table tbody tr'
   table:                              'div.data-table tbody td:nth-child(2)'
   transactions:                       'div.summary div:first-child span:last-child'
-  row:                                'div.data-table tbody tr'
 
 in-game:
   back:                               'div#btn-exit'

@@ -404,7 +404,7 @@ class Betting(Display):
 
         if game not in ['roulette', 'sicbo']:
             balance = self.findElement(driver, 'in-game', 'balance')
-            parseBalance = int(balance.text)
+            parseBalance = float(balance.text.replace(',',''))
             if parseBalance != 0.00:
                 def getElementText(selector):
                     return selector.text
@@ -907,10 +907,10 @@ class History(Utilities):
         if game not in ['sedie', 'sicbo', 'roulette']:
             self.wait_If_Clickable(driver, 'history', 'button')
             self.waitElement(driver, 'history', 'modal')
-            expand = self.findElement(driver, 'history', 'expand', status=True)
             selectGame = self.data('history', 'filter')
             gameIndex = self.data('game list', game)
             self.customJS(driver, f'selectGameList("{selectGame}", {gameIndex})')
+            expand = self.findElement(driver, 'history', 'expand', status=True)
 
             try:
                 while expand.is_displayed():
@@ -918,6 +918,7 @@ class History(Utilities):
             except:
                 ...
 
+            self.waitElementInvis(driver, 'history', 'expand')
             row = self.findElement(driver, 'history', 'transactions')
             parseRow = int(row.text.replace(',',''))
             if parseRow != 0:
@@ -962,7 +963,6 @@ class History(Utilities):
 
             self.wait_If_Clickable(driver, 'in-game', 'payrate-close')
             self.waitElementInvis(driver, 'history', 'modal')
-
             return parseRow
 
 class Chat(Utilities):
