@@ -59,7 +59,8 @@ class Main(
                         
                         if bet not in ['sicbo', 'roulette']:
                             if self.env('table') in tableDealer[0]:
-                                message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} Dealer Cards Matched in all round - Expected: EQUAL')
+                                message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} '\
+                                f'Dealer Cards Matched in all round - Expected: EQUAL')
                                 self.assertion(message, all(results))
                             else:
                                 message = self.debuggerMsg(tableDealer, 'Card Results in all round are flipped')

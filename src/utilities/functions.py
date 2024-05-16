@@ -159,7 +159,10 @@ class Display(Chips):
                 if game in ['three-cards', 'sedie']:
                     value = int(shoe.text)
                 else:
-                    value = int(shoe.text.split('-')[1])
+                    try:
+                        value = int(shoe.text.split('-')[1])
+                    except:
+                        print('Round is shuffling...')
 
                 message = self.debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
                 f'Shoe round {value} - Expected: round > total')
@@ -664,11 +667,11 @@ class PlayerUpdate(Utilities):
             playerBalance = self.findElement(driver, 'in-game', 'playerBalance')
 
             if lobbyBalance:
-                message = self.debuggerMsg(tableDealer, f'Lobby Balance {value} & '\
+                message = self.debuggerMsg(tableDealer, f'Lobby {value} & '\
                 f'In-game Balance {coins.text} - Expected: EQUAL')
                 self.assertion(message, value, '==', coins.text.strip())
 
-            message = self.debuggerMsg(tableDealer, f'Top balance {coins.text} & '\
+            message = self.debuggerMsg(tableDealer, f'Top {coins.text} & '\
             f'Bottom balance {playerBalance.text} - Expected: EQUAL')
             self.assertion(message, coins.text, '==', playerBalance.text)
 
@@ -950,8 +953,8 @@ class History(Utilities):
 
                     if len(status) != 0:
                         if all(status):
-                            message = self.debuggerMsg(tableDealer, f'Decoded base64 Image {flippedCards} & '\
-                            f'Extracted Card Value {extracted} - Expected - EQUAL ')
+                            message = self.debuggerMsg(tableDealer, f'Decoded Cards {flippedCards} & '\
+                            f'Extracted Values {extracted} - Expected - EQUAL ')
                             self.assertion(message, flippedCards, '==', extracted)
                         else:
                             message = self.debuggerMsg(tableDealer, 'One or more extracted card data '\
@@ -963,6 +966,7 @@ class History(Utilities):
 
             self.wait_If_Clickable(driver, 'in-game', 'payrate-close')
             self.waitElementInvis(driver, 'history', 'modal')
+            
             return parseRow
 
 class Chat(Utilities):
