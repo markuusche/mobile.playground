@@ -4,6 +4,7 @@ import random
 import requests
 import yaml
 import os
+import sys
 import platform
 import re
 import math
@@ -35,14 +36,20 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
 
+if sys.platform.startswith('linux'):
+    path = '/usr/bin/tesseract'
+else:
+    deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+    path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
-deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
-path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()
 uuid = uuid.uuid1().hex
 userAgent = UserAgent(platforms='mobile')
+
+currDate = datetime.now()
+date = currDate.strftime('%Y-%m-%d %H:%M')
 
 class Tools:
     def data(self, *keys):
@@ -86,7 +93,7 @@ class Tools:
             color = green
         
         if skip:
-            print(f'{yellow}SKIPPED{default} {message}')
+            print(f'{yellow}[ SKIPPED ]{default} {date} {message}')
             GS_REPORT.append(['SKIPPED'])
         else:
             try:
@@ -103,10 +110,10 @@ class Tools:
                 else:
                     assert comparison
                 
-                print(f'{color}{status}{default} {message}')
+                print(f'{color}[ {status} ]{default} {date} {message}')
                 if not notice:
                     GS_REPORT.append(['PASSED'])
             except AssertionError:
-                print(f'{red}FAILED{default} {message}')
+                print(f'{red}[ FAILED ]{default} {date} {message}')
                 if not notice:
                     GS_REPORT.append(['FAILED'])

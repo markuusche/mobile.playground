@@ -47,7 +47,7 @@ class Main(
                         else:
                             self.wait_If_Clickable(driver, bet, betArea)
                             self.waitElementInvis(driver, 'in-game', 'toast')
-                            self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                            self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
 
                         self.waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
                         remainingMoney = self.findElement(driver, 'in-game', 'balance')
@@ -59,7 +59,8 @@ class Main(
                         
                         if bet not in ['sicbo', 'roulette']:
                             if self.env('table') in tableDealer[0]:
-                                message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} Dealer Cards Matched in all round - Expected: EQUAL')
+                                message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env("table")} '\
+                                f'Dealer Cards Matched in all round - Expected: EQUAL')
                                 self.assertion(message, all(results))
                             else:
                                 message = self.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
@@ -186,7 +187,7 @@ class Main(
                             self.chat(driver, bet, tableDealer)
                             self.openBetHistory(driver, bet, tableDealer, currHistoryRow, updates=True)
                             if gsreport:
-                                self.sendReport(GS_REPORT, bet, tableDealer)
+                                self.requests.sendReport(GS_REPORT, bet, tableDealer)
                         break
 
     def play(self, driver, gsreport, bet, betArea=None, allin=False, name=""):
@@ -203,7 +204,7 @@ class Main(
         self.waitElementInvis(driver, 'lobby', 'user', 'user-modal')
 
         if gsreport:
-            self.createNew_sheet(driver)
+            self.requests.createNew_sheet(driver)
 
         self.wait_If_Clickable(driver, 'category', bet)
         bet_areas = list(self.data(bet))
@@ -211,10 +212,13 @@ class Main(
         for element in range(len(elements)):
             try:
                 gameName = elements[element]
+                skipping = self.env('tables').split(':')
+                skip_tables = any(table in gameName.text for table in skipping)
+                
                 if bet == 'dragontiger' and name not in gameName.text:
                     continue
 
-                elif bet == 'baccarat' and element <= 3:
+                elif bet == 'baccarat' and skip_tables:
                     continue
 
                 elif bet == 'three-cards' and name not in gameName.text:

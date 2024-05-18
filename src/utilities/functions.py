@@ -159,7 +159,10 @@ class Display(Chips):
                 if game in ['three-cards', 'sedie']:
                     value = int(shoe.text)
                 else:
-                    value = int(shoe.text.split('-')[1])
+                    try:
+                        value = int(shoe.text.split('-')[1])
+                    except:
+                        print('Round is shuffling...')
 
                 message = self.debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
                 f'Shoe round {value} - Expected: round > total')
@@ -338,10 +341,10 @@ class Results(Decoder):
 
             dealer_cards = self.decodeCropImage(card_metadata[1], card_metadata[2])
             with open('logs\\logs.txt', 'a') as logs:
-                logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.env('table')} Card {dealer_cards} \n')
+                logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.env("table")} Card {dealer_cards} \n')
 
             if len(dealer_cards) != 0:
-                message = self.debuggerMsg(tableDealer, f'\033[93mResult & {self.env('table')} Dealer Cards Count - Expected: EQUAL')
+                message = self.debuggerMsg(tableDealer, f'\033[93mResult & {self.env("table")} Dealer Cards Count - Expected: EQUAL')
                 self.assertion(message, len(dealer_cards), '==', len(card), notice=True)
 
                 for deck in dealer_cards:
@@ -404,7 +407,7 @@ class Betting(Display):
 
         if game not in ['roulette', 'sicbo']:
             balance = self.findElement(driver, 'in-game', 'balance')
-            parseBalance = int(balance.text)
+            parseBalance = float(balance.text.replace(',',''))
             if parseBalance != 0.00:
                 def getElementText(selector):
                     return selector.text
@@ -552,7 +555,7 @@ class Betting(Display):
             try:
                 self.customJS(driver, f'click(`{bets}`);')
                 if placeConfirm:
-                    self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                    self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
 
                 i += 1
             except ElementClickInterceptedException:
@@ -604,7 +607,7 @@ class Betting(Display):
         else:
             cancelAssert(driver, game, tableDealer, allin, 'Rebet & Cancelled!')
             self.wait_If_Clickable(driver, 'action', 'rebet')
-            self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+            self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
             self.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
             card_flipped(driver, game, tableDealer, results)
 
@@ -664,11 +667,11 @@ class PlayerUpdate(Utilities):
             playerBalance = self.findElement(driver, 'in-game', 'playerBalance')
 
             if lobbyBalance:
-                message = self.debuggerMsg(tableDealer, f'Lobby Balance {value} & '\
+                message = self.debuggerMsg(tableDealer, f'Lobby {value} & '\
                 f'In-game Balance {coins.text} - Expected: EQUAL')
                 self.assertion(message, value, '==', coins.text.strip())
 
-            message = self.debuggerMsg(tableDealer, f'Top balance {coins.text} & '\
+            message = self.debuggerMsg(tableDealer, f'Top {coins.text} & '\
             f'Bottom balance {playerBalance.text} - Expected: EQUAL')
             self.assertion(message, coins.text, '==', playerBalance.text)
 
@@ -718,7 +721,7 @@ class BetAllin(Betting):
 
             if insufficient:
                 self.screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
-                self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
                 self.waitElementInvis(driver, 'in-game', 'toast')
 
                 if game == 'bull bull':
@@ -907,10 +910,10 @@ class History(Utilities):
         if game not in ['sedie', 'sicbo', 'roulette']:
             self.wait_If_Clickable(driver, 'history', 'button')
             self.waitElement(driver, 'history', 'modal')
-            expand = self.findElement(driver, 'history', 'expand', status=True)
             selectGame = self.data('history', 'filter')
             gameIndex = self.data('game list', game)
             self.customJS(driver, f'selectGameList("{selectGame}", {gameIndex})')
+            expand = self.findElement(driver, 'history', 'expand', status=True)
 
             try:
                 while expand.is_displayed():
@@ -918,6 +921,7 @@ class History(Utilities):
             except:
                 ...
 
+            self.waitElementInvis(driver, 'history', 'expand')
             row = self.findElement(driver, 'history', 'transactions')
             parseRow = int(row.text.replace(',',''))
             if parseRow != 0:
@@ -949,8 +953,8 @@ class History(Utilities):
 
                     if len(status) != 0:
                         if all(status):
-                            message = self.debuggerMsg(tableDealer, f'Decoded base64 Image {flippedCards} & '\
-                            f'Extracted Card Value {extracted} - Expected - EQUAL ')
+                            message = self.debuggerMsg(tableDealer, f'Decoded Cards {flippedCards} & '\
+                            f'Extracted Values {extracted} - Expected - EQUAL ')
                             self.assertion(message, flippedCards, '==', extracted)
                         else:
                             message = self.debuggerMsg(tableDealer, 'One or more extracted card data '\
@@ -962,7 +966,7 @@ class History(Utilities):
 
             self.wait_If_Clickable(driver, 'in-game', 'payrate-close')
             self.waitElementInvis(driver, 'history', 'modal')
-
+            
             return parseRow
 
 class Chat(Utilities):
