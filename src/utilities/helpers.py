@@ -19,6 +19,7 @@ class Helpers(Tools):
                 return False
             else:
                 print(f'\033[91m[ FAILED ] No such element "{locator}" ')
+                print(f'\033[91m[ FAILED ] No such element "{locator}" ')
 
     # find multiple elements <locator> source from locators.yaml
     def findElements(self, driver, *keys, click=False):
@@ -49,12 +50,12 @@ class Helpers(Tools):
             element = WebDriverWait(driver, setTimeout)
             element.until(EC.invisibility_of_element(locator))
             if isDigital:
-                print(f'\033[32m[ PASSED ]\033[0m {date} [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+                print(f'\033[32m[ PASSED ]\033[0m {self._getdate()} [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                 f'New Round Digital Result is not displayed!')
         except:
             print(f'Element did not disappear {locator}')
             if isDigital:
-                print(f'\033[91m[ FAILED ]\033[0m {date} [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+                print(f'\033[91m[ FAILED ]\033[0m {self._getdate()} [Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
                 f'New Round Digital Result is displayed!')
 
     # waits an element from the <locator> source
@@ -78,4 +79,4 @@ class Helpers(Tools):
             if status:
                 return False
             else:
-                print(f'\033[91m[ FAILED ] {date} "{text}" was not captured by selenium.')
+                print(f'\033[91m[ FAILED ] {self._getdate()} "{text}" was not captured by selenium.')

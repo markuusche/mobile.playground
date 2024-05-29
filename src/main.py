@@ -47,7 +47,7 @@ class Main(
                         else:
                             self.wait_If_Clickable(driver, bet, betArea)
                             self.waitElementInvis(driver, 'in-game', 'toast')
-                            self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                            self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
 
                         self.waitPresence(driver, 'in-game','toast', text='No More Bets!', setTimeout=40)
                         remainingMoney = self.findElement(driver, 'in-game', 'balance')
@@ -57,7 +57,7 @@ class Main(
                         self.waitElementInvis(driver, 'in-game', 'toast')
                         self.waitElement(driver, 'in-game', 'toast')
                         
-                        if bet not in ['sicbo', 'roulette']:
+                        if bet not in ['sicbo', 'roulette'] and allin:
                             if self.env('table') in tableDealer[0]:
                                 message = self.debuggerMsg(tableDealer, f'Digital Results & {self.env('table')} '\
                                 f'Dealer Cards Matched in all round - Expected: EQUAL')
@@ -155,9 +155,11 @@ class Main(
                             message = self.debuggerMsg(tableDealer, f'Win balance {round(total, 2)} & '\
                             f'Latest balance {balance} - Expected: EQUAL')
                             self.assertion(message, f'{round(total, 2)}', '==', f'{round(balance, 2)}')
-                            self.checkPlayerBalance(driver, bet)
 
                         if allin:
+                            self.waitElement(driver, 'in-game','toast')
+                            self.waitElementInvis(driver, 'in-game','toast')
+                            self.checkPlayerBalance(driver, bet)
                             self.waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!', setTimeout=5)
                             self.waitElementInvis(driver, 'in-game','toast')
                             self.verifiy_newRound(driver, bet, tableDealer)

@@ -155,14 +155,17 @@ class Display(Chips):
                         number = int(match.group())
                         total += number
 
-                shoe = self.findElement(driver, 'in-game', 'shoe')
-                if game in ['three-cards', 'sedie']:
-                    value = int(shoe.text)
-                else:
-                    try:
-                        value = int(shoe.text.split('-')[1])
-                    except:
-                        print('Round is shuffling...')
+                while True:
+                    shoe = self.findElement(driver, 'in-game', 'shoe')
+                    if shoe.text == '' or shoe.text == None:
+                        self.waitPresence(driver, 'in-game','toast', text='Please Place Your Bet!')
+                        continue
+                    else:
+                        if game in ['three-cards', 'sedie']:
+                            value = int(shoe.text)
+                        else:
+                            value = int(shoe.text.split('-')[1])
+                        break
 
                 message = self.debuggerMsg(tableDealer, f'Rodmap total summary {total}, '\
                 f'Shoe round {value} - Expected: round > total')
@@ -341,10 +344,10 @@ class Results(Decoder):
 
             dealer_cards = self.decodeCropImage(card_metadata[1], card_metadata[2])
             with open('logs\\logs.txt', 'a') as logs:
-                logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.env('table')} Card {dealer_cards} \n')
+                logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.env("table")} Card {dealer_cards} \n')
 
             if len(dealer_cards) != 0:
-                message = self.debuggerMsg(tableDealer, f'\033[93mResult & {self.env('table')} Dealer Cards Count - Expected: EQUAL')
+                message = self.debuggerMsg(tableDealer, f'\033[93mResult & {self.env("table")} Dealer Cards Count - Expected: EQUAL')
                 self.assertion(message, len(dealer_cards), '==', len(card), notice=True)
 
                 for deck in dealer_cards:
@@ -555,7 +558,7 @@ class Betting(Display):
             try:
                 self.customJS(driver, f'click(`{bets}`);')
                 if placeConfirm:
-                    self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                    self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
 
                 i += 1
             except ElementClickInterceptedException:
@@ -607,7 +610,7 @@ class Betting(Display):
         else:
             cancelAssert(driver, game, tableDealer, allin, 'Rebet & Cancelled!')
             self.wait_If_Clickable(driver, 'action', 'rebet')
-            self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+            self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
             self.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
             card_flipped(driver, game, tableDealer, results)
 
@@ -721,7 +724,7 @@ class BetAllin(Betting):
 
             if insufficient:
                 self.screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
-                self.customJS(driver, f'click(`{self.data('action', 'confirm')}`);')
+                self.customJS(driver, f'click(`{self.data("action", "confirm")}`);')
                 self.waitElementInvis(driver, 'in-game', 'toast')
 
                 if game == 'bull bull':
@@ -922,52 +925,50 @@ class History(Utilities):
                 ...
 
             self.waitElementInvis(driver, 'history', 'expand')
-            row = self.findElement(driver, 'history', 'transactions')
-            parseRow = int(row.text.replace(',',''))
-            if parseRow != 0:
-                if updates:
-                    status = []
-                    flippedCards = 0
-                    extracted = 0
-                    rowsAdded = parseRow - oldRow
-                    message = self.debuggerMsg(tableDealer, f'Bet History {rowsAdded} new rows has been added')
-                    self.assertion(message, parseRow, '>', oldRow, notice=True)
-                    dataTable = self.findElement(driver, 'history', 'data table')
-                    detail = self.findElements(driver, 'history', 'detail')
-                    tableStage = self.findElements(driver, 'history', 'table')
-                    driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
+            countRows = self.findElements(driver, 'history', 'detail')
+            if len(countRows) != 0 and updates:
+                status = []
+                flippedCards = 0
+                extracted = 0
+                rowsAdded = len(countRows) - oldRow
+                message = self.debuggerMsg(tableDealer, f'Bet History {rowsAdded} new rows has been added')
+                self.assertion(message, len(countRows), '>', oldRow, notice=True)
+                dataTable = self.findElement(driver, 'history', 'data table')
+                detail = self.findElements(driver, 'history', 'detail')
+                tableStage = self.findElements(driver, 'history', 'table')
+                driver.execute_script("arguments[0].scrollTop = 0;", dataTable)
 
-                    for rows in range(rowsAdded):
-                        detail[rows].click()
-                        getTable = tableStage[rows].text
-                        self.waitElement(driver, 'history', 'result')
-                        baseList, flippedCards, extracted = self.betHistory(driver, game, status, flippedCards, extracted)
-                        #creates log history for debugging in case of failure
-                        with open('logs\\logs.txt', 'a') as logs:
-                            newLine = '\n'
-                            logs.write(f'Index {rows} {getTable.replace(f"{newLine}"," ")} -'\
-                            f'Cards {baseList} {newLine} ')
+                for rows in range(rowsAdded):
+                    detail[rows].click()
+                    getTable = tableStage[rows].text
+                    self.waitElement(driver, 'history', 'result')
+                    baseList, flippedCards, extracted = self.betHistory(driver, game, status, flippedCards, extracted)
+                    #creates log history for debugging in case of failure
+                    with open('logs\\logs.txt', 'a') as logs:
+                        newLine = '\n'
+                        logs.write(f'Index {rows} {getTable.replace(f"{newLine}"," ")} -'\
+                        f'Cards {baseList} {newLine} ')
 
-                        self.wait_If_Clickable(driver, 'history', 'close card')
-                        self.waitElementInvis(driver, 'history', 'result')
+                    self.wait_If_Clickable(driver, 'history', 'close card')
+                    self.waitElementInvis(driver, 'history', 'result')
 
-                    if len(status) != 0:
-                        if all(status):
-                            message = self.debuggerMsg(tableDealer, f'Decoded Cards {flippedCards} & '\
-                            f'Extracted Values {extracted} - Expected - EQUAL ')
-                            self.assertion(message, flippedCards, '==', extracted)
-                        else:
-                            message = self.debuggerMsg(tableDealer, 'One or more extracted card data '\
-                            f'was not in the list of cards')
-                            self.assertion(message, notice=True)
+                if len(status) != 0:
+                    if all(status):
+                        message = self.debuggerMsg(tableDealer, f'Decoded Cards {flippedCards} & '\
+                        f'Extracted Values {extracted} - Expected - EQUAL ')
+                        self.assertion(message, flippedCards, '==', extracted)
                     else:
-                        message = self.debuggerMsg(tableDealer, 'History results is empty!')
+                        message = self.debuggerMsg(tableDealer, 'One or more extracted card data '\
+                        f'was not in the list of cards')
                         self.assertion(message, notice=True)
+                else:
+                    message = self.debuggerMsg(tableDealer, 'History results is empty!')
+                    self.assertion(message, notice=True)
 
             self.wait_If_Clickable(driver, 'in-game', 'payrate-close')
             self.waitElementInvis(driver, 'history', 'modal')
             
-            return parseRow
+            return len(countRows)
 
 class Chat(Utilities):
 

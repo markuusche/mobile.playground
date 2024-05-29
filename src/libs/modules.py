@@ -4,6 +4,7 @@ import random
 import requests
 import yaml
 import os
+import sys
 import platform
 import re
 import math
@@ -35,9 +36,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
 
+if sys.platform.startswith('linux'):
+    path = '/usr/bin/tesseract'
+else:
+    deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+    path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
-deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
-path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 tess.pytesseract.tesseract_cmd = path
 
 fake = Faker()
@@ -75,6 +79,11 @@ class Tools:
     def env(self, value:str):
         return os.environ.get(value)
     
+    def _getdate(self):
+        currDate = datetime.now()
+        date = currDate.strftime('%H:%M')
+        return date
+    
     def assertion(self, message, comparison=None, operator=None, comparison2=None, skip=False, notice=False):
         red = '\033[91m'
         green = '\033[32m'
@@ -89,7 +98,7 @@ class Tools:
             color = green
         
         if skip:
-            print(f'{yellow}[ SKIPPED ]{default} {date} {message}')
+            print(f'{yellow}[ SKIPPED ]{default} {self._getdate()} {message}')
             GS_REPORT.append(['SKIPPED'])
         else:
             try:
@@ -106,10 +115,10 @@ class Tools:
                 else:
                     assert comparison
                 
-                print(f'{color}[ {status} ]{default} {date} {message}')
+                print(f'{color}[ {status} ]{default} {self._getdate()} {message}')
                 if not notice:
                     GS_REPORT.append(['PASSED'])
             except AssertionError:
-                print(f'{red}[ FAILED ]{default} {date} {message}')
+                print(f'{red}[ FAILED ]{default} {self._getdate()} {message}')
                 if not notice:
                     GS_REPORT.append(['FAILED'])
