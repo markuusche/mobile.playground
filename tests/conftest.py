@@ -1,6 +1,8 @@
-from src.libs.modules import *
-from src.request.api import Requests
-req = Requests()
+import pytest
+from selenium import webdriver
+from src.api.services import Services
+from fake_useragent import UserAgent
+userAgent = UserAgent(platforms='mobile')
 
 def pytest_addoption(parser):
     parser.addoption("--headless", action="store_true", default=False)
@@ -17,6 +19,7 @@ def gsreport(request):
 @pytest.fixture(scope='session')
 def driver(headless):
     #setup
+    URL = Services()
     option = webdriver.EdgeOptions()
     option.add_argument("--hide-scrollbars")
 
@@ -34,7 +37,7 @@ def driver(headless):
     option.add_argument("window-position=1490,0")
     option.add_argument("window-size=440,840")
     option.add_argument(f"--user-agent={userAgent.random}")
-    option.add_argument(f"--app={req.getURL()}")
+    option.add_argument(f"--app={URL.GET_URL()}")
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Edge(options=option)
 

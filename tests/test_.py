@@ -1,5 +1,5 @@
+import pytest
 from src.main import Main
-from src.libs.modules import pytest
 
 @pytest.fixture
 def main():
