@@ -1,6 +1,12 @@
+> [!NOTE] 
+> _It is expected that you cannot run this project without the api base url and its endpoints._ </br>
+> _The purpose of this project is to demonstrate that I've developed something for personal use and future reference._ </br>
+> _If you have any questions, feel free to contact me through one of my socials on my github profile._
+
+
 ![](https://cdn-icons-png.freepik.com/128/9414/9414933.png)
 
-Red-X-Cross
+mobile.playground (casino)
 ======
 QA Automation Test
 
@@ -25,7 +31,7 @@ Coverage
 
    * [Mobile]
 
-Pre-Requisites
+Pre-requisites
 --------------
 
 1. Python 3 (Make sure python is added to your system PATH)
@@ -34,57 +40,71 @@ Pre-Requisites
 4. virtualenv
 5. [tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
 ------------------------------------------------
-Setting Up First Run on Your Local Machine
+Setting up first run on your local machine
 ------------------------------------------
 
 1. Clone this project on your local machine
 
-   ``https://github.com/gloofo/Red-X-Cross``
+   ```
+   https://github.com/markuusche/mobile.playground
+   ```
 
-2. Open a terminal inside your local clone of the repository.
+3. Open a terminal inside your local clone of the repository.
 
-3. Using python's virtualenv, create a virtual environment inside the project.
+4. Using python's virtualenv, create a virtual environment inside the project. <br>
    Run:
-   ``virtualenv venv``
+   ```
+   virtualenv venv
+   ```
 
    where venv is the name of the virtual environment you are creating.
    It is also recommended to use __venv__ as the name of your virtual environment
    cause this is the recognized file exception on our ``.gitignore``
 
-4. Activate the virtualenv you just created.
+5. Activate the virtualenv you just created.
    
    * Windows CMD
-      ``venv\Scripts\activate``
-    
+      ```bash
+      venv\Scripts\activate
+      ```
    * Windows Git Bash
-      ``source venv\Scripts\activate``
-
+      ```bash
+      source venv/scripts/activate
+      ```
    * Windows Powershell
-      ``venv\Scripts\activate.ps1``
-
+      ```bash
+      venv\Scripts\activate.ps1
+      ```
    * MacOS/Linux
-      ``source venv/bin/activate``
+      ```bash
+     source venv/bin/activate
+      ```
 
-5. Install the project dependencies.
-   ``pip install -r requirements.txt``
+6. Install the project dependencies.
+    ```bash
+     pip install -r requirements.txt
+    ```
 
 Thats it! You have setup your local environment to run test for this project.
 
-Run the script by simply running this command
-
-   ``pytest -vs``
-
 Run the script in headless mode
+```
+pytest --headless
+```
 
-  ``pytest -vs --headless``
-
-Run the script with gsreport in headless mode
-
-   ``pytest -vs --gsreport --headless``
-   
+Run the script with a gsreport in headless mode
+```
+pytest --gsreport --headless
+```
 </br>
 
-> **Note:** It is expected that you cannot run this project without the api base url and its endpoints.</br>
-> The purpose of this project is to demonstrate that I've developed something for personal use and future reference.</br>
-> If you have any questions, feel free to contact me through one of my socials on my github profile.
+> [!CAUTION]
+> Be aware that the test script might be flaky sometimes.
+
+> [!IMPORTANT]
+> If the test case failed on the first run. Re-run the test case base on what the test case that failed. <br>
+> For ex. the baccarat game failed, you can run this specific test case with:
+> `` pytest -k test_baccarat``.<br>
+> If one or several test case failed, verify or replicate if the test case really failed.
+
 
