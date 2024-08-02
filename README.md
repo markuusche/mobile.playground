@@ -52,7 +52,11 @@ Setting up first run on your local machine
 3. Open a terminal inside your local clone of the repository.
 
 4. Using python's virtualenv, create a virtual environment inside the project. <br>
-   Run:
+   Install:
+   ```
+   pip install virtualenv
+   ```
+   Create a virtual environment:
    ```
    virtualenv venv
    ```
@@ -61,7 +65,7 @@ Setting up first run on your local machine
    It is also recommended to use __venv__ as the name of your virtual environment
    cause this is the recognized file exception on our ``.gitignore``
 
-5. Activate the virtualenv you just created.
+6. Activate the virtualenv you just created.
    
    * Windows CMD
       ```bash
@@ -80,7 +84,7 @@ Setting up first run on your local machine
      source venv/bin/activate
       ```
 
-6. Install the project dependencies.
+7. Install the project dependencies.
     ```bash
      pip install -r requirements.txt
     ```
