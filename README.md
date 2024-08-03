@@ -38,7 +38,8 @@ Pre-requisites
 2. Python Extension (VSCode)
 3. pip
 4. virtualenv
-5. [tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
+6. [tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
+7. creds.json
 ------------------------------------------------
 Setting up first run on your local machine
 ------------------------------------------
@@ -88,17 +89,33 @@ Setting up first run on your local machine
     ```bash
      pip install -r requirements.txt
     ```
+8. Create the needed folder for the run:
+   ```bash
+   mkdir -p sreenshots/decoded
+   ```
+   ```bash
+   mkdir logs
+   ```
 
 Thats it! You have setup your local environment to run test for this project.
 
-Run the script in headless mode
+Run the script in visual mode (_Recommended_)
+> [!IMPORTANT]
+> this command already includes verbosity, stdout & stderr and quiet flags. See [pytest.ini](https://github.com/markuusche/mobile.playground/blob/main/pytest.ini)
+```bash
+pytest
 ```
+
+Run the script in headless mode
+```bash
 pytest --headless
 ```
 
-Run the script with a gsreport in headless mode
-```
-pytest --gsreport --headless
+Run the script with a gsreport
+> [!NOTE]
+> all test status will be recorded in the google sheet.
+```bash
+pytest --gsreport
 ```
 </br>
 
