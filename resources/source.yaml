@@ -180,6 +180,8 @@ history:
   detail:                             'div.data-table tbody .bet-code'
   expand:                             'div.history-more .v-responsive__content'
   filter:                             'div#app > div:nth-child(3) .v-list .v-list__tile__title'
+  filter dropdown:                    'div.flex.xs6:last-child .v-responsive__content'
+  filter container:                   'div.application > div:nth-child(3)'
   filter modal:                       'div#app > div:nth-child(3) .v-select-list'
   game:                               'div.xs12 .xs6:last-child .v-input__append-inner'
   modal:                              'div#history'
@@ -248,7 +250,7 @@ lucky:
 lobby:
   balance:                            'div.user-info .user-data span'
   main:                               'div#tables-panel'
-  table panel:                        'div[tableinfo="[object Object]"]'
+  table panel:                        'div[tableinfo="[object Object]"] .card-header'
 
   user:
     info:                             'div.user-info .user-avatar'

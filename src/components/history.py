@@ -91,6 +91,8 @@ class History(Helpers):
         if game not in ['sedie', 'sicbo', 'roulette']:
             self.wait_clickable(driver, 'history', 'button')
             self.wait_element(driver, 'history', 'modal')
+            self.wait_clickable(driver,'history', 'filter dropdown')
+            self.wait_element(driver, 'history', 'filter container')
             selectGame = self.utils.data('history', 'filter')
             gameIndex = self.utils.data('game list', game)
             self.utils.customJS(driver, f'selectGameList("{selectGame}", {gameIndex})')

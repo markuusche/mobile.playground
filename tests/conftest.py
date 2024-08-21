@@ -20,16 +20,15 @@ def gsreport(request):
 def driver(headless):
     #setup
     URL = Services()
-    option = webdriver.EdgeOptions()
+    option = webdriver.ChromeOptions()
     option.add_argument("--hide-scrollbars")
 
     if headless:
         option.add_argument("--headless=new")
 
-    option.add_argument("--InPrivate")
+    option.add_argument("--incognito")
     option.add_argument("--mute-audio")
     option.add_argument("---disk-cache-dir=nul")
-    option.add_argument("--disable-features=msEdgeEnableNurturingFramework")
     option.add_argument("--no-sandbox")
     option.add_argument("--disable-dev-shm-usage")
     option.add_argument("--disable-infobars")
@@ -39,7 +38,7 @@ def driver(headless):
     option.add_argument(f"--user-agent={userAgent.random}")
     option.add_argument(f"--app={URL.GET_URL()}")
     option.add_experimental_option("excludeSwitches",["enable-automation"])
-    driver = webdriver.Edge(options=option)
+    driver = webdriver.Chrome(options=option)
 
     yield driver
         

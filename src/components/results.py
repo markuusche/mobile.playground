@@ -4,6 +4,7 @@ uuid = uuid.uuid1().hex
 from src.helpers.helpers import Helpers
 from src.utils.utils import Utilities
 from src.utils.decoder import Decoder
+from collections import Counter
 
 class Results(Helpers):
     
@@ -60,12 +61,11 @@ class Results(Helpers):
                 logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.utils.env("table")} Card {dealer_cards} \n')
 
             if len(dealer_cards) != 0:
+                dealer_cards_count = Counter(dealer_cards)
+                card_count = Counter(card)
                 message = self.utils.debuggerMsg(tableDealer, f'\033[93mResult & {self.utils.env("table")} Dealer Cards Count - Expected: EQUAL')
-                self.utils.assertion(message, len(dealer_cards), '==', len(card), notice=True)
-
-                for deck in dealer_cards:
-                    if deck in card:
-                        card_metadata[3].append(True)
+                self.utils.assertion(message, dealer_cards_count, '==', card_count, notice=True)
+                card_metadata[3].append(True)
 
             return results.append(all(card_metadata[3]))
         else:

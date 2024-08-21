@@ -229,14 +229,21 @@ class Main(Helpers):
         for element in range(len(elements)):
             try:
                 gameName = elements[element]
-                skipping = self.utils.env('tables').split(':')
-                skip_tables = any(table in gameName.text for table in skipping)
+                tableNumber = self.utils.env('tables')
+                getNumber = tableNumber.split(':')
+                skip = False
                 
                 if bet == 'dragontiger' and name not in gameName.text:
                     continue
 
-                elif bet == 'baccarat' and skip_tables:
-                    continue
+                elif bet == 'baccarat':
+                    for number in getNumber:
+                        if number in gameName.text:
+                            skip = True
+                            break
+
+                    if skip:
+                        continue
 
                 elif bet == 'three-cards' and name not in gameName.text:
                     continue
@@ -257,7 +264,7 @@ class Main(Helpers):
                 table = elements[element]
                 self.utils.customJS(driver, 'noFullScreen();')
                 self.utils.driverJS(driver, 'window.scrollTo(0, 0);')
-                self.utils.driverJS(driver, "arguments[0].scrollIntoView();", table)
+                self.utils.driverJS(driver, "arguments[0].scrollIntoView({block: 'center'});", table)
                 getPlayerBalance = self.search_element(driver, 'lobby', 'balance')
                 userBalance = getPlayerBalance.text.strip()
                 table.click()
