@@ -49,8 +49,12 @@ class Utilities:
     def driverJS(self, driver, script, element = 'auto'):
         return driver.execute_script(script, element)
 
-    def env(self, value:str):
-        return os.environ.get(value)
+    def env(self, value:str, list=False):
+        if not list:
+            return os.environ.get(value)
+        else:
+            items = os.environ.get(value)
+            return items.split(':')
     
     def _getdate(self):
         currDate = datetime.now()

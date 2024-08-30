@@ -1,5 +1,6 @@
 import random
 
+from src import BET_LIMIT
 from src.helpers.helpers import Helpers
 
 class Chips(Helpers):
@@ -31,7 +32,7 @@ class Chips(Helpers):
 
         return chips
     
-    def edit_chips(self, driver, divide=10, add=False, amount=0, BET_LIMIT=0):
+    def edit_chips(self, driver, divide=10, add=False, amount=0):
         """
         edit the chip amount in the game interface and return the updated chip value.
 
@@ -60,12 +61,14 @@ class Chips(Helpers):
         
         balance = self.search_element(driver, 'in-game', 'balance')
         user_balance = float(balance.text.replace(',',''))
+
         if add:
             chips = amount
         else:
             chips = int(user_balance) / divide - 1
-            if chips < BET_LIMIT:
-                chip_value = random.randint(BET_LIMIT, BET_LIMIT+99)
+            limit = BET_LIMIT[0]
+            if chips < limit:
+                chip_value = random.randint(limit, limit + 99)
                 chips = chip_value
         
         self.wait_clickable(driver, 'in-game', 'edit')

@@ -30,4 +30,4 @@ class Test():
 
     def test_baccarat(self, main, driver, gsreport):
         # main.play(driver, gsreport, 'baccarat', 'All')
-        main.play(driver, gsreport, 'baccarat', allin=True)
+        main.play(driver, gsreport, 'baccarat', allin=True, name='Baccarat')

@@ -34,7 +34,7 @@ class Betting(Helpers):
         if game == 'dragontiger':
             shoe = self.search_element(driver, 'in-game', 'shoe')
             tableRound = int(shoe.text.split('-')[1])
-            if tableRound <= 30:
+            if tableRound <= 29:
                 sidebet = self.utils.data(game)
                 sidebet.update(self.utils.data('sidebet', 'dragontiger'))
                 bet_areas = list(sidebet)
@@ -114,8 +114,13 @@ class Betting(Helpers):
 
                 elif game == 'dragontiger':
                     shoe = self.search_element(driver, 'in-game', 'shoe')
-                    tableRound = int(shoe.text.split('-')[1])
-                    if tableRound <= 30:
+                    try:
+                        tableRound = int(shoe.text.split('-')[1])
+                    except IndexError:
+                        self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
+                        tableRound = int(shoe.text.split('-')[1])
+                        
+                    if tableRound <= 29:
                         index = [3,4,7,8]
                     else:
                         index = [3,4,5,6,7,8,9,10]
@@ -138,7 +143,9 @@ class Betting(Helpers):
                     self.chips.edit_chips(driver, add=True, amount=amount)
                     timer = self.search_element(driver, 'in-game', 'timer')
                     try:
-                        if int(timer.text) <= 3:
+                        if timer.text == 'CLOSED':
+                            self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
+                        elif int(timer.text) <= 3:
                             self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
                     except:
                         self.wait_element_invisibility(driver, 'in-game', 'toast', text='Please Place Your Bet!')
@@ -174,6 +181,13 @@ class Betting(Helpers):
             else:
                 message = self.utils.debuggerMsg(tableDealer, 'Not Enough Balance to Place a Chip')
                 self.utils.assertion(message, skip=True)
+        
+            timer = self.search_element(driver, 'in-game', 'timer')
+            try:
+                if int(timer.text) <= 5:
+                    self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
+            except:
+                    self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
     def betting(self, driver, betArea, game, placeConfirm=False):
         """

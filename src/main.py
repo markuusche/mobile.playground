@@ -36,7 +36,7 @@ class Main(Helpers):
         if allin:
             self.balance.player_balance_assertion(driver, bet, value=getBalance, lobbyBalance=True)
             currHistoryRow = self.history.open_bet_history(driver, bet, tableDealer)
-            self.chips.edit_chips(driver, 20, BET_LIMIT=BET_LIMIT)
+            self.chips.edit_chips(driver, 20)
 
         while True:
             money = self.search_element(driver, 'in-game', 'balance')
@@ -71,7 +71,7 @@ class Main(Helpers):
                         self.utils.screenshot(driver, 'No More Bets', tableDealer[0], allin)
                         self.wait_element_invisibility(driver, 'in-game', 'toast')
                         self.wait_element(driver, 'in-game', 'toast')
-                        
+
                         if bet not in ['sicbo', 'roulette'] and allin:
                             if self.utils.env('table') in tableDealer[0]:
                                 message = self.utils.debuggerMsg(tableDealer, f'Digital Results & {self.utils.env("table")} '\
@@ -204,8 +204,22 @@ class Main(Helpers):
                             self.chat.chatbox(driver, bet, tableDealer)
                             self.history.open_bet_history(driver, bet, tableDealer, currHistoryRow, updates=True)
                             if gsreport:
+                                global GS_REPORT
                                 self.services.SEND_REPORT(GS_REPORT, bet, tableDealer)
                         break
+
+    def skipper(self, gameName, numbers, name):
+        skip = False
+        for number in numbers:
+            if number in gameName:
+                skip = True
+                break
+        
+        # specific table number or table name
+        if name not in gameName:
+            return True
+        
+        return skip
 
     def play(self, driver, gsreport, bet, betArea=None, allin=False, name=""):
         print('\n')
@@ -216,7 +230,7 @@ class Main(Helpers):
         bet_limit = self.search_element(driver, 'lobby', 'user', 'bet-limit')
         user_limit = int(bet_limit.text.split()[0])
         global BET_LIMIT
-        BET_LIMIT = user_limit
+        BET_LIMIT.append(user_limit)
         self.wait_clickable(driver, 'lobby', 'user', 'close-modal')
         self.wait_element_invisibility(driver, 'lobby', 'user', 'user-modal')
 
@@ -226,40 +240,18 @@ class Main(Helpers):
         self.wait_clickable(driver, 'category', bet)
         bet_areas = list(self.utils.data(bet))
         elements = self.search_elements(driver, 'lobby', 'table panel')
+        
         for element in range(len(elements)):
             try:
                 gameName = elements[element]
-                tableNumber = self.utils.env('tables')
-                getNumber = tableNumber.split(':')
-                skip = False
+                tableNumber = self.utils.env('tables', True)
+                games = self.utils.env('games', True)
                 
-                if bet == 'dragontiger' and name not in gameName.text:
-                    continue
-
-                elif bet == 'baccarat':
-                    for number in getNumber:
-                        if number in gameName.text:
-                            skip = True
-                            break
-
+                if bet in games:
+                    skip = self.skipper(gameName.text, tableNumber, name)
                     if skip:
                         continue
-
-                elif bet == 'three-cards' and name not in gameName.text:
-                    continue
-
-                elif bet == 'sedie' and name not in gameName.text:
-                    continue
-
-                elif bet == 'sicbo' and name not in gameName.text:
-                    continue
-
-                elif bet == 'roulette' and name not in gameName.text:
-                    continue
-
-                elif bet == 'bull bull' and name not in gameName.text:
-                    continue
-
+                
                 elements = self.balance.update_player_balance(driver, bet)
                 table = elements[element]
                 self.utils.customJS(driver, 'noFullScreen();')

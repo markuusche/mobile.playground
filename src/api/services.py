@@ -76,7 +76,7 @@ class Services():
             sendReport = sheet.worksheet(f'Results of {date}')
             getVersion = self.customJS(driver, 'currVersion();')
             version = [[f'VERSION: {getVersion}']]
-            sendReport.update(range_name='B5:E5', values=version)
+            sendReport.update(range_name='B5:F5', values=version)
             
     def SEND_REPORT(self, sample, bet, tableDealer):
         rangeValue = []

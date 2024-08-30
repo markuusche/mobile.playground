@@ -1,3 +1,2 @@
-global GS_REPORT, BET_LIMIT
 GS_REPORT = []
-BET_LIMIT = 0
+BET_LIMIT = []

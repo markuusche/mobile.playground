@@ -31,13 +31,15 @@ class Results(Helpers):
         """
 
         self.wait_element(driver, 'in-game', 'resultToast')
-        result = self.search_element(driver, 'in-game', 'winloss')
+        result = self.search_element(driver, 'in-game', 'resultToast')
         if '-' in result.text:
-            getText = float(result.text.replace('W/L', '').replace('-','').replace(' ','').replace(':',''))
-            return f'Lose: {getText:.2f}'
+            get_result_amount = result.text.replace('Lose', '').replace('-','').replace(' ','').replace(',','')
+            parse_amount = float(get_result_amount)
+            return f'Lose: {parse_amount:.2f}'
         else:
-            getText = float(result.text.replace('W/L', '').replace('+','').replace(' ','').replace(':',''))
-            return f'Win: {getText:.2f}'
+            get_result_amount = result.text.replace('Win', '').replace('+','').replace(' ','').replace(',','')
+            parse_amount = float(get_result_amount)
+            return f'Win: {parse_amount:.2f}'
 
     def card_flips(self, driver, tableDealer, results: list[bool]):
         decode_and_status = [[], []]
@@ -53,7 +55,7 @@ class Results(Helpers):
             ai_cards = self.search_elements(driver, 'in-game', 'result-dealer')
             self.decoder.base64_encoded(ai_cards, 'style', card_metadata[0])
             for base in card_metadata[0]:
-                if len(base) < 2000:
+                if len(base) < 2100:
                     card_metadata[1].append(base)
 
             dealer_cards = self.decoder.decode_base64_card(card_metadata[1], card_metadata[2])

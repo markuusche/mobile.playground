@@ -166,12 +166,12 @@ game list:
 
 gsheet:
   three-cards:                        'D7:D25'
-  sedie:                              'D26:D41'
-  sicbo:                              'D42:D55'
-  roulette:                           'D56:D67'
-  bull bull:                          'D68:D84'
-  dragontiger:                        'D85:D103'
-  baccarat:                           'D104:D122'
+  sedie:                              'D26:D40'
+  sicbo:                              'D41:D54'
+  roulette:                           'D55:D66'
+  bull bull:                          'D67:D83'
+  dragontiger:                        'D84:D102'
+  baccarat:                           'D103:D121'
 
 history:
   button:                             'div#btn-history'
