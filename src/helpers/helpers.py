@@ -97,7 +97,7 @@ class Helpers():
         dealer = self.search_element(driver, 'in-game', 'dealer')
         return tableNumber.text, dealer.text
 
-    def skipOnFail(self, driver, tableDealer, exception):
+    def skipOnFail(self, driver, exception):
         """
         Skip the current test case upon encountering an exception, refresh the driver, and clear the GS_REPORT.
 
@@ -112,7 +112,7 @@ class Helpers():
         : It extracts the exception message and traceback, appends them to a log file named 'tracelogs.txt' with
         : information about the table and dealer, and separates each log entry with a newline for clarity.
         """
-
+        tableDealer = self.table_dealer(driver)
         message = self.utils.debuggerMsg(tableDealer, f'---- SKIPPING TABLE ----')
         self.utils.assertion(message, notice=True)
         driver.refresh()
