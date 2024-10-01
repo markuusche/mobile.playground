@@ -94,12 +94,10 @@ class Results(Helpers):
 
                 for chips in sideChips:
                     chipValue = float(chips.text.replace(',','')) if chips.text != '' else 0
-                    print(f'loss sidechips: {chipValue}')
                     loss += chipValue
 
                 for bets in mainChips:
                     betValue = float(bets.text.replace(',','')) if bets.text != '' else 0
-                    print(f'loss mainChips: {betValue}')
                     loss += betValue
 
             for tie in win_results:
@@ -107,16 +105,14 @@ class Results(Helpers):
                 betNames = tie.find_elements(By.CSS_SELECTOR, area)
 
                 for names in betNames:
-                    if bet == 'baccarat':
-                        if names.text.strip() == 'TIE':
-                            player = self.search_element(driver, 'results', bet, 'player chip')
-                            banker = self.search_element(driver, 'results', bet, 'banker chip')
-                            playerChips = float(player.text.replace(',','')) if player.text != '' else 0
-                            bankerChips = float(banker.text.replace(',','')) if banker.text != '' else 0
-                            print(f'TIE p: {playerChips} b: {bankerChips}')
-                            loss -= playerChips + bankerChips
+                    if bet == 'baccarat' and names.text.strip() == 'TIE':
+                        player = self.search_element(driver, 'results', bet, 'player chip')
+                        banker = self.search_element(driver, 'results', bet, 'banker chip')
+                        playerChips = float(player.text.replace(',','')) if player.text != '' else 0
+                        bankerChips = float(banker.text.replace(',','')) if banker.text != '' else 0
+                        loss -= playerChips + bankerChips
 
-                    if bet == 'dragontiger':
+                    if bet == 'dragontiger' and names.text.strip() == 'TIE':
                         player = self.search_element(driver, 'results', bet, 'player chip')
                         banker = self.search_element(driver, 'results', bet, 'banker chip')
                         playerChips = float(player.text.replace(',','')) if player.text != '' else 0
@@ -126,11 +122,7 @@ class Results(Helpers):
             postBalance = self.search_element(driver, 'in-game', 'balance')
             newBalance = float(postBalance.text.replace(',',''))
             result = balance + (winnings - loss)
-            
-            print(f'balance: {balance}')
-            print(f'winloss: {winnings - loss}')
-            print(f'win: {winnings} loss: {loss}')
-            
+
             message = self.utils.debuggerMsg(tableDealer, f'Result Calculation {int(Decimal(result))} & '\
             f'Post Balance {int(Decimal(newBalance))} - [{Decimal(result):.2f}, {Decimal(newBalance):.2f}]')
             self.utils.assertion(message, f'{int(Decimal(result))}', '==', f'{int(Decimal(newBalance))}')
