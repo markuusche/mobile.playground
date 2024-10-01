@@ -358,7 +358,7 @@ class Betting(Helpers):
                     self.wait_text_element(driver, 'in-game', 'balance', text='0.00', timeout=10)
                 break
 
-        message = self.utils.debuggerMsg(tableDealer, f'All-in bet {coins.text} - Expected: 0.00')
+        message = self.utils.debuggerMsg(tableDealer, f'All-in bet {coins.text}')
         self.utils.assertion(message, coins.text, '==', '0.00')
         self.display.sum_of_placed_bets(driver, game, tableDealer)
 
@@ -414,7 +414,7 @@ class Betting(Helpers):
                 if tableDealer[0] in tableNumbers:
                     odds[2] = '(1:8)'
 
-            message = self.utils.debuggerMsg(tableDealer, f'Bet limit rate & Local bet limit rate - Expected: EQUAL')
+            message = self.utils.debuggerMsg(tableDealer, f'Equal Bet limit rate & Local bet limit rate')
             self.utils.assertion(message, odds, '==', game_odds)
 
         else:

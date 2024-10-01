@@ -151,7 +151,7 @@ class Results(Helpers):
             if len(dealer_cards) != 0:
                 dealer_cards_count = Counter(dealer_cards)
                 card_count = Counter(card)
-                message = self.utils.debuggerMsg(tableDealer, f'\033[93mResult & {self.utils.env("table")} Dealer Cards Count - Expected: EQUAL')
+                message = self.utils.debuggerMsg(tableDealer, f'\033[93mEqual Result & {self.utils.env("table")} Dealer Cards Count')
                 self.utils.assertion(message, dealer_cards_count, '==', card_count, notice=True)
                 card_metadata[3].append(True)
 

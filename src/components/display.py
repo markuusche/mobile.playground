@@ -96,8 +96,7 @@ class Display(Helpers):
                             value = int(shoe.text.split('-')[1])
                         break
 
-                message = self.utils.debuggerMsg(tableDealer, f'Roadmap total {total}, '\
-                f'Shoe round {value} - Expected: round > total')
+                message = self.utils.debuggerMsg(tableDealer, f'Shoe round {value} > Roadmap total {total}')
                 self.utils.assertion(message, total, '==', value -1)
                 
     def roulette_race_tracker(self, driver, tableDealer):
@@ -143,7 +142,7 @@ class Display(Helpers):
         total = 0.00
 
         if cancel:
-            message = self.utils.debuggerMsg(tableDealer, f'{text} {chips} - Expected: No chips placed')
+            message = self.utils.debuggerMsg(tableDealer, f'{text} {chips}')
             self.utils.assertion(message, chips, '==', 0)
         else:
             if game != 'bull bull':
@@ -151,7 +150,7 @@ class Display(Helpers):
                 if bets != None:
                     total = float(bets.text.replace(',',''))
                     message = self.utils.debuggerMsg(tableDealer, f'Placed chips {round(chips, 2)} '\
-                    f'& Bets {total} - Expected: EQUAL')
+                    f'& Bets {total}')
                     self.utils.assertion(message, round(chips, 2), '==', total)
                 else:
                     message = self.utils.debuggerMsg(tableDealer, f'\033[91m"Bets:" is empty, cannot confirm and '\

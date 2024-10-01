@@ -62,9 +62,9 @@ class Balance(Helpers):
 
             if lobbyBalance:
                 message = self.utils.debuggerMsg(tableDealer, f'Lobby {value} & '\
-                f'In-game Balance {coins.text} - Expected: EQUAL')
+                f'In-game Balance {coins.text}')
                 self.utils.assertion(message, value, '==', coins.text.strip())
 
             message = self.utils.debuggerMsg(tableDealer, f'Top {coins.text} & '\
-            f'Bottom balance {playerBalance.text} - Expected: EQUAL')
+            f'Bottom balance {playerBalance.text}')
             self.utils.assertion(message, coins.text, '==', playerBalance.text)

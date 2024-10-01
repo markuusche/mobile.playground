@@ -135,7 +135,7 @@ class History(Helpers):
                 if len(status) != 0:
                     if all(status):
                         message = self.utils.debuggerMsg(tableDealer, f'Decoded Cards {flipped_cards} & '\
-                        f'Extracted Values {extracted} - Expected - EQUAL ')
+                        f'Extracted Values {extracted}')
                         self.utils.assertion(message, flipped_cards, '==', extracted)
                     else:
                         message = self.utils.debuggerMsg(tableDealer, 'One or more extracted card data '\
