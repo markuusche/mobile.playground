@@ -1,45 +1,131 @@
-import uuid
-uuid = uuid.uuid1().hex
-
+from decimal import Decimal
+from collections import Counter
 from src.helpers.helpers import Helpers
+from src.components.chips import Chips
 from src.utils.utils import Utilities
 from src.utils.decoder import Decoder
-from collections import Counter
+from selenium.webdriver.common.by import By
 
 class Results(Helpers):
     
     def __init__(self) -> None:
         super().__init__()
+        self.chips = Chips()
         self.decoder = Decoder()
         self.utils = Utilities()
         
-    def win_lose(self, driver):
+    def game_results(self, driver, bet, tableDealer):
         """
-        check the outcome of the game, whether it's a win or a loss.
+        Calculates the results of a betting round and compares the player's balance based on winnings and losses.
 
-        params:
-        `driver` (webdriver): the selenium webdriver instance.
+        This function handles the outcome of two games: 'baccarat' and 'dragontiger'. 
+        It retrieves the winner, calculates winnings and losses based on the bet placed, 
+        and updates the player's balance accordingly.
 
-        : wait for the result toast element to appear in the in-game view using `waitelement`.
-        : find and extract the win/loss result from the game using `findelement`.
-        : if '-' is present in the result text, it indicates a loss.
-        : in this case, extract the amount lost from the result text, convert it to a float, and format it
-        : to display 'Lose: {amount}' with two decimal places.
-        : otherwise, if '+' is present in the result text, it indicates a win.
-        : in this case, extract the amount won from the result text, convert it to a float, and format it
-        : to display 'Win: {amount}' with two decimal places.
+        Parameters:
+            driver: WebDriver instance used to interact with the web page.
+            bet (str): The type of bet ('baccarat' or 'dragontiger').
+            tableDealer (list): A list containing dealer information to be used in logging or debugging.
+
         """
 
-        self.wait_element(driver, 'in-game', 'resultToast')
-        result = self.search_element(driver, 'in-game', 'resultToast')
-        if '-' in result.text:
-            get_result_amount = result.text.replace('Lose', '').replace('-','').replace(' ','').replace(',','')
-            parse_amount = float(get_result_amount)
-            return f'Lose: {parse_amount:.2f}'
-        else:
-            get_result_amount = result.text.replace('Win', '').replace('+','').replace(' ','').replace(',','')
-            parse_amount = float(get_result_amount)
-            return f'Win: {parse_amount:.2f}'
+        if bet in ['baccarat', 'dragontiger']:
+            balance = self.chips.get_chip_value(driver)
+            winnings = 0.0
+            loss = 0.0
+            
+            win_results = self.search_elements(driver, 'in-game', 'win results')
+            lose_results = self.search_elements(driver, 'in-game', 'loss results')
+            odds = dict(self.utils.data('odds', bet))
+            
+            def calculate_winnings(chips, betnames):
+                total_winnings = 0.00
+                playerResult = self.search_element(driver, 'results', 'player points')
+                bankerResult = self.search_element(driver, 'results', 'banker points')
+                playerPoints = int(playerResult.text) if playerResult.text != '' else 0
+                bankerPoints = int(bankerResult.text) if bankerResult.text != '' else 0
+
+                for chip, bet_area in zip(chips, betnames):
+                    if chip.text != '':
+                        winning_odds = odds[bet_area.text.strip()]
+                        chipValue = float(chip.text.replace(',','')) if chip.text != '' else 0
+                        
+                        if bet == 'baccarat':
+                            s6 = self.search_element(driver, 'results', bet, 'super6 chip', status=True)
+                            
+                            if not s6:
+                                total_winnings += float(chip.text.replace(',','')) * winning_odds
+                            else:
+                                odds['BANKER'] = 1
+                                winning_odds = odds[bet_area.text.strip()]
+                                
+                                if bet_area.text == 'BANKER':
+                                    if playerPoints <= 5 and bankerPoints == 6:
+                                        total_winnings += (chipValue / 2)
+                                    else:
+                                        total_winnings += chipValue * winning_odds
+                                else:
+                                    total_winnings += chipValue * winning_odds
+
+                        if bet == 'dragontiger':
+                            getOdds = self.search_element(driver, 'in-game', 'dt-tie')
+                            odds['TIE'] = getOdds.text.split(':')[1]
+                            total_winnings += float(chip.text.replace(',','')) * winning_odds
+
+                return total_winnings
+
+            for win in win_results:
+                area = self.utils.data('in-game', 'bet area title')
+                side = self.utils.data('in-game', 'sidebet chips')
+                main = self.utils.data('in-game', 'main bet chips')
+
+                betNames = win.find_elements(By.CSS_SELECTOR, area)
+                sideChips = win.find_elements(By.CSS_SELECTOR, side)
+                mainChips = win.find_elements(By.CSS_SELECTOR, main)
+
+                winnings += calculate_winnings(mainChips, betNames)
+                winnings += calculate_winnings(sideChips, betNames)
+
+            for lose in lose_results:
+                side = self.utils.data('in-game', 'sidebet chips')
+                main = self.utils.data('in-game', 'main bet chips')
+                sideChips = lose.find_elements(By.CSS_SELECTOR, side)
+                mainChips = lose.find_elements(By.CSS_SELECTOR, main)
+
+                for chips in sideChips:
+                    chipValue = float(chips.text.replace(',','')) if chips.text != '' else 0
+                    loss += chipValue
+
+                for bets in mainChips:
+                    betValue = float(bets.text.replace(',','')) if bets.text != '' else 0
+                    loss += betValue
+
+            for tie in win_results:
+                area = self.utils.data('in-game', 'bet area title')
+                betNames = tie.find_elements(By.CSS_SELECTOR, area)
+
+                for names in betNames:
+                    if bet == 'baccarat' and names.text.strip() == 'TIE':
+                        player = self.search_element(driver, 'results', bet, 'player chip')
+                        banker = self.search_element(driver, 'results', bet, 'banker chip')
+                        playerChips = float(player.text.replace(',','')) if player.text != '' else 0
+                        bankerChips = float(banker.text.replace(',','')) if banker.text != '' else 0
+                        loss -= playerChips + bankerChips
+
+                    if bet == 'dragontiger' and names.text.strip() == 'TIE':
+                        player = self.search_element(driver, 'results', bet, 'player chip')
+                        banker = self.search_element(driver, 'results', bet, 'banker chip')
+                        playerChips = float(player.text.replace(',','')) if player.text != '' else 0
+                        bankerChips = float(banker.text.replace(',','')) if banker.text != '' else 0
+                        loss -= (playerChips + bankerChips) / 2
+
+            postBalance = self.search_element(driver, 'in-game', 'balance')
+            newBalance = float(postBalance.text.replace(',',''))
+            result = balance + (winnings - loss)
+
+            message = self.utils.debuggerMsg(tableDealer, f'Result Calculation {int(Decimal(result))} & '\
+            f'Post Balance {int(Decimal(newBalance))} - [{Decimal(result):.2f}, {Decimal(newBalance):.2f}]')
+            self.utils.assertion(message, f'{int(Decimal(result))}', '==', f'{int(Decimal(newBalance))}')
 
     def card_flips(self, driver, tableDealer, results: list[bool]):
         decode_and_status = [[], []]
@@ -48,7 +134,7 @@ class Results(Helpers):
         self.decoder.base64_encoded(blue, 'style', decode_and_status[0])
         self.decoder.base64_encoded(red, 'style', decode_and_status[0])
         card = self.decoder.decode_base64_card(decode_and_status[0], decode_and_status[1])
-        driver.save_screenshot(f'screenshots/Card Results {tableDealer[0]} {uuid[:4]}.png')
+        driver.save_screenshot(f'screenshots/Card Results {tableDealer[0]} {self.utils.getUuid()}.png')
 
         card_metadata = [[],[],[],[]]
         if self.utils.env('table') in tableDealer[0]:

@@ -165,13 +165,13 @@ game list:
   bull bull:                          6
 
 gsheet:
-  three-cards:                        'D7:D25'
-  sedie:                              'D26:D40'
-  sicbo:                              'D41:D54'
-  roulette:                           'D55:D66'
-  bull bull:                          'D67:D83'
-  dragontiger:                        'D84:D102'
-  baccarat:                           'D103:D121'
+  three-cards:                        'D7:D26'
+  sedie:                              'D27:D43'
+  sicbo:                              'D44:D57'
+  roulette:                           'D58:D69'
+  bull bull:                          'D70:D87'
+  dragontiger:                        'D88:D107'
+  baccarat:                           'D108:D127'
 
 history:
   button:                             'div#btn-history'
@@ -200,17 +200,21 @@ in-game:
   bet-buttons:                        'div#bet-buttons'
   bet-limit:                          'div.flex.bet-label.xs8 span'
   bets:                               'div.bets-info span'
+  bet area title:                     '.bet-title'
   board-result:                       'div.result-cards .board-result'
   botnav:                             'div.v-tabs__wrapper'
   chip amount:                        'div#chip-amounts'
   clear:                              'div.v-input__slot div:nth-child(3) i'
   close-video:                        'div#game-setting .mb-3:nth-child(8) .v-image div:last-child'
   dealer:                             'div#table-state-info .dealer-name span'
+  dt-tie:                             'div.bet-table .bet-odds'
   edit:                               'div.chip-edit'
   edit button:                        'button.edit-btn'
   game:                               'div#game-content'
   input chips:                        'input[aria-label="Edit Chips"]'
   limit label:                        'div.setting-slot .bet-label'
+  loss results:                       'div.bet-table:not(.is-result)'    
+  main bet chips:                     '.chip-done span'
   min-max:                            'div#bet-limit .min-max span'
   modal-bet:                          'div#bet-limit'
   msg:                                'div#bet-msg-toast'
@@ -224,6 +228,7 @@ in-game:
   result-card-blue:                   'div.result-blue .table-card:not(.card-hidden3rd) .v-image__image'
   result-card-red:                    'div.result-red .table-card:not(.card-hidden3rd) .v-image__image'
   result-dealer:                      'div#dealer-poster .table-card .v-image__image'
+  result-win:                         'div.result-win'
   save amount:                        'button.edit-btn div'
   sedie-payrate:                      'div.flex.beads-icon .pay-rate'
   sedie-sidebtn:                      'div.side-button .flex'
@@ -231,7 +236,9 @@ in-game:
   settings:                           'div#btn-setting'
   settings-modal:                     'div#game-setting .layout'
   shoe:                               'div.table-number span:last-child'
+  shuffling:                          'div.shuffling .shuffling-text'
   summary:                            'div.bead-result.xs2'
+  sidebet chips:                      '.chip-total span'
   switch:                             'div.v-input__slot'
   tableNumber:                        'div.table-number span:first-child'
   timer:                              'div#table-state-wrap .v-progress-circular__info span'
@@ -239,6 +246,7 @@ in-game:
   totalMoney:                         'div.user-bet-chip span'
   video-toggled:                      'div#game-setting .mb-3:nth-child(8) > div:first-child'
   winloss:                            'div.winlose-info'
+  win results:                        'div.is-result'
 
 lucky:
   'Straight':                         1
@@ -257,6 +265,39 @@ lobby:
     bet-limit:                        'div.member-info > div:first-child .label-data'
     user-modal:                       'div#user-setting'
     close-modal:                      'div.profile-slot .close-wrap'
+
+odds:
+  baccarat:
+    PLAYER:                           1
+    BANKER:                           0.95
+    TIE:                              8
+    P PAIR:                           11
+    B PAIR:                           11
+    ANY PAIR:                         5
+    PERFECT PAIR:                     25
+    S6:                               12
+
+  dragontiger:
+    DRAGON:                           1
+    TIGER:                            1
+    TIE:                              50
+    DRAGON RED:                       0.9
+    DRAGON BLACK:                     0.9
+    TIGER BLACK:                      0.9
+    TIGER RED:                        0.9    
+
+results:
+  player points:                      'div.result-cards .result-blue .board-result'
+  banker points:                      'div.result-cards .result-red .board-result'
+
+  baccarat: 
+    player chip:                      'div.bet-table.p .chip-done span'
+    banker chip:                      'div.bet-table.b .chip-done span'
+    super6 chip:                      'div.s.is-super6'
+  
+  dragontiger:
+    player chip:                      'div.bet-table.d .chip-done span'
+    banker chip:                      'div.bet-table.t .chip-done span'
 
 roulette:
   # single bets

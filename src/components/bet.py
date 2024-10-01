@@ -16,34 +16,52 @@ class Betting(Helpers):
         self.results = Results()
         self.utils = Utilities()
 
-    def dragontiger_sidebet(self, driver, game, getIndex, bettingArea=None):
+    def sidebets(self, driver, game, getIndex, bettingArea=None):
         """
-        generate a side bet for dragontiger game
+        Determines and returns a side bet value based on the specified game.
 
-        params:
-        `driver` (webdriver): the selenium webdriver instance.
-        `game` (str): the name of the game.
-        `betarea` (list, optional): a list of bet areas. default is None.
+        This function handles side bets for two games: 'dragontiger' and 'baccarat'.
+        - For 'dragontiger', it checks the current round number and, if it's 29 or lower, 
+        randomly selects a side bet from available options.
+        - For 'baccarat', it checks for the presence of a specific betting area ('S6') 
+        and, if found, includes it in the side bets available for selection.
 
-        : extract the table round number from the game's shoe element using `findelement` and
-        : convert it to an integer. if the game is 'dragontiger', update the dragontiger dictionary
-        : with side bet data. use the updated dictionary if the table round number is less than or equal to 30,
-        : otherwise, return the default betting area.
+        Parameters:
+            driver: WebDriver instance used to interact with the web page.
+            game (str): The game for which the side bet is to be determined ('dragontiger' or 'baccarat').
+            getIndex (int): Index to retrieve a specific betting area from the provided list.
+            bettingArea (list, optional): List of betting areas. Default is None.
+
+        Returns:
+            str: A randomly selected side bet value or a specified side bet based on the game's context.
         """
 
+        sidebet = self.utils.data(game)
         if game == 'dragontiger':
             shoe = self.search_element(driver, 'in-game', 'shoe')
             tableRound = int(shoe.text.split('-')[1])
             if tableRound <= 29:
-                sidebet = self.utils.data(game)
                 sidebet.update(self.utils.data('sidebet', 'dragontiger'))
                 bet_areas = list(sidebet)
                 index = random.choice(range(len(bet_areas)))
                 return sidebet[bet_areas[index]]
             
+        if game == 'baccarat':
+            s6 = False
+            bet_areas = self.search_elements(driver, 'in-game', 'bet area title')
+            for bet in bet_areas:
+                if bet.text.strip() == 'S6':
+                    s6 = True
+                    
+            if s6:
+                sidebet['S6'] = self.utils.data('super6', 's6')
+                with_s6 = list(sidebet)
+                index = random.choice(range(len(with_s6)))
+                return sidebet[f'{with_s6[index]}']
+            
         return self.utils.data(game, bettingArea[getIndex])
-
-    def bet_minimum(self, driver, game, tableDealer, allin=False):
+            
+    def bet_minimum(self, driver, game, tableDealer):
         """bets the minimum amount allowed for each betting area in the specified game
 
         params:
@@ -74,7 +92,7 @@ class Betting(Helpers):
                         betNames.pop(item)
 
                 self.wait_clickable(driver, 'in-game', 'payrate-modal')
-                self.utils.screenshot(driver, 'Minimum Bets', tableDealer[0], allin)
+                self.utils.screenshot(driver, 'Minimum Bets', tableDealer[0])
                 self.wait_element(driver, 'in-game', 'modal-bet')
 
                 if game == 'sedie':
@@ -170,7 +188,7 @@ class Betting(Helpers):
                     if status:
                         assertMin.append(True)
                     else:
-                        self.utils.screenshot(driver, 'Minimum bet failed', tableDealer[0], allin)
+                        self.utils.screenshot(driver, 'Minimum bet failed', tableDealer[0])
                         print(f'[{tableDealer[0]}] Locator: {betAction}')
                         assertMin.append(False)
 
@@ -219,7 +237,7 @@ class Betting(Helpers):
         i = 0
         while i < loopRange:
             index = random.choice(range(len(betArea)))
-            bets = self.dragontiger_sidebet(driver, game, index, bettingArea=betArea)
+            bets = self.sidebets(driver, game, index, bettingArea=betArea)
             try:
                 self.utils.customJS(driver, f'click(`{bets}`);')
                 if placeConfirm:
@@ -229,7 +247,7 @@ class Betting(Helpers):
             except ElementClickInterceptedException:
                 break
 
-    def cancel_rebet(self, driver, betArea, tableDealer, game, results, allin=False):
+    def cancel_rebet(self, driver, betArea, tableDealer, game, results):
         """
         cancel the bet placement action and perform necessary assertions.
 
@@ -245,9 +263,9 @@ class Betting(Helpers):
         : calculate the sum of all bets placed on the game table using `sumbetplaced`, indicating a cancellation action.
         """
 
-        def assert_cancelled_bet(driver, game, tableDealer, allin, texts):
+        def assert_cancelled_bet(driver, game, tableDealer, texts):
             self.wait_clickable(driver, 'action', 'cancel')
-            self.utils.screenshot(driver, texts, tableDealer[0], allin)
+            self.utils.screenshot(driver, texts, tableDealer[0])
             self.display.sum_of_placed_bets(driver, game, tableDealer, cancel=True, text=texts)
 
         def card_flipped(driver, game, tableDealer, results):
@@ -262,7 +280,7 @@ class Betting(Helpers):
         message = self.utils.debuggerMsg(tableDealer, '\033[93mChips are being placed.')
         self.utils.assertion(message, chips, '>', 0, notice=True)
 
-        assert_cancelled_bet(driver, game, tableDealer, allin, 'Chip placed & cancelled!')
+        assert_cancelled_bet(driver, game, tableDealer, 'Chip placed & cancelled!')
         self.betting(driver, betArea, game, placeConfirm=True)
         card_flipped(driver, game, tableDealer, results)
         self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
@@ -273,13 +291,13 @@ class Betting(Helpers):
         if insufficient:
             self.utils.assertion(message, skip=True)
         else:
-            assert_cancelled_bet(driver, game, tableDealer, allin, 'Rebet & Cancelled!')
+            assert_cancelled_bet(driver, game, tableDealer, 'Rebet & Cancelled!')
             self.wait_clickable(driver, 'action', 'rebet')
             self.utils.customJS(driver, f'click(`{self.utils.data("action", "confirm")}`);')
-            self.utils.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0], allin)
+            self.utils.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0])
             card_flipped(driver, game, tableDealer, results)
             
-    def allin_bet(self, driver, game, results, allin=False):
+    def allin_bet(self, driver, game, results):
         """
         handle the scenario where the player bets all their coins in the game.
 
@@ -302,14 +320,14 @@ class Betting(Helpers):
 
         bet_areas = list(self.utils.data(game))
         tableDealer = self.table_dealer(driver)
-        self.cancel_rebet(driver, bet_areas, tableDealer, game, results, allin)
-        self.bet_minimum(driver, game, tableDealer, allin)
+        self.cancel_rebet(driver, bet_areas, tableDealer, game, results)
+        self.bet_minimum(driver, game, tableDealer)
         self.chips.edit_chips(driver)
 
         while True:
             coins = self.search_element(driver, 'in-game','balance')
             index = random.choice(range(len(bet_areas)))
-            bets = self.dragontiger_sidebet(driver, game, index, bettingArea=bet_areas)
+            bets = self.sidebets(driver, game, index, bettingArea=bet_areas)
             try:
                 self.utils.customJS(driver, f'click(`{bets}`);')
             except ElementClickInterceptedException:
@@ -319,7 +337,7 @@ class Betting(Helpers):
             insufficient = self.utils.customJS(driver, 'toast_check("Insufficient Balance");')
 
             if insufficient:
-                self.utils.screenshot(driver, 'Insufficient Balance', tableDealer[0], allin)
+                self.utils.screenshot(driver, 'Insufficient Balance', tableDealer[0])
                 self.utils.customJS(driver, f'click(`{self.utils.data("action", "confirm")}`);')
                 self.wait_element_invisibility(driver, 'in-game', 'toast')
 
@@ -344,7 +362,7 @@ class Betting(Helpers):
         self.utils.assertion(message, coins.text, '==', '0.00')
         self.display.sum_of_placed_bets(driver, game, tableDealer)
 
-    def payrates_odds(self, driver, game, tableDealer, allin=False):
+    def payrates_odds(self, driver, game, tableDealer):
         """
         verify pay rates and odds
 
@@ -375,7 +393,7 @@ class Betting(Helpers):
 
             self.wait_clickable(driver, 'in-game', 'payrate-modal')
             self.wait_element(driver, 'in-game', 'modal-bet')
-            self.utils.screenshot(driver, 'BET Limit - Payrate', tableDealer[0], allin)
+            self.utils.screenshot(driver, 'BET Limit - Payrate', tableDealer[0])
             payrates = self.search_elements(driver, 'in-game', 'payrates')
             sedie_payrates = self.search_elements(driver, 'in-game', 'sedie-payrate')
             super6 = self.search_elements(driver, 'super6', 's6')
@@ -402,7 +420,7 @@ class Betting(Helpers):
         else:
             self.wait_clickable(driver, 'in-game', 'payrate-modal')
             self.wait_element(driver, 'in-game', 'modal-bet')
-            self.utils.screenshot(driver, 'BET Limit - MinMax', tableDealer[0], allin)
+            self.utils.screenshot(driver, 'BET Limit - MinMax', tableDealer[0])
 
         minMaxLimit = self.search_elements(driver, 'in-game', 'min-max')
         value = []

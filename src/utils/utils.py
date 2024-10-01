@@ -1,4 +1,5 @@
 import os
+import uuid
 import yaml
 
 from .. import GS_REPORT
@@ -6,9 +7,8 @@ from datetime import datetime
 
 class Utilities:
     
-    def screenshot(self, driver, name, val, allin=False):
-        if allin:
-            driver.save_screenshot(f'screenshots/{name} {val}.png')
+    def screenshot(self, driver, name, val):
+        driver.save_screenshot(f'screenshots/{name} {val}.png')
 
     def debuggerMsg(self, tableDealer, msg="", msg2=""):
         return f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
@@ -55,6 +55,10 @@ class Utilities:
         else:
             items = os.environ.get(value)
             return items.split(':')
+    
+    def getUuid(self):
+        id = uuid.uuid1().hex
+        return id[:3]
     
     def _getdate(self):
         currDate = datetime.now()
