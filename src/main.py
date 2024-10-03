@@ -63,7 +63,7 @@ class Main(Helpers):
                         if bet not in ['sicbo', 'roulette']:
                             if self.utils.env('table') in tableDealer[0]:
                                 message = self.utils.debuggerMsg(tableDealer, f'Digital Results & {self.utils.env("table")} '\
-                                f'Dealer Cards - Expected: Matched')
+                                f'Dealer Cards Matched')
                                 self.utils.assertion(message, all(results))
                             else:
                                 message = self.utils.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
@@ -95,7 +95,7 @@ class Main(Helpers):
 
                             self.utils.screenshot(driver, 'Bet on CLOSED', tableDealer[0])
                             message = self.utils.debuggerMsg(tableDealer, f'Failed Clicks {len(ExceptionMessage)} '\
-                            f'Bet area length {betRange} - Expected: EQUAL')
+                            f'Bet area length {betRange}')
                             self.utils.assertion(message, len(ExceptionMessage), '==', betRange)
 
                         self.bet.payrates_odds(driver, bet, tableDealer)
