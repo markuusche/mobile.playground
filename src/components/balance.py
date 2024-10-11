@@ -28,12 +28,10 @@ class Balance(Helpers):
         : objects representing the game tables available in the lobby.
         """
 
-        amount = round(random.uniform(2000.00, 10000.00), 2)
+        amount = round(random.uniform(3000.00, 12000.00), 2)
         amount_str = f'{amount:.2f}'
-        getBalance = self.service.POST_ADD_BALANCE(self.utils.env('add'), amount_str)
-        self.service.POST_ADD_BALANCE(self.utils.env('deduc'), amount=getBalance)
-        self.service.POST_ADD_BALANCE(self.utils.env('add'), amount)
-        driver.get(self.service.GET_URL())
+        self.service.POST_ADD_BALANCE(amount_str)
+        driver.refresh()
         self.wait_element(driver, 'lobby', 'main')
         self.wait_clickable(driver, 'category', game)
         elements = self.search_elements(driver, 'lobby', 'table panel')

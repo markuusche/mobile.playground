@@ -56,10 +56,16 @@ class Utilities:
             items = os.environ.get(value)
             return items.split(':')
     
-    def getUuid(self):
+    def getUuid(self, randomizer=False):
         id = uuid.uuid1().hex
-        return id[:3]
-    
+        if randomizer:
+            pass
+            abc = id[2:8]
+            cba = abc[::-1]
+            return f'{abc}{cba}'
+        else:
+            return id[:3]
+
     def _getdate(self):
         currDate = datetime.now()
         date = currDate.strftime('%H:%M')

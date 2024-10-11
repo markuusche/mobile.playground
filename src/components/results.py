@@ -1,3 +1,4 @@
+from time import sleep
 from decimal import Decimal
 from collections import Counter
 from src.helpers.helpers import Helpers
@@ -18,59 +19,79 @@ class Results(Helpers):
         """
         Calculates the results of a betting round and compares the player's balance based on winnings and losses.
 
-        This function handles the outcome of two games: 'baccarat' and 'dragontiger'. 
+        This function handles the outcome of games: 'baccarat' 'dragontiger' 'three-cards'. 
         It retrieves the winner, calculates winnings and losses based on the bet placed, 
         and updates the player's balance accordingly.
 
         Parameters:
             driver: WebDriver instance used to interact with the web page.
-            bet (str): The type of bet ('baccarat' or 'dragontiger').
+            bet (str): The type of bet ('baccarat', 'dragontiger' and 'three-cards').
             tableDealer (list): A list containing dealer information to be used in logging or debugging.
 
         """
 
-        if bet in ['baccarat', 'dragontiger']:
+        if bet in ['baccarat', 'dragontiger', 'three-cards']:
+            odds = dict(self.utils.data('odds', bet))
             balance = self.chips.get_chip_value(driver)
+            win_results = self.search_elements(driver, 'in-game', 'win results')
+            
+            if bet == 'three-cards':
+                lose_results = self.search_elements(driver, 'in-game', 'tc-main-loss')
+            else:
+                lose_results = self.search_elements(driver, 'in-game', 'loss results')
+                
             winnings = 0.0
             loss = 0.0
             
-            win_results = self.search_elements(driver, 'in-game', 'win results')
-            lose_results = self.search_elements(driver, 'in-game', 'loss results')
-            odds = dict(self.utils.data('odds', bet))
-            
             def calculate_winnings(chips, betnames):
                 total_winnings = 0.00
-                playerResult = self.search_element(driver, 'results', 'player points')
-                bankerResult = self.search_element(driver, 'results', 'banker points')
-                playerPoints = int(playerResult.text) if playerResult.text != '' else 0
-                bankerPoints = int(bankerResult.text) if bankerResult.text != '' else 0
-
                 for chip, bet_area in zip(chips, betnames):
                     if chip.text != '':
-                        winning_odds = odds[bet_area.text.strip()]
                         chipValue = float(chip.text.replace(',','')) if chip.text != '' else 0
+                        winning_odds = None
                         
+                        if 'LUCKY' in bet_area.text.strip():
+                            lucky_odds = dict(self.utils.data('odds', 'LUCKY'))
+                            dragonResult = self.search_element(driver, 'results', 'player points')
+                            phoenixResult = self.search_element(driver, 'results', 'banker points')
+                            dragon = dragonResult.text.split('–')[0].strip()
+                            phoenix = phoenixResult.text.split('–')[0].strip()
+                            if lucky_odds[dragon] > lucky_odds[phoenix]:
+                                winning_odds = lucky_odds[dragon]
+                            else:
+                                winning_odds = lucky_odds[phoenix]
+                        else:
+                            winning_odds = odds[bet_area.text.strip()]
+
                         if bet == 'baccarat':
                             s6 = self.search_element(driver, 'results', bet, 'super6 chip', status=True)
+                            playerResult = self.search_element(driver, 'results', 'player points')
+                            bankerResult = self.search_element(driver, 'results', 'banker points')
+                            playerPoints = int(playerResult.text) if playerResult.text != '' else 0
+                            bankerPoints = int(bankerResult.text) if bankerResult.text != '' else 0
                             
                             if not s6:
-                                total_winnings += float(chip.text.replace(',','')) * winning_odds
+                                total_winnings += chipValue * winning_odds
                             else:
                                 odds['BANKER'] = 1
                                 winning_odds = odds[bet_area.text.strip()]
                                 
-                                if bet_area.text == 'BANKER':
-                                    if playerPoints <= 5 and bankerPoints == 6:
-                                        total_winnings += (chipValue / 2)
-                                    else:
-                                        total_winnings += chipValue * winning_odds
+                                if bet_area.text == 'BANKER' and playerPoints <= 5 and bankerPoints == 6:
+                                    total_winnings += (chipValue / 2)
                                 else:
                                     total_winnings += chipValue * winning_odds
 
                         if bet == 'dragontiger':
-                            getOdds = self.search_element(driver, 'in-game', 'dt-tie')
-                            odds['TIE'] = getOdds.text.split(':')[1]
-                            total_winnings += float(chip.text.replace(',','')) * winning_odds
+                            classic = self.utils.env('classic').split(':')
+                            if not tableDealer[0].strip() in classic:
+                                odds['TIE'] = 8
+                                winning_odds = odds[bet_area.text.strip()]
+                                total_winnings += chipValue * winning_odds
+                            else:               
+                                total_winnings += chipValue * winning_odds
+
+                        if bet == 'three-cards':
+                            total_winnings += chipValue * winning_odds
 
                 return total_winnings
 
@@ -80,21 +101,23 @@ class Results(Helpers):
                 main = self.utils.data('in-game', 'main bet chips')
 
                 betNames = win.find_elements(By.CSS_SELECTOR, area)
-                sideChips = win.find_elements(By.CSS_SELECTOR, side)
+                if bet in ['baccarat', 'dragontiger']:
+                    sideChips = win.find_elements(By.CSS_SELECTOR, side)
+                    winnings += calculate_winnings(sideChips, betNames)
+                
                 mainChips = win.find_elements(By.CSS_SELECTOR, main)
-
                 winnings += calculate_winnings(mainChips, betNames)
-                winnings += calculate_winnings(sideChips, betNames)
-
+            
             for lose in lose_results:
                 side = self.utils.data('in-game', 'sidebet chips')
                 main = self.utils.data('in-game', 'main bet chips')
                 sideChips = lose.find_elements(By.CSS_SELECTOR, side)
                 mainChips = lose.find_elements(By.CSS_SELECTOR, main)
 
-                for chips in sideChips:
-                    chipValue = float(chips.text.replace(',','')) if chips.text != '' else 0
-                    loss += chipValue
+                if bet in ['baccarat', 'dragontiger']:
+                    for chips in sideChips:
+                        chipValue = float(chips.text.replace(',','')) if chips.text != '' else 0
+                        loss += chipValue
 
                 for bets in mainChips:
                     betValue = float(bets.text.replace(',','')) if bets.text != '' else 0
@@ -113,11 +136,13 @@ class Results(Helpers):
                         loss -= playerChips + bankerChips
 
                     if bet == 'dragontiger' and names.text.strip() == 'TIE':
-                        player = self.search_element(driver, 'results', bet, 'player chip')
-                        banker = self.search_element(driver, 'results', bet, 'banker chip')
-                        playerChips = float(player.text.replace(',','')) if player.text != '' else 0
-                        bankerChips = float(banker.text.replace(',','')) if banker.text != '' else 0
-                        loss -= (playerChips + bankerChips) / 2
+                        classic = self.utils.env('classic').split(':')
+                        dragon = self.search_element(driver, 'results', bet, 'dragon chip')
+                        tiger = self.search_element(driver, 'results', bet, 'tiger chip')
+                        dragonChips = float(dragon.text.replace(',','')) if dragon.text != '' else 0
+                        tigerChips = float(tiger.text.replace(',','')) if tiger.text != '' else 0
+                        if not tableDealer[0].strip() in classic:
+                            loss -= (dragonChips + tigerChips) / 2
 
             postBalance = self.search_element(driver, 'in-game', 'balance')
             newBalance = float(postBalance.text.replace(',',''))
@@ -126,6 +151,13 @@ class Results(Helpers):
             message = self.utils.debuggerMsg(tableDealer, f'Result Calculation {int(Decimal(result))} & '\
             f'Post Balance {int(Decimal(newBalance))} - [{Decimal(result):.2f}, {Decimal(newBalance):.2f}]')
             self.utils.assertion(message, f'{int(Decimal(result))}', '==', f'{int(Decimal(newBalance))}')
+            
+            if int(Decimal(result)) != int(Decimal(newBalance)):
+                shoe = self.search_element(driver, 'in-game', 'shoe')
+                with open('logs\\logs.txt', 'a') as log:
+                    log.write(f'\n{tableDealer[0]} {shoe.text}\n'\
+                    f'winnings: {winnings}\n'\
+                    f'loss: {loss}\nwinloss: {winnings - loss}\n\n')
 
     def card_flips(self, driver, tableDealer, results: list[bool]):
         decode_and_status = [[], []]

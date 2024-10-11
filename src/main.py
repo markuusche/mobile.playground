@@ -141,11 +141,11 @@ class Main(Helpers):
         for element in range(len(elements)):
             try:
                 gameName = elements[element]
-                tableNumber = self.utils.env('tables', True)
+                tables = self.utils.env('tables', True)
                 games = self.utils.env('games', True)
                 
                 if bet in games:
-                    skip = self.skipper(gameName.text, tableNumber, name)
+                    skip = self.skipper(gameName.text.strip(), tables, name)
                     if skip:
                         continue
                 

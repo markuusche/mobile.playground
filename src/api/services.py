@@ -1,9 +1,12 @@
 import re
+import time
+import json, uuid
 import requests
 import gspread
 
 from faker import Faker
 from .. import GS_REPORT
+from src.api.hash import Signature
 from src.utils.utils import Utilities
 from datetime import datetime, timezone
 from googleapiclient.discovery import build
@@ -12,45 +15,51 @@ from oauth2client.service_account import ServiceAccountCredentials
 class Services():
 
     def __init__(self) -> None:
+        self.generate = Signature()
         self.utils = Utilities()
         self.faker = Faker()
+        self.uuid = uuid.uuid1().hex
+        self.timestamp = int(time.time())
+        self.base = self.utils.env('base')
+        self.username = self.utils.env('username')
+        self.headers = json.loads(self.utils.env('headers'))
 
-    def GET_Token(self):
-        header = {}
-        header[self.utils.env('Ops')] = self.utils.env('XOp')
-        header[self.utils.env('querKey')] = self.utils.env('Xkey')
-        response = requests.get(self.utils.env('base') + self.utils.env('desc'), headers=header)
-        return response.json()
-    
-    def GET_Key(self):
-        fetch = self.GET_Token()
-        username = {'username': self.utils.env('username'), f'{self.utils.env("bl")}': 124}
-        token = fetch['data']['token']
-        header = {self.utils.env('tk'): token}
-        response = requests.get(self.utils.env('base') + self.utils.env('key'), \
-        params=username, headers=header)
-        return response.json()['data']['key'], header
+    def GET_GAME_URL(self):
+        getParams = json.loads(self.utils.env('data_URL'))
+        getParams['player_id'] = self.username
+        getParams['timestamp'] = f"{self.timestamp}"
+        params = self.generate.signature(getParams)
+        getParams['signature'] = params
+        response = requests.get(self.base + self.utils.env('play'), \
+        params=getParams, headers=self.headers)
+        return response.json()['game_link']
 
-    def GET_URL(self):
-        key = self.GET_Key()
-        paramKey = {'key': key[0]}
-        response = requests.get(self.utils.env('base') + self.utils.env('play'), \
-        params=paramKey, headers=key[1])
-        return response.json()['data']['url']
-    
-    def POST_ADD_BALANCE(self, entry, amount):
-        fetch = self.GET_Token()
-        token = fetch['data']['token']
-        header = {self.utils.env('tk'): token}
-        body = {}
-        body['username'] = self.utils.env('username')
-        body['balance'] = amount
-        body['action'] = entry
-        body['transferId'] = self.faker.passport_number()
-        response = requests.post(self.utils.env('base') + self.utils.env('balance'), \
-        headers=header, json=body)
-        assert response.status_code == 200
-        return response.json()['data']['balance']
+    def GET_BALANCE(self):
+        params = {'player_id': self.username}
+        response = requests.get(self.base + self.utils.env('balance'), \
+        params=params, headers=self.headers)
+        return response.json()['current_balance']
+
+    def POST_ADD_BALANCE(self, amount):
+        currBalance = self.GET_BALANCE()
+        
+        def body(amount):
+            body = {}
+            body['player_id'] = self.username
+            body[self.utils.env('tr')] = self.utils.getUuid(True)
+            body[self.utils.env('tra')] = amount
+            body['timestamp'] = f'{self.timestamp}'
+            data = self.generate.signature(body)
+            body['signature'] = data
+            return body
+        
+        getBody = body(currBalance)
+        requests.post(self.base + self.utils.env('deduc'), \
+        json=getBody, headers=self.headers)
+        
+        getBody = body(amount)
+        requests.post(self.base + self.utils.env('add'), \
+        json=getBody, headers=self.headers)
     
     def CREATE_GSHEET(self, driver):
         sheet, creds, date = self.GSHEET_API()
