@@ -126,8 +126,8 @@ class History(Helpers):
                     #creates log history for debugging in case of failure
                     with open('logs\\logs.txt', 'a') as logs:
                         newLine = '\n'
-                        logs.write(f'Index {rows} {getTable.replace(f"{newLine}"," ")} -'\
-                        f'Cards {baseList} {newLine} ')
+                        logs.write(f'Index {rows} {getTable.replace(f"{newLine}"," ")} '\
+                        f'Cards {baseList} {newLine}')
 
                     self.wait_clickable(driver, 'history', 'close card')
                     self.wait_element_invisibility(driver, 'history', 'result')

@@ -207,7 +207,7 @@ in-game:
   clear:                              'div.v-input__slot div:nth-child(3) i'
   close-video:                        'div#game-setting .mb-3:nth-child(8) .v-image div:last-child'
   dealer:                             'div#table-state-info .dealer-name span'
-  dt-tie:                             'div.bet-table .bet-odds'
+  dt-tie:                             'div.bet-table.tie .bet-odds'
   edit:                               'div.chip-edit'
   edit button:                        'button.edit-btn'
   game:                               'div#game-content'
@@ -244,21 +244,15 @@ in-game:
   timer:                              'div#table-state-wrap .v-progress-circular__info span'
   toast:                              'div#bet-msg-toast div'
   totalMoney:                         'div.user-bet-chip span'
+  tc-main-loss:                       'div.bet-table-all:not(.is-result)'
   video-toggled:                      'div#game-setting .mb-3:nth-child(8) > div:first-child'
   winloss:                            'div.winlose-info'
   win results:                        'div.is-result'
 
-lucky:
-  'Straight':                         1
-  'Pair':                             0.5
-  'Flush':                            2
-  'Straight Flush':                   3
-  'Triple':                           8
-
 lobby:
   balance:                            'div.user-info .user-data span'
   main:                               'div#tables-panel'
-  table panel:                        'div[tableinfo="[object Object]"] .card-header'
+  table panel:                        '.table-card .card-header > div:first-child'
 
   user:
     info:                             'div.user-info .user-avatar'
@@ -284,7 +278,21 @@ odds:
     DRAGON RED:                       0.9
     DRAGON BLACK:                     0.9
     TIGER BLACK:                      0.9
-    TIGER RED:                        0.9    
+    TIGER RED:                        0.9
+
+  three-cards:
+    DRAGON:                           0.95
+    PHOENIX:                          0.95
+    LUCKY:                            0
+
+  LUCKY:
+    Any Triple:                       8
+    Straight Flush:                   3
+    Flush:                            2
+    Straight:                         1
+    Pair:                             0.5
+    High Card:                        0
+
 
 results:
   player points:                      'div.result-cards .result-blue .board-result'
@@ -296,8 +304,13 @@ results:
     super6 chip:                      'div.s.is-super6'
   
   dragontiger:
-    player chip:                      'div.bet-table.d .chip-done span'
-    banker chip:                      'div.bet-table.t .chip-done span'
+    dragon chip:                      'div.bet-table.d .chip-done span'
+    tiger chip:                       'div.bet-table.t .chip-done span'
+  
+  three-cards:
+    dragon chip:                      'div.bet-table-dragon .chip-done span'
+    phoenix chip:                     'div.bet-table-phoenix .chip-done span'
+    lucky chip:                       'div.bet-table-lucky .chip-done span'
 
 roulette:
   # single bets

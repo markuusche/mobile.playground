@@ -6,7 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from src.utils.utils import Utilities
 
-class Helpers():
+class Helpers:
 
     def __init__(self) -> None:
         self.utils = Utilities()

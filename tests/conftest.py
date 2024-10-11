@@ -36,7 +36,7 @@ def driver(headless):
     option.add_argument("window-position=1290,0")
     option.add_argument("window-size=360,740")
     option.add_argument(f"--user-agent={userAgent.random}")
-    option.add_argument(f"--app={URL.GET_URL()}")
+    option.add_argument(f"--app={URL.GET_GAME_URL()}")
     option.add_experimental_option("excludeSwitches",["enable-automation"])
     driver = webdriver.Chrome(options=option)
 
