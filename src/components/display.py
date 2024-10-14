@@ -38,15 +38,14 @@ class Display(Helpers):
         if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
             verify_digital_result(driver, 'bdt', tableDealer)
         elif bet == 'sicbo':
-            verify_digital_result(driver, 'sicbo', tableDealer)
+            verify_digital_result(driver, bet, tableDealer)
         elif bet == 'roulette':
-            verify_digital_result(driver, 'roulette', tableDealer)
+            verify_digital_result(driver, bet, tableDealer)
         else:
-            self.wait_element_invisibility(driver, 'digital results', 'sedie', \
-            timeout=3, isDigital=True, tableDealer=tableDealer)
-
+            self.wait_element_invisibility(driver, 'digital results', bet, 3, True, tableDealer)
+            
         self.sum_of_placed_bets(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
-        
+
     def roadmap_summary(self, driver, game, tableDealer):
         """
         Retrieve and verify the summary information for the specified game.
@@ -143,7 +142,7 @@ class Display(Helpers):
 
         if cancel:
             message = self.utils.debuggerMsg(tableDealer, f'{text} {chips}')
-            self.utils.assertion(message, chips, '==', 0)
+            self.utils.assertion(message, chips, '==', 0.00)
         else:
             if game != 'bull bull':
                 bets = self.search_element(driver, 'in-game', 'bets')

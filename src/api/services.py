@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-class Services():
+class Services:
 
     def __init__(self) -> None:
         self.generate = Signature()
@@ -83,8 +83,8 @@ class Services():
             service.spreadsheets().batchUpdate(spreadsheetId=spreadID,\
             body={'requests': [sendRequest]}).execute()
             sendReport = sheet.worksheet(f'Results of {date}')
-            getVersion = self.customJS(driver, 'currVersion();')
-            version = [[f'VERSION: {getVersion}']]
+            getVersion = self.utils.customJS(driver, 'currVersion();')
+            version = [[f'v{getVersion}']]
             sendReport.update(range_name='B5:F5', values=version)
             
     def SEND_REPORT(self, sample, bet, tableDealer):
