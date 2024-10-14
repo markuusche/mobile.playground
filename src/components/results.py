@@ -147,6 +147,7 @@ class Results(Helpers):
             postBalance = self.search_element(driver, 'in-game', 'balance')
             newBalance = float(postBalance.text.replace(',',''))
             result = balance + (winnings - loss)
+            sleep(1.4) #too fast, needs a delay
 
             message = self.utils.debuggerMsg(tableDealer, f'Result Calculation {int(Decimal(result))} & '\
             f'Post Balance {int(Decimal(newBalance))} - [{Decimal(result):.2f}, {Decimal(newBalance):.2f}]')

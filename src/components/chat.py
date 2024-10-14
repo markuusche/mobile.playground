@@ -50,7 +50,7 @@ class Chat(Helpers):
                 sendMessage.send_keys(fake.text())
                 self.wait_clickable(driver, 'chat', 'send')
                 message = self.utils.debuggerMsg(tableDealer, 'Chatbox messages are displayed or not empty')
-                self.utils.assertion(message, len(text), '!=', 0, notice=True)
+                self.utils.assertion(message, len(text), '!=', 0)
                 for msg in text:
                     textCount = sum(1 for _ in grapheme.graphemes(msg.text.strip()))
                     if textCount <= 22:

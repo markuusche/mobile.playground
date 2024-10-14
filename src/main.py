@@ -60,7 +60,7 @@ class Main(Helpers):
                         self.wait_element(driver, 'in-game', 'toast')
                         self.results.game_results(driver, bet, tableDealer)
                         
-                        if bet not in ['sicbo', 'roulette']:
+                        if bet not in ['sicbo', 'roulette', 'sedie']:
                             if self.utils.env('table') in tableDealer[0]:
                                 message = self.utils.debuggerMsg(tableDealer, f'Digital Results & {self.utils.env("table")} '\
                                 f'Dealer Cards Matched')
