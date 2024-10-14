@@ -42,7 +42,7 @@ class Display(Helpers):
         elif bet == 'roulette':
             verify_digital_result(driver, bet, tableDealer)
         else:
-            self.wait_element_invisibility(driver, 'digital results', bet, timeout=3, isDigital=True, tableDealer=tableDealer)
+            self.wait_element_invisibility(driver, 'digital results', bet, 3, True, tableDealer)
             
         self.sum_of_placed_bets(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
 
