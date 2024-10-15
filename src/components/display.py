@@ -32,8 +32,16 @@ class Display(Helpers):
 
         def verify_digital_result(driver, game, tableDealer):
             digital = self.search_element(driver, 'digital results', game)
-            message = self.utils.debuggerMsg(tableDealer, 'New Round Digital Result was not displayed!')
+            message = self.utils.debuggerMsg(tableDealer, 'Digital Result was not displayed in the new round')
             self.utils.assertion(message, digital.is_displayed(), '==', False)
+            
+        def sedie_result():
+            try:
+                element = self.search_element(driver, 'digital results', 'sedie', status=True)
+                if element.is_displayed():
+                    return False
+            except:
+                return True
 
         if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
             verify_digital_result(driver, 'bdt', tableDealer)
@@ -42,7 +50,9 @@ class Display(Helpers):
         elif bet == 'roulette':
             verify_digital_result(driver, bet, tableDealer)
         else:
-            self.wait_element_invisibility(driver, 'digital results', bet, 3, True, tableDealer)
+            element = sedie_result()
+            message = self.utils.debuggerMsg(tableDealer, 'Digital Result was not displayed in the new round')
+            self.utils.assertion(message, element, '==', True)
             
         self.sum_of_placed_bets(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
 
