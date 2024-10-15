@@ -166,7 +166,7 @@ class Betting(Helpers):
                         elif int(timer.text) <= 3:
                             self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
                     except:
-                        self.wait_element_invisibility(driver, 'in-game', 'toast', text='Please Place Your Bet!')
+                        self.wait_element_invisibility(driver, 'in-game', 'toast')
 
                     if game == 'baccarat' and 'S6' in bets:
                         sidebet['S6'] = self.utils.data('super6', 's6')

@@ -42,19 +42,13 @@ class Helpers:
         except:
             print(f'\033[91m[ FAILED ] "{locator}" element was not displayed.')
     
-    def wait_element_invisibility(self, driver, *keys, timeout=600, isDigital=False, tableDealer=None):
+    def wait_element_invisibility(self, driver, *keys, timeout=600):
         try:
             locator = (By.CSS_SELECTOR, self.utils.data(*keys))
             element = WebDriverWait(driver, timeout)
             element.until(EC.invisibility_of_element(locator))
-            if isDigital:
-                print(f'\033[32m[ PASSED ]\033[0m {self.utils._getdate()} [Table: {tableDealer[0]} '\
-                f'Dealer: {tableDealer[1]}] New Round Digital Result is not displayed.')
         except:
             print(f'\033[91m[ FAILED ] "{locator}" element still diplayed.')
-            if isDigital:
-                print(f'\033[91m[ FAILED ]\033[0m {self.utils._getdate()} [Table: {tableDealer[0]} '\
-                f'Dealer: {tableDealer[1]}] New Round Digital Result was displayed!')
         
     def wait_clickable(self, driver, *keys, timeout=15):
         locator = (By.CSS_SELECTOR, self.utils.data(*keys))

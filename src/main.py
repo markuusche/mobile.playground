@@ -150,6 +150,7 @@ class Main(Helpers):
                         continue
                 
                 elements = self.balance.update_player_balance(driver, bet)
+                self.utils.screenshot(driver, 'Lobby', 'Balance')
                 table = elements[element]
                 self.utils.customJS(driver, 'noFullScreen();')
                 self.utils.driverJS(driver, 'window.scrollTo(0, 0);')

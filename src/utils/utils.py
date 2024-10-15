@@ -7,7 +7,7 @@ from datetime import datetime
 
 class Utilities:
     
-    def screenshot(self, driver, name, val):
+    def screenshot(self, driver, name, val=''):
         driver.save_screenshot(f'screenshots/{name} {val}.png')
 
     def debuggerMsg(self, tableDealer, msg="", msg2=""):
