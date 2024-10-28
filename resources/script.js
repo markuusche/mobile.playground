@@ -43,7 +43,7 @@ function currVersion() {
     return version.textContent;
 }
 
-//selenium click too slow with slow internet, improvinsing with JS clicks ;0
+//selenium click too slow with slow internet, improvising with JS clicks ;0
 function click(locator){
     document.querySelector(locator).click();
 }

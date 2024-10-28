@@ -433,3 +433,4 @@ class Betting(Helpers):
         message = self.utils.debuggerMsg(tableDealer, f'Bet limit min-max are all displayed')
         self.utils.assertion(message, all(value))
         self.wait_clickable(driver, 'in-game', 'payrate-close')
+        self.wait_element_invisibility(driver, 'in-game', 'modal-bet')

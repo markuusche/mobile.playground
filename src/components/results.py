@@ -144,11 +144,15 @@ class Results(Helpers):
                         if not tableDealer[0].strip() in classic:
                             loss -= (dragonChips + tigerChips) / 2
 
+            winner = self.search_element(driver, 'in-game', 'toast')
+            round_result = 'Round result' if winner is None else winner.text
+            self.utils.screenshot(driver, round_result, tableDealer[0])
+            self.wait_element_invisibility(driver, 'in-game','toast')
+            
+            result = balance + (winnings - loss)
             postBalance = self.search_element(driver, 'in-game', 'balance')
             newBalance = float(postBalance.text.replace(',',''))
-            result = balance + (winnings - loss)
-            sleep(1.4) #too fast, needs a delay
-
+            
             message = self.utils.debuggerMsg(tableDealer, f'Result Calculation {int(Decimal(result))} & '\
             f'Post Balance {int(Decimal(newBalance))} - [{Decimal(result):.2f}, {Decimal(newBalance):.2f}]')
             self.utils.assertion(message, f'{int(Decimal(result))}', '==', f'{int(Decimal(newBalance))}')
@@ -159,7 +163,7 @@ class Results(Helpers):
                     log.write(f'\n{tableDealer[0]} {shoe.text}\n'\
                     f'winnings: {winnings}\n'\
                     f'loss: {loss}\nwinloss: {winnings - loss}\n\n')
-
+            
     def card_flips(self, driver, tableDealer, results: list[bool]):
         decode_and_status = [[], []]
         blue = self.search_elements(driver, 'in-game', 'result-card-blue')
@@ -179,7 +183,7 @@ class Results(Helpers):
 
             dealer_cards = self.decoder.decode_base64_card(card_metadata[1], card_metadata[2])
             with open('logs\\logs.txt', 'a') as logs:
-                logs.write(f'{tableDealer[0]} -- Digital Card {card} {self.utils.env("table")} Card {dealer_cards} \n')
+                logs.write(f'{tableDealer[0]} Digital Card {card} {self.utils.env("table")} Card {dealer_cards} \n')
 
             if len(dealer_cards) != 0:
                 dealer_cards_count = Counter(dealer_cards)
@@ -188,6 +192,12 @@ class Results(Helpers):
                 self.utils.assertion(message, dealer_cards_count, '==', card_count, notice=True)
                 card_metadata[3].append(True)
 
-            return results.append(all(card_metadata[3]))
+            if card_metadata[3]:
+                results.append(all(card_metadata[3]))
+            else:
+                print(f'The list of card is empty: {card_metadata[3]}')
         else:
-            return results.append(all(decode_and_status[1]))
+            if decode_and_status[1]:
+                return results.append(all(decode_and_status[1]))
+            else:
+                print(f'The list of decoded and status is empty: {decode_and_status[1]}')

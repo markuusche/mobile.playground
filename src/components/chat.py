@@ -40,9 +40,8 @@ class Chat(Helpers):
                 sendMessage.send_keys(cn.text())
                 self.wait_clickable(driver, 'chat', 'send')
                 for _ in range(10):
-                    pyperclip.copy(fake.emoji())
                     action = ActionChains(driver)
-                    action.key_down(Keys.CONTROL).send_keys("v")
+                    action.key_down(Keys.CONTROL).send_keys(f"{fake.emoji()}")
                     action.key_up(Keys.CONTROL).perform()
 
                 self.wait_clickable(driver, 'chat', 'send')
