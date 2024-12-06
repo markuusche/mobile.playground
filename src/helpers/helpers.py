@@ -42,11 +42,14 @@ class Helpers:
         except:
             print(f'\033[91m[ FAILED ] "{locator}" element was not displayed.')
     
-    def wait_element_invisibility(self, driver, *keys, timeout=600):
+    def wait_element_invisibility(self, driver, *keys, absolute=False, timeout=600):
         try:
             locator = (By.CSS_SELECTOR, self.utils.data(*keys))
             element = WebDriverWait(driver, timeout)
-            element.until(EC.invisibility_of_element(locator))
+            if absolute:
+                element.until(EC.invisibility_of_element_located(locator))
+            else:  
+                element.until(EC.invisibility_of_element(locator))
         except:
             print(f'\033[91m[ FAILED ] "{locator}" element still diplayed.')
         

@@ -23,6 +23,7 @@ class Display(Helpers):
         : defines a nested function `verify_digitalresult` to check if digital
         : results are displayed for a new round.
         : determines the game type and verifies digital results accordingly.
+        : check_toast function is to ensure the toast is not dispalyed anymore
         : if the game type is 'baccarat', 'three-cards', 'dragontiger', or 'bull bull',
         : checks for the absence of digital results.
         : for 'sicbo' and 'roulette' games, verifies the absence of digital results.
@@ -30,29 +31,26 @@ class Display(Helpers):
 
         """
 
-        def verify_digital_result(driver, game, tableDealer):
-            digital = self.search_element(driver, 'digital results', game)
-            message = self.utils.debuggerMsg(tableDealer, 'Digital Result was not displayed in the new round')
-            self.utils.assertion(message, digital.is_displayed(), '==', False)
-            
-        def sedie_result():
+        def verify_digital_result(game, tableDealer):
+            self.wait_element_invisibility(driver, 'in-game', 'toast')
+            toast = self.search_element(driver, 'in-game', 'toast', status=True)
             try:
-                element = self.search_element(driver, 'digital results', 'sedie', status=True)
-                if element.is_displayed():
-                    return False
+                result = toast.is_displayed()
             except:
-                return True
+                result = False
 
-        if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
-            verify_digital_result(driver, 'bdt', tableDealer)
-        elif bet == 'sicbo':
-            verify_digital_result(driver, bet, tableDealer)
-        elif bet == 'roulette':
-            verify_digital_result(driver, bet, tableDealer)
-        else:
-            element = sedie_result()
+            self.utils.screenshot(driver, 'Result Digital', tableDealer[0])
             message = self.utils.debuggerMsg(tableDealer, 'Digital Result was not displayed in the new round')
-            self.utils.assertion(message, element, '==', True)
+            self.utils.assertion(message, result, '==', False)
+        
+        if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
+            verify_digital_result('bdt', tableDealer)
+        elif bet == 'sicbo':
+            verify_digital_result(bet, tableDealer)
+        elif bet == 'roulette':
+            verify_digital_result(bet, tableDealer)
+        elif bet == 'sedie':
+            verify_digital_result(bet, tableDealer)
             
         self.sum_of_placed_bets(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
 

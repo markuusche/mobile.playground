@@ -11,7 +11,7 @@ class Utilities:
         driver.save_screenshot(f'screenshots/{name} {val}.png')
 
     def debuggerMsg(self, tableDealer, msg="", msg2=""):
-        return f'[Table: {tableDealer[0]} Dealer: {tableDealer[1]}] '\
+        return f'[{tableDealer[0]}:{tableDealer[1]}] '\
             f'{msg} {msg2}'
 
     def deleteImages(self, folder, logs=False):
@@ -59,7 +59,6 @@ class Utilities:
     def getUuid(self, randomizer=False):
         id = uuid.uuid1().hex
         if randomizer:
-            pass
             abc = id[2:8]
             cba = abc[::-1]
             return f'{abc}{cba}'

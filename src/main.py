@@ -68,16 +68,10 @@ class Main(Helpers):
                             else:
                                 message = self.utils.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
                                 self.utils.assertion(message, all(results))
-
-                        winner = self.search_element(driver, 'in-game', 'toast')
-                        round_result = 'Round result' if winner is None else winner.text
-                        self.utils.screenshot(driver, round_result, tableDealer[0])
-                        self.wait_element_invisibility(driver, 'in-game','toast')
-                        self.wait_text_element(driver, 'in-game','toast', text='Please Place Your Bet!', timeout=5)
-                        self.wait_element_invisibility(driver, 'in-game','toast')
+                        
                         self.balance.player_balance_assertion(driver, bet)
                         self.display.digital_result(driver, bet, tableDealer)
-
+   
                         if bet == 'roulette':
                             self.display.roulette_race_tracker(driver, tableDealer)
 
@@ -145,7 +139,7 @@ class Main(Helpers):
                 games = self.utils.env('games', True)
                 
                 if bet in games:
-                    skip = self.skipper(gameName.text.strip(), tables, name)
+                    skip = self.skipper(f'{gameName.text.strip()}', tables, name)
                     if skip:
                         continue
                 
