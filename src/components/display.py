@@ -32,8 +32,9 @@ class Display(Helpers):
         """
 
         def verify_digital_result(game, tableDealer):
+            self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             self.wait_element_invisibility(driver, 'in-game', 'toast')
-            toast = self.search_element(driver, 'in-game', 'toast', status=True)
+            toast = self.search_element(driver, 'digital results', game, status=True)
             try:
                 result = toast.is_displayed()
             except:
@@ -45,11 +46,7 @@ class Display(Helpers):
         
         if bet in ['baccarat', 'three-cards', 'dragontiger', 'bull bull']:
             verify_digital_result('bdt', tableDealer)
-        elif bet == 'sicbo':
-            verify_digital_result(bet, tableDealer)
-        elif bet == 'roulette':
-            verify_digital_result(bet, tableDealer)
-        elif bet == 'sedie':
+        else:
             verify_digital_result(bet, tableDealer)
             
         self.sum_of_placed_bets(driver, bet, tableDealer, cancel=True, text='No placed chips after new round')
@@ -149,7 +146,6 @@ class Display(Helpers):
         total = 0.00
 
         if cancel:
-            print(chips)
             message = self.utils.debuggerMsg(tableDealer, f'{text} {chips}')
             self.utils.assertion(message, chips, '==', 0.00)
         else:

@@ -128,13 +128,14 @@ cards:
   -                                   K
 
 category:
-  baccarat:                           '.v-tabs__container .v-tabs__div.baccarat > a'
-  dragontiger:                        '.v-tabs__container .v-tabs__div.cards > a'
-  roulette:                           '.v-tabs__container .v-tabs__div.others > a'
-  sedie:                              '.v-tabs__container .v-tabs__div.others > a'
-  sicbo:                              '.v-tabs__container .v-tabs__div.others > a'
-  three-cards:                        '.v-tabs__container .v-tabs__div.cards > a'
-  bull bull:                          '.v-tabs__container .v-tabs__div.cards > a'
+  baccarat:                           '.v-tabs__div.baccarat > a'
+  dragontiger:                        '.v-tabs__div.dragontiger > a'
+  roulette:                           '.v-tabs__div.others > a'
+  sedie:                              '.v-tabs__div.others > a'
+  sicbo:                              '.v-tabs__div.others > a'
+  three-cards:                        '.v-tabs__div.poker > a'
+  bull bull:                          '.v-tabs__div.poker > a'
+  cards:                              '.v-tabs__div.cards > a'
 
 chat:
   button:                             'div#btn-chat'
@@ -253,6 +254,7 @@ lobby:
   balance:                            'div.user-info .user-data span'
   main:                               'div#tables-panel'
   table panel:                        '.table-card .card-header > div:first-child'
+  balance animation:                  'div.xs8 .v-image__image--preload'
 
   user:
     info:                             'div.user-info .user-avatar'

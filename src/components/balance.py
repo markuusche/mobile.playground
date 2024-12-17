@@ -1,5 +1,6 @@
 import random
 
+from time import sleep
 from src.api.services import Services
 from src.helpers.helpers import Helpers
 from src.utils.utils import Utilities
@@ -32,8 +33,8 @@ class Balance(Helpers):
         amount_str = f'{amount:.2f}'
         self.service.POST_ADD_BALANCE(amount_str)
         driver.refresh()
-        self.wait_element(driver, 'lobby', 'main')
-        self.wait_clickable(driver, 'category', game)
+        self.wait_element(driver, 'lobby', 'main', timeout=180)
+        self.wait_element_invisibility(driver, 'lobby', 'balance animation', absolute=True)
         elements = self.search_elements(driver, 'lobby', 'table panel')
         return elements
     

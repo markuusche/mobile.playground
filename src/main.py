@@ -35,6 +35,7 @@ class Main(Helpers):
         self.chips.edit_chips(driver, 20)
 
         while True:
+            tableDealer = self.table_dealer(driver)
             money = self.search_element(driver, 'in-game', 'balance')
             balance.append(money.text)
             timer = self.search_element(driver, 'in-game', 'timer')
@@ -69,8 +70,8 @@ class Main(Helpers):
                                 message = self.utils.debuggerMsg(tableDealer, 'Card Results in all round are flipped')
                                 self.utils.assertion(message, all(results))
                         
-                        self.balance.player_balance_assertion(driver, bet)
                         self.display.digital_result(driver, bet, tableDealer)
+                        self.balance.player_balance_assertion(driver, bet)
    
                         if bet == 'roulette':
                             self.display.roulette_race_tracker(driver, tableDealer)
@@ -115,7 +116,7 @@ class Main(Helpers):
 
     def play(self, driver, gsreport, bet, name=""):
         print('\n')
-        self.wait_element(driver, 'lobby', 'main')
+        self.wait_element(driver, 'lobby', 'main', timeout=180)
         self.wait_element(driver, 'in-game', 'botnav')
         self.wait_clickable(driver, 'lobby', 'user', 'info')
         self.wait_element(driver, 'lobby', 'user', 'user-modal')
@@ -129,9 +130,18 @@ class Main(Helpers):
         if gsreport:
             self.services.CREATE_GSHEET(driver)
 
-        self.wait_clickable(driver, 'category', bet)
+        navigation = ['dragontiger', 'three-cards', 'bull bull']
+        nav_locator = self.utils.data('category', bet)
+        if bet in navigation:
+            try:
+                self.utils.customJS(driver, f'click("{nav_locator}");')
+            except:
+                cards = self.utils.data('category', 'cards')
+                self.utils.customJS(driver, f'click("{cards});')
+        else:
+            self.utils.customJS(driver, f'click("{nav_locator}");')
+
         elements = self.search_elements(driver, 'lobby', 'table panel')
-        
         for element in range(len(elements)):
             try:
                 gameName = elements[element]

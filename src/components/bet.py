@@ -92,7 +92,6 @@ class Betting(Helpers):
                         betNames.pop(item)
 
                 self.wait_clickable(driver, 'in-game', 'payrate-modal')
-                self.utils.screenshot(driver, 'Minimum Bets', tableDealer[0])
                 self.wait_element(driver, 'in-game', 'modal-bet')
 
                 if game == 'sedie':
@@ -153,11 +152,11 @@ class Betting(Helpers):
                 self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
 
                 #start betting minimum bets
-                assertMin = []
                 bets = list(newData)
                 for bet in range(len(bets)):
                     sidebet = self.utils.data(game)
-                    amount = int(newData[bets[bet]]) - 1
+                    getMin = newData[bets[bet]].split(' ')[0]
+                    amount = int(getMin) - 1
                     self.chips.edit_chips(driver, add=True, amount=amount)
                     timer = self.search_element(driver, 'in-game', 'timer')
                     try:
@@ -184,16 +183,12 @@ class Betting(Helpers):
 
                     self.utils.customJS(driver, f'click("{betAction}");')
                     self.utils.customJS(driver, f'click("{self.utils.data("action", "confirm")}");')
-                    status = self.wait_text_element(driver, 'in-game', 'toast', text='Below Minimum Limit', timeout=1.2)
-                    if status:
-                        assertMin.append(True)
-                    else:
-                        self.utils.screenshot(driver, 'Minimum bet failed', tableDealer[0])
-                        print(f'[{tableDealer[0]}] Locator: {betAction}')
-                        assertMin.append(False)
 
+                self.utils.screenshot(driver, 'Minimum Bets', tableDealer[0])
+                bet_area_chips = self.chips.get_chip_value(driver)
                 message = self.utils.debuggerMsg(tableDealer, 'Minimum Bet Betting')
-                self.utils.assertion(message, all(assertMin))
+                self.utils.assertion(message, bet_area_chips, '==', 0)
+
                 if game == 'bull bull':
                     self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
             else:
@@ -225,7 +220,6 @@ class Betting(Helpers):
         : if `placeconfirm` is true, wait for the 'confirm' button to become clickable after placing each bet.
         """
 
-        self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
         loopRange = 10 if game in ['sicbo', 'roulette'] else len(betArea)
         s6 = random.choice(range(2))
         if placeConfirm:
@@ -275,6 +269,9 @@ class Betting(Helpers):
                 self.wait_element(driver, 'in-game', 'toast')
                 self.results.card_flips(driver, tableDealer, results)
 
+        if game == 'bull bull':
+            self.chips.edit_chips(driver, 30)
+            
         self.betting(driver, betArea, game)
         chips = self.chips.get_chip_value(driver)
         message = self.utils.debuggerMsg(tableDealer, '\033[93mChips are being placed.')
@@ -348,12 +345,16 @@ class Betting(Helpers):
                         if 'EQUAL' in bet:
                             equalBet.append(bet)
 
-                    randomSelect = random.choice(range(len(equalBet)))
-                    if coins.text != '0.00':
-                        self.utils.customJS(driver, f'click("{self.utils.data(game, equalBet[randomSelect])}");')
-                        self.utils.customJS(driver, f'click("{self.utils.data("action", "confirm")}");')
-                        self.wait_element(driver, 'in-game','toast')
-                        self.wait_element_invisibility(driver, 'in-game','toast')
+                    while True:
+                        coins = self.search_element(driver, 'in-game','balance')
+                        if coins.text != '0.00':
+                            randomSelect = random.choice(range(len(equalBet)))
+                            self.utils.customJS(driver, f'click("{self.utils.data(game, equalBet[randomSelect])}");')
+                            insufficient = self.utils.customJS(driver, 'toast_check("Insufficient Balance");')
+
+                            if insufficient:
+                                self.utils.customJS(driver, f'click("{self.utils.data("action", "confirm")}");')
+                        else: break
                 else:
                     self.wait_text_element(driver, 'in-game', 'balance', text='0.00', timeout=10)
                 break
