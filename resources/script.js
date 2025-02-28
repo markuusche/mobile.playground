@@ -1,10 +1,13 @@
 function toast_check(text) {
-    let digitalElement = document.querySelector('div#bet-msg-toast div');
+    let digitalElement = document.querySelectorAll('#toast-container .toast-item');
     if (digitalElement) {
-        if (digitalElement.textContent.trim() === text) {
-            return true;
+        for (let element of digitalElement) {
+            if (element.textContent.trim() === text) {
+                return true;
+            }
         }
     }
+
     return false;
 }
 

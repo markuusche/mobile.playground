@@ -257,6 +257,9 @@ class Betting(Helpers):
         : calculate the sum of all bets placed on the game table using `sumbetplaced`, indicating a cancellation action.
         """
 
+        def chips():
+            return self.chips.get_chip_value(driver)
+
         def assert_cancelled_bet(driver, game, tableDealer, texts):
             self.wait_clickable(driver, 'action', 'cancel')
             self.utils.screenshot(driver, texts, tableDealer[0])
@@ -264,8 +267,8 @@ class Betting(Helpers):
 
         def card_flipped(driver, game, tableDealer, results):
             if game in ['baccarat', 'dragontiger', 'three-cards', 'bull bull']:
-                self.wait_text_element(driver, 'in-game','toast', text='No More Bets!')
-                self.wait_element_invisibility(driver, 'in-game', 'toast')
+                self.wait_text_element(driver, 'in-game', 'toast', text='No More Bets!')
+                self.wait_element_invisibility(driver, 'in-game', 'toast', absolute=True)
                 self.wait_element(driver, 'in-game', 'toast')
                 self.results.card_flips(driver, tableDealer, results)
 
@@ -273,12 +276,12 @@ class Betting(Helpers):
             self.chips.edit_chips(driver, 30)
             
         self.betting(driver, betArea, game)
-        chips = self.chips.get_chip_value(driver)
-        message = self.utils.debuggerMsg(tableDealer, '\033[93mChips are being placed.')
-        self.utils.assertion(message, chips, '>', 0, notice=True)
-
-        assert_cancelled_bet(driver, game, tableDealer, 'Chip placed & cancelled!')
+        message = self.utils.debuggerMsg(tableDealer, f'\033[93mChips are being place {chips()}')
+        self.utils.assertion(message, chips(), '>', 0, notice=True)
+        assert_cancelled_bet(driver, game, tableDealer, 'Chip placed & Cancelled!')
         self.betting(driver, betArea, game, placeConfirm=True)
+        message = self.utils.debuggerMsg(tableDealer, f'\033[93mPlacing Chips & Confirmed {chips()}')
+        self.utils.assertion(message, chips(), '>', 0, notice=True)
         card_flipped(driver, game, tableDealer, results)
         self.wait_text_element(driver, 'in-game', 'toast', text='Please Place Your Bet!')
         self.wait_clickable(driver, 'action', 'rebet')
@@ -291,6 +294,8 @@ class Betting(Helpers):
             assert_cancelled_bet(driver, game, tableDealer, 'Rebet & Cancelled!')
             self.wait_clickable(driver, 'action', 'rebet')
             self.utils.customJS(driver, f'click(`{self.utils.data("action", "confirm")}`);')
+            message = self.utils.debuggerMsg(tableDealer, f'\033[93mPrevious Chips Rebet {chips()}')
+            self.utils.assertion(message, chips(), '>', 0, notice=True)
             self.utils.screenshot(driver, 'Rebet & Confirmed!', tableDealer[0])
             card_flipped(driver, game, tableDealer, results)
             

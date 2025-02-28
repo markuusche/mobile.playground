@@ -179,6 +179,7 @@ history:
   close card:                         'div.close-result-card .v-responsive__content'
   data table:                         'div.xs12.mt-2 .v-table__overflow'
   detail:                             'div.data-table tbody .bet-code'
+  data rows:                          'div.data-table tbody tr'
   expand:                             'div.history-more .v-responsive__content'
   filter:                             'div#app > div:nth-child(3) .v-list .v-list__tile__title'
   filter dropdown:                    'div.flex.xs6:last-child .v-responsive__content'
@@ -197,7 +198,7 @@ history:
 
 in-game:
   back:                               'div#btn-exit'
-  balance:                            'div.user-data.balance span'
+  balance:                            '#user-info div.balance > span'
   bet-buttons:                        'div#bet-buttons'
   bet-limit:                          'div.flex.bet-label.xs8 span'
   bets:                               'div.bets-info span'
@@ -243,15 +244,15 @@ in-game:
   switch:                             'div.v-input__slot'
   tableNumber:                        'div.table-number span:first-child'
   timer:                              'div#table-state-wrap .v-progress-circular__info span'
-  toast:                              'div#bet-msg-toast div'
+  toast:                              'div#toast-container .toast-item'
   totalMoney:                         'div.user-bet-chip span'
   tc-main-loss:                       'div.bet-table-all:not(.is-result)'
   video-toggled:                      'div#game-setting .mb-3:nth-child(8) > div:first-child'
   winloss:                            'div.winlose-info'
-  win results:                        'div.is-result'
+  win results:                        'div.is-result .fluid'
 
 lobby:
-  balance:                            'div.user-info .user-data span'
+  balance:                            'div.user-info .balance span'
   main:                               'div#tables-panel'
   table panel:                        '.table-card .card-header > div:first-child'
   balance animation:                  'div.xs8 .v-image__image--preload'
